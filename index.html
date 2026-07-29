@@ -14,6 +14,7 @@
         <button id="btn-add-node" class="tool-btn" title="Add a radio node (N)">+ Add Node</button>
         <button id="btn-link-mode" class="tool-btn" title="Create a link between two nodes (L)">⟋ Link Nodes</button>
         <button id="btn-clear" class="tool-btn danger" title="Remove all nodes and links">Clear</button>
+        <button id="btn-advisor" class="tool-btn" title="Describe your mission and get recommended configurations">🎯 Plan Advisor</button>
         <button id="btn-save" class="tool-btn" title="Download this layout as a .json file">💾 Save</button>
         <button id="btn-load" class="tool-btn" title="Load a layout .json file">📂 Load</button>
         <input type="file" id="file-load" accept=".json" style="display:none" />
@@ -37,6 +38,22 @@
         <button id="profile-close">✕</button>
       </div>
       <canvas id="profile-canvas"></canvas>
+    </div>
+  </div>
+  <div id="advisor-modal" class="hidden">
+    <div id="advisor-box">
+      <div id="advisor-head"><b>🎯 Plan Advisor</b><span class="adv-sub">What do you want to accomplish?</span><button id="advisor-close">✕</button></div>
+      <div id="advisor-form">
+        <div class="adv-row"><label>Mission</label><select id="adv-scenario"></select></div>
+        <div class="adv-row"><label>Required range</label><input type="number" id="adv-range" value="5" min="0.1" step="0.5"/> <span>km</span></div>
+        <div class="adv-row"><label>Required throughput</label><input type="number" id="adv-mbps" value="5" min="0.1" step="0.5"/> <span>Mbps</span>
+          <select id="adv-preset"><option value="">presets…</option><option value="0.25">Telemetry only (0.25)</option><option value="3">Telemetry + SD video (3)</option><option value="5">Telemetry + HD video (5)</option><option value="15">HD multi-stream (15)</option><option value="40">Backhaul (40)</option></select></div>
+        <div class="adv-row"><label><input type="checkbox" id="adv-gov"/> Government / licensed bands allowed</label></div>
+        <div class="adv-row"><label><input type="checkbox" id="adv-bda" checked/> Boost BDA allowed if needed</label></div>
+        <button id="adv-run" class="tool-btn adv-run">Recommend configurations</button>
+      </div>
+      <div id="advisor-results"></div>
+      <div class="adv-note">Estimates use the Doodle Labs official link-budget methodology (10 dB fade margin, conservative sensitivities, 1 dB cable allowance per side). Terrain along the actual deployment path still applies — apply a configuration to the map to check it against real terrain.</div>
     </div>
   </div>
   <script type="module" src="/src/main.js"></script>

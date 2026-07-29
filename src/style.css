@@ -93,3 +93,33 @@ html, body, #app { height: 100%; font-family: 'Segoe UI', system-ui, sans-serif;
 .leg-row { display: flex; align-items: center; gap: 7px; padding: 1px 0; }
 .leg-swatch { width: 14px; height: 10px; border-radius: 2px; display: inline-block; }
 .leg-note { color: #91a7c0; margin-top: 5px; }
+
+#advisor-modal {
+  position: fixed; inset: 0; background: rgba(10,14,18,.55); z-index: 50;
+  display: flex; align-items: center; justify-content: center;
+}
+#advisor-modal.hidden { display: none; }
+#advisor-box {
+  background: #fff; border-radius: 12px; width: min(680px, 94vw); max-height: 88vh;
+  display: flex; flex-direction: column; box-shadow: 0 12px 40px rgba(0,0,0,.35); overflow: hidden;
+}
+#advisor-head { display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: #101418; color: #fff; }
+.adv-sub { color: #91a7c0; font-size: 12px; }
+#advisor-head button { margin-left: auto; background: none; border: none; color: #adb5bd; font-size: 15px; cursor: pointer; }
+#advisor-form { padding: 14px 16px; border-bottom: 1px solid #e9ecef; font-size: 13px; }
+.adv-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.adv-row label { flex: 0 0 auto; min-width: 150px; color: #343a40; }
+.adv-row input[type=number] { width: 80px; padding: 4px 6px; border: 1px solid #ced4da; border-radius: 4px; }
+.adv-row select { padding: 4px 6px; border: 1px solid #ced4da; border-radius: 4px; max-width: 320px; }
+.adv-run { width: 100%; background: #1c7ed6 !important; color: #fff !important; border: none !important; margin-top: 4px; }
+#advisor-results { overflow-y: auto; padding: 10px 16px; flex: 1; }
+.adv-card { border: 1px solid #dee2e6; border-radius: 8px; padding: 10px 12px; margin-bottom: 10px; font-size: 13px; }
+.adv-card.best { border-color: #2f9e44; box-shadow: 0 0 0 2px rgba(47,158,68,.15); }
+.adv-card h4 { font-size: 13px; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+.adv-tag { font-size: 11px; padding: 1px 7px; border-radius: 9px; background: #e7f5ec; color: #2b8a3e; }
+.adv-tag.warn { background: #fff4e6; color: #d9480f; }
+.adv-tag.gov { background: #edf2ff; color: #3b5bdb; }
+.adv-detail { color: #495057; line-height: 1.55; }
+.adv-apply { float: right; }
+.adv-note { padding: 8px 16px; font-size: 11px; color: #868e96; border-top: 1px solid #e9ecef; }
+.adv-empty { color: #868e96; text-align: center; padding: 16px; font-size: 13px; }

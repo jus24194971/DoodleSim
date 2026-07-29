@@ -5,6 +5,7 @@ import { RADIOS, BANDS, CHANNEL_WIDTHS, PLATFORMS, CABLES, cableLossDb } from '.
 import { terrainProfile, haversineM, bearingDeg, destination } from './terrain.js';
 import { analyzePath, evaluateLink, fsplDb, throughputMbps, patternLossDb, elevationAngleDeg, angDiff } from './engine.js';
 import { computeCoverage, colorForMcs } from './coverage.js';
+import { SCENARIOS, recommend } from './advisor.js';
 
 // ---------- State ----------
 let nodes = []; // {id, label, lngLat, marker, radioId, bandId, freqMhz, bwMhz, powerDbm, antennaGain, heightM, cableLoss, bdaGain, platform}
@@ -73,7 +74,15 @@ document.getElementById('basemap-toggle').addEventListener('change', (e) => {
 });
 
 // ---------- Antenna catalog ----------
-fetch('/data/antennas_app.json').then((r) => r.json()).then((d) => { antennaCatalog = d.antennas; renderSidebar(); });
+Promise.all([
+  fetch('/data/antennas_app.json').then((r) => r.json()),
+  fetch('/data/antennas_recommended.json').then((r) => r.json()).catch(() => ({ antennas: [] })),
+]).then(([verified, rec]) => {
+  const dedupe = new Set(verified.antennas.map((a) => ((a.manufacturer || '') + a.model).toLowerCase().replace(/\s/g, '')));
+  const extra = rec.antennas.filter((a) => !dedupe.has(((a.manufacturer || '') + a.model).toLowerCase().replace(/\s/g, '')));
+  antennaCatalog = [...rec.antennas.filter((a) => extra.includes(a)), ...verified.antennas];
+  renderSidebar();
+});
 
 function antennasForFreq(freqMhz) {
   return antennaCatalog.filter((a) => a.band_mhz[0] <= freqMhz && a.band_mhz[1] >= freqMhz);
@@ -200,6 +209,82 @@ document.getElementById('file-load').addEventListener('change', async (e) => {
   catch (err) { alert('Could not read layout file: ' + err.message); }
   e.target.value = '';
 });
+
+// ---------- Plan Advisor ----------
+const advModal = document.getElementById('advisor-modal');
+document.getElementById('adv-scenario').innerHTML = SCENARIOS.map((s) => `<option value="${s.id}">${s.label}</option>`).join('');
+document.getElementById('btn-advisor').addEventListener('click', () => advModal.classList.remove('hidden'));
+document.getElementById('advisor-close').addEventListener('click', () => advModal.classList.add('hidden'));
+advModal.addEventListener('click', (e) => { if (e.target === advModal) advModal.classList.add('hidden'); });
+document.getElementById('adv-preset').addEventListener('change', (e) => {
+  if (e.target.value) document.getElementById('adv-mbps').value = e.target.value;
+  e.target.value = '';
+});
+
+document.getElementById('adv-run').addEventListener('click', () => {
+  const inputs = {
+    scenarioId: document.getElementById('adv-scenario').value,
+    rangeKm: parseFloat(document.getElementById('adv-range').value) || 5,
+    throughputMbps: parseFloat(document.getElementById('adv-mbps').value) || 5,
+    allowGovBands: document.getElementById('adv-gov').checked,
+    allowBda: document.getElementById('adv-bda').checked,
+    catalog: antennaCatalog,
+  };
+  const { scen, top } = recommend(inputs);
+  const box = document.getElementById('advisor-results');
+  if (!top.length) {
+    box.innerHTML = `<div class="adv-empty">No configuration reaches ${inputs.rangeKm} km @ ${inputs.throughputMbps} Mbps with the current constraints.<br/>
+      Try: lower throughput (narrower channels reach further), allow government bands or a Boost BDA, raise antenna heights, or split the path with a relay node.</div>`;
+    return;
+  }
+  box.innerHTML = top.map((r, i) => `
+    <div class="adv-card ${i === 0 ? 'best' : ''}">
+      <h4>${i === 0 ? '🏆 ' : ''}${r.radio} · ${r.band}
+        ${r.bdaDb ? '<span class="adv-tag warn">+ Boost BDA</span>' : ''}
+        ${r.isGov ? '<span class="adv-tag gov">licensed band</span>' : ''}
+        <span class="adv-tag">+${r.marginDb.toFixed(0)} dB margin</span>
+        <button class="tool-btn adv-apply" data-apply="${i}">Apply to map</button></h4>
+      <div class="adv-detail">
+        <b>${scen.a.name}:</b> ${r.antA.doodle_recommended ? '★ ' : ''}${r.antA.manufacturer} ${r.antA.model} (${r.antA.gain_dbi} dBi ${r.antA.pattern}) @ ${scen.a.height} m<br/>
+        <b>${scen.b.name}:</b> ${r.antB.doodle_recommended ? '★ ' : ''}${r.antB.manufacturer} ${r.antB.model} (${r.antB.gain_dbi} dBi ${r.antB.pattern}) @ ${scen.b.height} m<br/>
+        ${r.freqMhz} MHz · ${r.bwMhz} MHz channel · MCS ${r.mcs} → ~${r.mbps.toFixed(1)} Mbps usable · reaches ~${r.reachKm.toFixed(1)} km${r.bdaDb ? ' · BDA +13 dB TX' : ''}
+      </div>
+    </div>`).join('');
+  box.querySelectorAll('[data-apply]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      applyAdvisorConfig(top[parseInt(btn.dataset.apply)], scen, inputs.rangeKm);
+      advModal.classList.add('hidden');
+    });
+  });
+});
+
+function applyAdvisorConfig(r, scen, rangeKm) {
+  const c = map.getCenter();
+  const half = (rangeKm * 1000) / 2;
+  const posA = destination(c.lng, c.lat, 270, half);
+  const posB = destination(c.lng, c.lat, 90, half);
+  const mk = (pos, side, ant, azTo) => {
+    addNode(pos);
+    const n = nodes[nodes.length - 1];
+    Object.assign(n, {
+      label: side.name, platform: side.platform, heightM: side.height,
+      radioId: r.radioId, bandId: r.bandId, freqMhz: r.freqMhz, bwMhz: r.bwMhz,
+      powerDbm: RADIOS.find((x) => x.id === r.radioId).maxConfig,
+      antennaId: antennaCatalog.some((a) => a.id === ant.id) ? ant.id : null,
+      antennaGain: ant.gain_dbi, azimuthDeg: azTo,
+      bdaGain: r.bdaDb || 0, cableType: 'c400',
+      cableLenM: side.platform === 'mast' ? Math.max(2, side.height + 2) : 2,
+    });
+    const auto = cableLossDb(n.cableType, n.cableLenM, n.freqMhz);
+    if (auto !== null) n.cableLoss = auto;
+    return n;
+  };
+  const nA = mk(posA, scen.a, r.antA, 90);
+  const nB = mk(posB, scen.b, r.antB, 270);
+  links.push({ id: `${nA.id}-${nB.id}`, a: nA, b: nB, result: null, pathAnalysis: null, profile: null });
+  refreshBeams(); renderSidebar(); recomputeAllLinks(); persistState();
+  map.fitBounds([[posA.lng, posA.lat], [posB.lng, posB.lat]], { padding: 80 });
+}
 
 // restore autosaved layout on boot (after map + catalog ready)
 map.once('idle', () => {
@@ -473,7 +558,7 @@ function renderSidebar() {
       <div class="row"><label>TX power (dBm)</label><input type="number" data-f="powerDbm" value="${node.powerDbm}" min="0" max="${radio.maxConfig}"/></div>
       <div class="row"><label>Antenna</label><select data-f="antennaId">
         <option value="">Custom gain…</option>
-        ${ants.map((a) => `<option value="${a.id}" ${a.id === node.antennaId ? 'selected' : ''}>${(a.manufacturer || '').split(' ')[0]} ${a.model} (${a.gain_dbi} dBi ${a.pattern})</option>`).join('')}
+        ${[...ants].sort((x, y) => (y.doodle_recommended ? 1 : 0) - (x.doodle_recommended ? 1 : 0) || y.gain_dbi - x.gain_dbi).map((a) => `<option value="${a.id}" ${a.id === node.antennaId ? 'selected' : ''}>${a.doodle_recommended ? '★ ' : ''}${(a.manufacturer || '').split(' ')[0]} ${a.model} (${a.gain_dbi} dBi ${a.pattern})</option>`).join('')}
       </select></div>
       <div class="row"><label>Ant. gain (dBi)</label><input type="number" data-f="antennaGain" value="${node.antennaGain}" step="0.5" ${node.antennaId ? 'disabled' : ''}/></div>
       ${node.antennaId ? `<div class="row"><label>Beamwidth az/el</label><span class="pat-info">${getPattern(node).directional ? getPattern(node).hpbwAz + '° / ' + getPattern(node).hpbwEl + '°' : 'omni / ' + getPattern(node).hpbwEl + '°'}</span></div>`

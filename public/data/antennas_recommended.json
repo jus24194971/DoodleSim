@@ -1,0 +1,902 @@
+{
+ "antennas": [
+  {
+   "id": "rec-kp-performance-kppa-900dpy17",
+   "manufacturer": "KP Performance",
+   "model": "KPPA-900DPY17",
+   "band_mhz": [
+    880.0,
+    960.0
+   ],
+   "bands_mhz": [
+    [
+     880.0,
+     960.0
+    ]
+   ],
+   "gain_dbi": 17.5,
+   "pattern": "directional",
+   "hpbw_az_deg": 40,
+   "hpbw_el_deg": 35,
+   "type": "Yagi",
+   "tier": "commercial",
+   "doodle_recommended": true,
+   "already_in_verified_catalog": false
+  },
+  {
+   "id": "rec-truerc-trurc-gatling",
+   "manufacturer": "TrueRC",
+   "model": "TRURC Gatling",
+   "band_mhz": [
+    2352.0,
+    2496.0
+   ],
+   "bands_mhz": [
+    [
+     2352.0,
+     2496.0
+    ]
+   ],
+   "gain_dbi": 16.0,
+   "pattern": "directional",
+   "hpbw_az_deg": 60,
+   "hpbw_el_deg": 60,
+   "type": "Patch",
+   "tier": "commercial",
+   "doodle_recommended": true,
+   "already_in_verified_catalog": false
+  },
+  {
+   "id": "rec-kp-performance-kp-5ha-45-n",
+   "manufacturer": "KP Performance",
+   "model": "KP-5HA-45-N",
+   "band_mhz": [
+    4900.0,
+    6400.0
+   ],
+   "bands_mhz": [
+    [
+     4900.0,
+     6400.0
+    ]
+   ],
+   "gain_dbi": 16.0,
+   "pattern": "directional",
+   "hpbw_az_deg": 40,
+   "hpbw_el_deg": 40,
+   "type": "Horn",
+   "tier": "commercial",
+   "doodle_recommended": true,
+   "already_in_verified_catalog": false
+  },
+  {
+   "id": "rec-southwest-antennas-1055-011",
+   "manufacturer": "Southwest Antennas",
+   "model": "1055-011",
+   "band_mhz": [
+    4400.0,
+    7400.0
+   ],
+   "bands_mhz": [
+    [
+     4400.0,
+     7400.0
+    ]
+   ],
+   "gain_dbi": 15.0,
+   "pattern": "directional",
+   "hpbw_az_deg": 60,
+   "hpbw_el_deg": 60,
+   "type": "Patch",
+   "tier": "commercial",
+   "doodle_recommended": true,
+   "already_in_verified_catalog": false
+  },
+  {
+   "id": "rec-mars-antennas-ma-wa22-dp14",
+   "manufacturer": "Mars Antennas",
+   "model": "MA-WA22-DP14",
+   "band_mhz": [
+    1700.0,
+    2700.0
+   ],
+   "bands_mhz": [
+    [
+     1700.0,
+     2700.0
+    ]
+   ],
+   "gain_dbi": 14.0,
+   "pattern": "directional",
+   "hpbw_az_deg": 60,
+   "hpbw_el_deg": 60,
+   "type": "Patch",
+   "tier": "commercial",
+   "doodle_recommended": true,
+   "already_in_verified_catalog": false
+  },
+  {
+   "id": "rec-mars-antennas-ma-wc90-ds13",
+   "manufacturer": "Mars Antennas",
+   "model": "MA-WC90-DS13",
+   "band_mhz": [
+    850.0,
+    960.0
+   ],
+   "bands_mhz": [
+    [
+     850.0,
+     960.0
+    ]
+   ],
+   "gain_dbi": 13.0,
+   "pattern": "directional",
+   "hpbw_az_deg": 90,
+   "hpbw_el_deg": 10,
+   "type": "Sector",
+   "tier": "commercial",
+   "doodle_recommended": true,
+   "already_in_verified_catalog": false
+  },
+  {
+   "id": "rec-southwest-antennas-1009-015",
+   "manufacturer": "Southwest Antennas",
+   "model": "1009-015",
+   "band_mhz": [
+    1625.0,
+    2500.0
+   ],
+   "bands_mhz": [
+    [
+     1625.0,
+     2500.0
+    ]
+   ],
+   "gain_dbi": 12.0,
+   "pattern": "directional",
+   "hpbw_az_deg": 60,
+   "hpbw_el_deg": 60,
+   "type": "Patch",
+   "tier": "commercial",
+   "doodle_recommended": true,
+   "already_in_verified_catalog": true
+  },
+  {
+   "id": "rec-truerc-x-air-2-4-mk-ii",
+   "manufacturer": "TrueRC",
+   "model": "X-AIR 2.4 MK. II",
+   "band_mhz": [
+    2352.0,
+    2496.0
+   ],
+   "bands_mhz": [
+    [
+     2352.0,
+     2496.0
+    ]
+   ],
+   "gain_dbi": 10.0,
+   "pattern": "directional",
+   "hpbw_az_deg": 60,
+   "hpbw_el_deg": 60,
+   "type": "Patch",
+   "tier": "commercial",
+   "doodle_recommended": true,
+   "already_in_verified_catalog": false
+  },
+  {
+   "id": "rec-mars-antennas-ma-wo-56-dp10",
+   "manufacturer": "Mars Antennas",
+   "model": "MA-WO-56-DP10",
+   "band_mhz": [
+    4900.0,
+    5900.0
+   ],
+   "bands_mhz": [
+    [
+     4900.0,
+     5900.0
+    ]
+   ],
+   "gain_dbi": 10.0,
+   "pattern": "omni",
+   "hpbw_az_deg": 360,
+   "hpbw_el_deg": 15,
+   "type": "Omni",
+   "tier": "commercial",
+   "doodle_recommended": true,
+   "already_in_verified_catalog": false
+  },
+  {
+   "id": "rec-southwest-antennas-1004-005",
+   "manufacturer": "Southwest Antennas",
+   "model": "1004-005",
+   "band_mhz": [
+    4000.0,
+    6400.0
+   ],
+   "bands_mhz": [
+    [
+     4000.0,
+     6400.0
+    ]
+   ],
+   "gain_dbi": 9.0,
+   "pattern": "directional",
+   "hpbw_az_deg": 60,
+   "hpbw_el_deg": 60,
+   "type": "Patch",
+   "tier": "commercial",
+   "doodle_recommended": true,
+   "already_in_verified_catalog": true
+  },
+  {
+   "id": "rec-kp-performance-kp-5dpfp-9-nf",
+   "manufacturer": "KP Performance",
+   "model": "KP-5DPFP-9-NF",
+   "band_mhz": [
+    4400.0,
+    6400.0
+   ],
+   "bands_mhz": [
+    [
+     4400.0,
+     6400.0
+    ]
+   ],
+   "gain_dbi": 9.0,
+   "pattern": "directional",
+   "hpbw_az_deg": 60,
+   "hpbw_el_deg": 60,
+   "type": "Patch",
+   "tier": "commercial",
+   "doodle_recommended": true,
+   "already_in_verified_catalog": false
+  },
+  {
+   "id": "rec-mars-antennas-ma-wa22-dp8",
+   "manufacturer": "Mars Antennas",
+   "model": "MA-WA22-DP8",
+   "band_mhz": [
+    1700.0,
+    2700.0
+   ],
+   "bands_mhz": [
+    [
+     1700.0,
+     2700.0
+    ]
+   ],
+   "gain_dbi": 8.0,
+   "pattern": "directional",
+   "hpbw_az_deg": 60,
+   "hpbw_el_deg": 60,
+   "type": "Patch",
+   "tier": "commercial",
+   "doodle_recommended": true,
+   "already_in_verified_catalog": false
+  },
+  {
+   "id": "rec-mars-antennas-ma-wa-27tb-dp8b",
+   "manufacturer": "Mars Antennas",
+   "model": "MA-WA-27TB-DP8B",
+   "band_mhz": [
+    698.0,
+    5900.0
+   ],
+   "bands_mhz": [
+    [
+     698.0,
+     960.0
+    ],
+    [
+     1700.0,
+     2300.0
+    ],
+    [
+     2300.0,
+     2700.0
+    ],
+    [
+     5100.0,
+     5900.0
+    ]
+   ],
+   "gain_dbi": 7.5,
+   "pattern": "directional",
+   "hpbw_az_deg": 60,
+   "hpbw_el_deg": 60,
+   "type": "Patch",
+   "tier": "commercial",
+   "doodle_recommended": true,
+   "already_in_verified_catalog": false
+  },
+  {
+   "id": "rec-kp-performance-kp-24vomni-6",
+   "manufacturer": "KP Performance",
+   "model": "KP-24VOMNI-6",
+   "band_mhz": [
+    2400.0,
+    2500.0
+   ],
+   "bands_mhz": [
+    [
+     2400.0,
+     2500.0
+    ]
+   ],
+   "gain_dbi": 6.0,
+   "pattern": "omni",
+   "hpbw_az_deg": 360,
+   "hpbw_el_deg": 15,
+   "type": "Omni",
+   "tier": "commercial",
+   "doodle_recommended": true,
+   "already_in_verified_catalog": false
+  },
+  {
+   "id": "rec-kp-performance-kp-58-spoma-6-nf",
+   "manufacturer": "KP Performance",
+   "model": "KP-58-SPOMA-6-NF",
+   "band_mhz": [
+    5100.0,
+    5900.0
+   ],
+   "bands_mhz": [
+    [
+     5100.0,
+     5900.0
+    ]
+   ],
+   "gain_dbi": 6.0,
+   "pattern": "omni",
+   "hpbw_az_deg": 360,
+   "hpbw_el_deg": 15,
+   "type": "Omni",
+   "tier": "commercial",
+   "doodle_recommended": true,
+   "already_in_verified_catalog": false
+  },
+  {
+   "id": "rec-truerc-true-mox-2-4",
+   "manufacturer": "TrueRC",
+   "model": "TRUE-MOX 2.4",
+   "band_mhz": [
+    2352.0,
+    2496.0
+   ],
+   "bands_mhz": [
+    [
+     2352.0,
+     2496.0
+    ]
+   ],
+   "gain_dbi": 5.9,
+   "pattern": "directional",
+   "hpbw_az_deg": 60,
+   "hpbw_el_deg": 60,
+   "type": "Patch",
+   "tier": "commercial",
+   "doodle_recommended": true,
+   "already_in_verified_catalog": false
+  },
+  {
+   "id": "rec-pasternack-pe51078",
+   "manufacturer": "Pasternack",
+   "model": "PE51078",
+   "band_mhz": [
+    2352.0,
+    2496.0
+   ],
+   "bands_mhz": [
+    [
+     2352.0,
+     2496.0
+    ]
+   ],
+   "gain_dbi": 5.5,
+   "pattern": "omni",
+   "hpbw_az_deg": 360,
+   "hpbw_el_deg": 15,
+   "type": "Omni",
+   "tier": "commercial",
+   "doodle_recommended": true,
+   "already_in_verified_catalog": true
+  },
+  {
+   "id": "rec-southwest-antennas-2001-111",
+   "manufacturer": "Southwest Antennas",
+   "model": "2001-111",
+   "band_mhz": [
+    5200.0,
+    5900.0
+   ],
+   "bands_mhz": [
+    [
+     5200.0,
+     5900.0
+    ]
+   ],
+   "gain_dbi": 3.8,
+   "pattern": "omni",
+   "hpbw_az_deg": 360,
+   "hpbw_el_deg": 15,
+   "type": "Omni",
+   "tier": "commercial",
+   "doodle_recommended": true,
+   "already_in_verified_catalog": false
+  },
+  {
+   "id": "rec-te-connectivity-l9000020-01",
+   "manufacturer": "TE Connectivity",
+   "model": "L9000020-01",
+   "band_mhz": [
+    2352.0,
+    2496.0
+   ],
+   "bands_mhz": [
+    [
+     2352.0,
+     2496.0
+    ]
+   ],
+   "gain_dbi": 3.2,
+   "pattern": "omni",
+   "hpbw_az_deg": 360,
+   "hpbw_el_deg": 15,
+   "type": "Omni",
+   "tier": "commercial",
+   "doodle_recommended": true,
+   "already_in_verified_catalog": false
+  },
+  {
+   "id": "rec-doodle-labs-ant-1700-3-o",
+   "manufacturer": "Doodle Labs",
+   "model": "ANT-1700-3-O",
+   "band_mhz": [
+    694.0,
+    2750.0
+   ],
+   "bands_mhz": [
+    [
+     694.0,
+     960.0
+    ],
+    [
+     1710.0,
+     2750.0
+    ]
+   ],
+   "gain_dbi": 3.0,
+   "pattern": "omni",
+   "hpbw_az_deg": 360,
+   "hpbw_el_deg": 15,
+   "type": "Omni multipolarized",
+   "tier": "commercial",
+   "doodle_recommended": true,
+   "already_in_verified_catalog": false
+  },
+  {
+   "id": "rec-doodle-labs-ant-2025-3-o",
+   "manufacturer": "Doodle Labs",
+   "model": "ANT-2025-3-O",
+   "band_mhz": [
+    1625.0,
+    2500.0
+   ],
+   "bands_mhz": [
+    [
+     1625.0,
+     2500.0
+    ]
+   ],
+   "gain_dbi": 3.0,
+   "pattern": "omni",
+   "hpbw_az_deg": 360,
+   "hpbw_el_deg": 15,
+   "type": "Omni multipolarized",
+   "tier": "commercial",
+   "doodle_recommended": true,
+   "already_in_verified_catalog": false
+  },
+  {
+   "id": "rec-doodle-labs-ant-2450-3-o",
+   "manufacturer": "Doodle Labs",
+   "model": "ANT-2450-3-O",
+   "band_mhz": [
+    2352.0,
+    2496.0
+   ],
+   "bands_mhz": [
+    [
+     2352.0,
+     2496.0
+    ]
+   ],
+   "gain_dbi": 3.0,
+   "pattern": "omni",
+   "hpbw_az_deg": 360,
+   "hpbw_el_deg": 15,
+   "type": "Omni multipolarized",
+   "tier": "commercial",
+   "doodle_recommended": true,
+   "already_in_verified_catalog": false
+  },
+  {
+   "id": "rec-doodle-labs-ant-915-3-o",
+   "manufacturer": "Doodle Labs",
+   "model": "ANT-915-3-O",
+   "band_mhz": [
+    896.6999999999999,
+    951.6
+   ],
+   "bands_mhz": [
+    [
+     896.6999999999999,
+     951.6
+    ]
+   ],
+   "gain_dbi": 3.0,
+   "pattern": "omni",
+   "hpbw_az_deg": 360,
+   "hpbw_el_deg": 15,
+   "type": "Omni multipolarized",
+   "tier": "commercial",
+   "doodle_recommended": true,
+   "already_in_verified_catalog": false
+  },
+  {
+   "id": "rec-mp-antenna-mpsl900-2400",
+   "manufacturer": "MP Antenna",
+   "model": "MPSL900+2400",
+   "band_mhz": [
+    896.6999999999999,
+    2496.0
+   ],
+   "bands_mhz": [
+    [
+     896.6999999999999,
+     951.6
+    ],
+    [
+     2352.0,
+     2496.0
+    ]
+   ],
+   "gain_dbi": 3.0,
+   "pattern": "omni",
+   "hpbw_az_deg": 360,
+   "hpbw_el_deg": 15,
+   "type": "Omni",
+   "tier": "commercial",
+   "doodle_recommended": true,
+   "already_in_verified_catalog": false
+  },
+  {
+   "id": "rec-mp-antenna-08-ant-1019",
+   "manufacturer": "MP Antenna",
+   "model": "08-ANT-1019",
+   "band_mhz": [
+    896.6999999999999,
+    951.6
+   ],
+   "bands_mhz": [
+    [
+     896.6999999999999,
+     951.6
+    ]
+   ],
+   "gain_dbi": 3.0,
+   "pattern": "omni",
+   "hpbw_az_deg": 360,
+   "hpbw_el_deg": 15,
+   "type": "Omni",
+   "tier": "commercial",
+   "doodle_recommended": true,
+   "already_in_verified_catalog": false
+  },
+  {
+   "id": "rec-southwest-antennas-1001-126",
+   "manufacturer": "Southwest Antennas",
+   "model": "1001-126",
+   "band_mhz": [
+    4400.0,
+    6000.0
+   ],
+   "bands_mhz": [
+    [
+     4400.0,
+     6000.0
+    ]
+   ],
+   "gain_dbi": 2.3,
+   "pattern": "omni",
+   "hpbw_az_deg": 360,
+   "hpbw_el_deg": 15,
+   "type": "Omni",
+   "tier": "commercial",
+   "doodle_recommended": true,
+   "already_in_verified_catalog": true
+  },
+  {
+   "id": "rec-southwest-antennas-1001-251",
+   "manufacturer": "Southwest Antennas",
+   "model": "1001-251",
+   "band_mhz": [
+    4000.0,
+    8000.0
+   ],
+   "bands_mhz": [
+    [
+     4000.0,
+     8000.0
+    ]
+   ],
+   "gain_dbi": 2.15,
+   "pattern": "omni",
+   "hpbw_az_deg": 360,
+   "hpbw_el_deg": 15,
+   "type": "Omni",
+   "tier": "commercial",
+   "doodle_recommended": true,
+   "already_in_verified_catalog": false
+  },
+  {
+   "id": "rec-pasternack-pe51rd1020",
+   "manufacturer": "Pasternack",
+   "model": "PE51RD1020",
+   "band_mhz": [
+    2352.0,
+    2496.0
+   ],
+   "bands_mhz": [
+    [
+     2352.0,
+     2496.0
+    ]
+   ],
+   "gain_dbi": 2.0,
+   "pattern": "omni",
+   "hpbw_az_deg": 360,
+   "hpbw_el_deg": 15,
+   "type": "Omni",
+   "tier": "commercial",
+   "doodle_recommended": true,
+   "already_in_verified_catalog": false
+  },
+  {
+   "id": "rec-truerc-singularity-2-4-v2",
+   "manufacturer": "TrueRC",
+   "model": "Singularity 2.4 V2",
+   "band_mhz": [
+    2352.0,
+    2496.0
+   ],
+   "bands_mhz": [
+    [
+     2352.0,
+     2496.0
+    ]
+   ],
+   "gain_dbi": 1.9,
+   "pattern": "omni",
+   "hpbw_az_deg": 360,
+   "hpbw_el_deg": 15,
+   "type": "Omni",
+   "tier": "commercial",
+   "doodle_recommended": true,
+   "already_in_verified_catalog": false
+  },
+  {
+   "id": "rec-optimum-solutions-os-pt-25-l-s-48",
+   "manufacturer": "Optimum Solutions",
+   "model": "OS-PT-25-L/S-48",
+   "band_mhz": [
+    4000.0,
+    6000.0
+   ],
+   "bands_mhz": [
+    [
+     4000.0,
+     6000.0
+    ]
+   ],
+   "gain_dbi": 33.0,
+   "pattern": "directional",
+   "hpbw_az_deg": 6,
+   "hpbw_el_deg": 6,
+   "type": "Dish",
+   "tier": "milspec",
+   "doodle_recommended": true,
+   "already_in_verified_catalog": false
+  },
+  {
+   "id": "rec-optimum-solutions-os-pt-25-l-s-30",
+   "manufacturer": "Optimum Solutions",
+   "model": "OS-PT-25-L/S-30",
+   "band_mhz": [
+    4000.0,
+    6000.0
+   ],
+   "bands_mhz": [
+    [
+     4000.0,
+     6000.0
+    ]
+   ],
+   "gain_dbi": 31.0,
+   "pattern": "directional",
+   "hpbw_az_deg": 6,
+   "hpbw_el_deg": 6,
+   "type": "Dish",
+   "tier": "milspec",
+   "doodle_recommended": true,
+   "already_in_verified_catalog": false
+  },
+  {
+   "id": "rec-optimum-solutions-os-pt-10-c",
+   "manufacturer": "Optimum Solutions",
+   "model": "OS-PT-10-C",
+   "band_mhz": [
+    4000.0,
+    6000.0
+   ],
+   "bands_mhz": [
+    [
+     4000.0,
+     6000.0
+    ]
+   ],
+   "gain_dbi": 29.0,
+   "pattern": "directional",
+   "hpbw_az_deg": 6,
+   "hpbw_el_deg": 6,
+   "type": "Dish",
+   "tier": "milspec",
+   "doodle_recommended": true,
+   "already_in_verified_catalog": false
+  },
+  {
+   "id": "rec-optimum-solutions-os-pt-25-l-s-48",
+   "manufacturer": "Optimum Solutions",
+   "model": "OS-PT-25-L/S-48",
+   "band_mhz": [
+    1700.0,
+    2500.0
+   ],
+   "bands_mhz": [
+    [
+     1700.0,
+     2500.0
+    ]
+   ],
+   "gain_dbi": 26.0,
+   "pattern": "directional",
+   "hpbw_az_deg": 6,
+   "hpbw_el_deg": 6,
+   "type": "Dish",
+   "tier": "milspec",
+   "doodle_recommended": true,
+   "already_in_verified_catalog": false
+  },
+  {
+   "id": "rec-optimum-solutions-os-pt-25-l-s-30",
+   "manufacturer": "Optimum Solutions",
+   "model": "OS-PT-25-L/S-30",
+   "band_mhz": [
+    1700.0,
+    2500.0
+   ],
+   "bands_mhz": [
+    [
+     1700.0,
+     2500.0
+    ]
+   ],
+   "gain_dbi": 24.0,
+   "pattern": "directional",
+   "hpbw_az_deg": 6,
+   "hpbw_el_deg": 6,
+   "type": "Dish",
+   "tier": "milspec",
+   "doodle_recommended": true,
+   "already_in_verified_catalog": false
+  },
+  {
+   "id": "rec-optimum-solutions-os-pt-10-l-s",
+   "manufacturer": "Optimum Solutions",
+   "model": "OS-PT-10-L/S",
+   "band_mhz": [
+    1700.0,
+    2500.0
+   ],
+   "bands_mhz": [
+    [
+     1700.0,
+     2500.0
+    ]
+   ],
+   "gain_dbi": 22.0,
+   "pattern": "directional",
+   "hpbw_az_deg": 6,
+   "hpbw_el_deg": 6,
+   "type": "Dish",
+   "tier": "milspec",
+   "doodle_recommended": true,
+   "already_in_verified_catalog": false
+  },
+  {
+   "id": "rec-hascall-denke-fxsp1-35-2-7-14-d",
+   "manufacturer": "Hascall-Denke",
+   "model": "FXSP1.35-2.7.14-D",
+   "band_mhz": [
+    1350.0,
+    2700.0
+   ],
+   "bands_mhz": [
+    [
+     1350.0,
+     2700.0
+    ]
+   ],
+   "gain_dbi": 15.0,
+   "pattern": "directional",
+   "hpbw_az_deg": 60,
+   "hpbw_el_deg": 60,
+   "type": "Patch",
+   "tier": "milspec",
+   "doodle_recommended": true,
+   "already_in_verified_catalog": false
+  },
+  {
+   "id": "rec-hascall-denke-mpdp1-25-2-7-5",
+   "manufacturer": "Hascall-Denke",
+   "model": "MPDP1.25-2.7-5",
+   "band_mhz": [
+    1250.0,
+    2700.0
+   ],
+   "bands_mhz": [
+    [
+     1250.0,
+     2700.0
+    ]
+   ],
+   "gain_dbi": 5.0,
+   "pattern": "omni",
+   "hpbw_az_deg": 360,
+   "hpbw_el_deg": 15,
+   "type": "Omni",
+   "tier": "milspec",
+   "doodle_recommended": true,
+   "already_in_verified_catalog": false
+  },
+  {
+   "id": "rec-hascall-denke-mpdp2-1-2-5-4-4-5-9",
+   "manufacturer": "Hascall-Denke",
+   "model": "MPDP2.1-2.5/4.4-5.9",
+   "band_mhz": [
+    2100.0,
+    6000.0
+   ],
+   "bands_mhz": [
+    [
+     2100.0,
+     2500.0
+    ],
+    [
+     4400.0,
+     6000.0
+    ]
+   ],
+   "gain_dbi": 3.0,
+   "pattern": "omni",
+   "hpbw_az_deg": 360,
+   "hpbw_el_deg": 15,
+   "type": "Omni",
+   "tier": "milspec",
+   "doodle_recommended": true,
+   "already_in_verified_catalog": false
+  }
+ ]
+}
