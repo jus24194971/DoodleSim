@@ -39,7 +39,6 @@ function rangeFromBudget(plDb, freqMhz, ground) {
   return Math.min(dGround, dFsplKm * 1000);
 }
 
-const FADE = 10;
 const CABLE_ALLOWANCE = 1; // dB per side default (short jumper)
 
 function antennaCandidates(catalog, freqMhz, side, ground) {
@@ -61,7 +60,8 @@ function antennaCandidates(catalog, freqMhz, side, ground) {
   return out.length ? out : ok.slice(0, 2);
 }
 
-export function recommend({ scenarioId, rangeKm, throughputMbps: needMbps, allowGovBands, allowBda, catalog }) {
+export function recommend({ scenarioId, rangeKm, throughputMbps: needMbps, allowGovBands, allowBda, catalog, fadeMarginDb = 10 }) {
+  const FADE = fadeMarginDb;
   const scen = SCENARIOS.find((s) => s.id === scenarioId);
   const targetM = rangeKm * 1000;
   const results = [];
@@ -152,17 +152,17 @@ function remoteAntCandidates(catalog, freqMhz, side) {
 
 // Evaluate one candidate configuration over a (sub)profile. Returns best usable
 // MCS meeting needMbps, with margin, or null.
-function evalOver(profile, hA, hB, freqMhz, bwMhz, radio, txCfg) {
+function evalOver(profile, hA, hB, freqMhz, bwMhz, radio, txCfg, fadeMarginDb = 10) {
   const D = profile[profile.length - 1].distM;
   const pa = analyzePath(profile, hA, hB, freqMhz);
   const res = evaluateLink({
     distM: D, freqMhz, bwMhz, radioA: radio, radioB: radio, pathLoss: pa,
-    cfg: { ...txCfg, fadeMargin: 10, antennas: radio.chains === 1 ? 1 : 2 },
+    cfg: { ...txCfg, fadeMargin: fadeMarginDb, antennas: radio.chains === 1 ? 1 : 2 },
   });
   return { pa, res };
 }
 
-export async function adviseExtension({ anchor, targetLngLat, remotePlatformId, needMbps, allowBda, catalog }) {
+export async function adviseExtension({ anchor, targetLngLat, remotePlatformId, needMbps, allowBda, catalog, fadeMarginDb = 10 }) {
   const remote = REMOTE_PLATFORMS.find((p) => p.id === remotePlatformId);
   const radio = RADIOS.find((r) => r.id === anchor.radioId);
   const freq = anchor.freqMhz, bw = anchor.bwMhz;
@@ -202,7 +202,7 @@ export async function adviseExtension({ anchor, targetLngLat, remotePlatformId, 
             gainA: anchor.antennaGain - (aim ? 0 : patLossNow), gainB: ant.gain_dbi,
             cableA: anchor.cableLoss, cableB: 1,
             bdaA: bda, bdaB: 0,
-          });
+          }, fadeMarginDb);
           const usable = res.results.filter((r) => r.usable && throughputMbps(r.mcs, bw) * 0.88 >= needMbps);
           if (!usable.length) continue;
           const best = usable.reduce((x, y) => (y.mbps > x.mbps ? y : x));
@@ -211,7 +211,7 @@ export async function adviseExtension({ anchor, targetLngLat, remotePlatformId, 
           if (aim) changes.push(`Re-aim ${anchor.label} to ${Math.round(brToTarget)}° (currently ${Math.round(patLossNow)} dB off-boresight)`);
           if (h !== anchor.heightM) changes.push(`Raise ${anchor.label} to ${h} m mast`);
           if (bda !== anchor.bdaGain) changes.push(freq >= 4400 && freq <= 6400 ? `Add Boost BDA (BDA-4464) at ${anchor.label} (+13 dB)` : `Add BDA (e.g. Triad) at ${anchor.label} (+10 dB)`);
-          options.push({ type: 'direct', ant, changes, nChanges: changes.length - 1, marginDb: best.margin - 10, mcs: best.mcs, mbps: best.mbps * 0.88, blocked: pa.losBlocked, fresnel: pa.fresnelIntruded, aim, height: h, bda });
+          options.push({ type: 'direct', ant, changes, nChanges: changes.length - 1, marginDb: best.margin - fadeMarginDb, mcs: best.mcs, mbps: best.mbps * 0.88, blocked: pa.losBlocked, fresnel: pa.fresnelIntruded, aim, height: h, bda });
         }
       }
     }
@@ -241,11 +241,11 @@ export async function adviseExtension({ anchor, targetLngLat, remotePlatformId, 
         const h1 = evalOver(profA, anchor.heightM, relayH, freq, bw, radio, {
           powerA: anchor.powerDbm, powerB: radio.maxConfig, gainA: anchor.antennaGain, gainB: 10,
           cableA: anchor.cableLoss, cableB: 1.5, bdaA: anchor.bdaGain, bdaB: 0,
-        });
+        }, fadeMarginDb);
         const h2 = evalOver(profB, relayH, remote.height, freq, bw, radio, {
           powerA: radio.maxConfig, powerB: radio.maxConfig, gainA: 10, gainB: bestAnt.gain_dbi,
           cableA: 1.5, cableB: 1, bdaA: 0, bdaB: 0,
-        });
+        }, fadeMarginDb);
         const u1 = h1.res.results.filter((r) => r.usable && throughputMbps(r.mcs, bw) * 0.88 >= needMbps);
         const u2 = h2.res.results.filter((r) => r.usable && throughputMbps(r.mcs, bw) * 0.88 >= needMbps);
         if (u1.length && u2.length) {

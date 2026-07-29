@@ -30,7 +30,20 @@ let coverage = {
   terrainMinM: null, terrainMaxM: null, meshStats: null,
 };
 
-const FADE_MARGIN = 10;
+let FADE_MARGIN = 10;   // dB, user-configurable: every prediction uses this
+function setFadeMargin(v) {
+  FADE_MARGIN = Math.max(0, Math.min(40, Number(v) || 0));
+  const el = document.getElementById('fade-margin');
+  if (el && el.value !== String(FADE_MARGIN)) el.value = FADE_MARGIN;
+  const note = document.getElementById('fade-note');
+  if (note) {
+    note.textContent = FADE_MARGIN >= 20 ? 'very conservative'
+      : FADE_MARGIN >= 15 ? 'conservative (interference / maritime)'
+      : FADE_MARGIN >= 10 ? 'Doodle Labs default'
+      : FADE_MARGIN >= 5 ? 'optimistic — bench / benign RF only'
+      : 'no margin: theoretical limit, not deployable';
+  }
+}
 
 // ---------- Map ----------
 const OSM_STYLE = {
@@ -199,6 +212,7 @@ function serializeState() {
     version: 1,
     savedAt: new Date().toISOString(),
     view: { center: map.getCenter().toArray(), zoom: map.getZoom() },
+    fadeMarginDb: FADE_MARGIN,
     coverage: { remoteMode: coverage.remoteMode, remoteHeightM: coverage.remoteHeightM, aslAltM: coverage.aslAltM,
                 remoteGainDbi: coverage.remoteGainDbi, metric: coverage.metric, nearGround: coverage.nearGround,
                 scope: coverage.scope },
@@ -225,6 +239,7 @@ function restoreState(data) {
     const a = nodes.find((n) => n._savedId === ida), b = nodes.find((n) => n._savedId === idb);
     if (a && b) links.push({ id: `${a.id}-${b.id}`, a, b, result: null, pathAnalysis: null, profile: null });
   }
+  if (Number.isFinite(data.fadeMarginDb)) setFadeMargin(data.fadeMarginDb);
   if (data.coverage) Object.assign(coverage, {
     remoteMode: data.coverage.remoteMode ?? 'agl', remoteHeightM: data.coverage.remoteHeightM ?? 2,
     aslAltM: data.coverage.aslAltM ?? NaN, remoteGainDbi: data.coverage.remoteGainDbi ?? 3,
@@ -273,6 +288,7 @@ document.getElementById('btn-report').addEventListener('click', async () => {
   try { mapImagePng = map.getCanvas().toDataURL('image/png'); } catch { /* map WebGL context may block capture */ }
   const html = buildReportHtml({ nodes, links, renderProfilePng, mapImagePng, missionNote, meshStats: coverage.meshStats, meshRemote: { h: coverage.remoteHeightM, g: coverage.remoteGainDbi },
     covRun: coverage.lastRun,
+    fadeMarginDb: FADE_MARGIN,
     routeResult: route.result ? { stats: route.result.stats, chartPng: (() => {
       const rc = document.createElement('canvas');
       drawRouteChart(route.result, rc, { w: 860, h: 260 });
@@ -292,6 +308,15 @@ document.getElementById('file-load').addEventListener('change', async (e) => {
   catch (err) { alert('Could not read layout file: ' + err.message); }
   e.target.value = '';
 });
+
+document.getElementById('fade-margin').addEventListener('change', (e) => {
+  setFadeMargin(e.target.value);
+  recomputeAllLinks();
+  if (coverage.lastRun) simulateCoverage(QUALITY.normal);
+  if (route.result) analyseRoute();
+  persistState();
+});
+setFadeMargin(10);
 
 // ---------- Help ----------
 const helpModal = document.getElementById('help-modal');
@@ -447,6 +472,7 @@ document.getElementById('adv-run').addEventListener('click', () => {
     allowGovBands: document.getElementById('adv-gov').checked,
     allowBda: document.getElementById('adv-bda').checked,
     catalog: antennaCatalog,
+    fadeMarginDb: FADE_MARGIN,
   };
   const { scen, top } = recommend(inputs);
   const box = document.getElementById('advisor-results');

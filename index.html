@@ -24,6 +24,10 @@
         <span id="mode-hint"></span>
       </div>
       <div class="toolbar-right">
+        <label class="fade-ctl" title="Required margin above receiver sensitivity. Doodle Labs plan to 10 dB; raise it for congested or maritime paths, lower it only for bench work.">
+          Fade margin <input type="number" id="fade-margin" value="10" min="0" max="40" step="1"/> dB
+          <span id="fade-note"></span>
+        </label>
         <button id="btn-help" class="tool-btn" title="How to plan a network with this tool">❓ Help me plan</button>
         <label class="sat-toggle"><input type="checkbox" id="basemap-toggle" /> Satellite</label>
       </div>
@@ -195,6 +199,7 @@
             <li><b>Radio & band</b> — all current Mesh Rider models with their real per-MCS transmit power and sensitivity (the same conservative numbers as the official Doodle Labs estimator). Both ends of a link must share a band to talk.</li>
             <li><b>Antenna</b> — pick from the catalog (★ = Doodle Labs recommended; the rest are datasheet-verified third-party models) or enter a custom gain + beamwidth. Directional antennas get a beam wedge on the map.</li>
             <li><b>Cable</b> — choose MC400/MC600-class and a length; loss is computed automatically for the operating frequency (and updates if you change bands). Use "Manual" to type a known loss.</li>
+            <li><b>Fade margin</b> (top right) — the dB of headroom every prediction must keep above receiver sensitivity. Doodle Labs plan to <b>10 dB</b>; field engineers often work to <b>12–14 dB</b>. Raise it for congested, maritime or contested RF; drop it only for bench work, and never quote a 0 dB figure to a customer. Every link, heatmap, route and advisor result uses the value you set, and the exported report states it.</li>
             <li><b>BDA gain</b> — add amplification (e.g. Mesh Rider Boost, Triad) as extra dB in the budget.</li>
           </ul>
         </section>

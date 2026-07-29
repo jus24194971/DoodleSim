@@ -21,7 +21,7 @@ export function minClearHeight(link, whichEnd) {
 
 const esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;');
 
-export function buildReportHtml({ nodes, links, renderProfilePng, mapImagePng, missionNote, meshStats, meshRemote, covRun, routeResult }) {
+export function buildReportHtml({ nodes, links, renderProfilePng, mapImagePng, missionNote, meshStats, meshRemote, covRun, routeResult, fadeMarginDb = 10 }) {
   const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 
   const nodeRows = nodes.map((n) => {
@@ -133,7 +133,7 @@ ${routeResult.stats.servingNodes.map((n) => `<tr><td>${esc(n.label)}</td><td><b>
 <h2>Link Analysis</h2>
 ${linkSections || '<p class="sub">No links defined.</p>'}
 <footer>
-  Predictions follow the Doodle Labs official link-budget methodology (conservative per-MCS sensitivities, 10 dB fade margin)
+  Predictions follow the Doodle Labs official link-budget methodology (conservative per-MCS sensitivities, <b>${fadeMarginDb} dB fade margin</b> as configured for this design)
   extended with terrain analysis: SRTM-derived elevation profiles, 4/3-earth curvature, 60% first-Fresnel-zone clearance criterion,
   and ITU-R P.526 knife-edge diffraction. Actual performance depends on site conditions, interference, and installation quality.
   Field-verify critical links before deployment.

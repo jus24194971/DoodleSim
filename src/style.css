@@ -263,3 +263,7 @@ html, body, #app { height: 100%; font-family: 'Segoe UI', system-ui, sans-serif;
 #share-ant-box input { padding: 4px 6px; border: 1px solid #ced4da; border-radius: 4px; flex: 1; min-width: 0; }
 #sa-msg { min-height: 18px; font-size: 12px; margin: 6px 0; }
 .sa-err { color: #e03131; } .sa-ok { color: #2b8a3e; }
+
+.fade-ctl { display: flex; align-items: center; gap: 5px; font-size: 12px; color: #ced4da; white-space: nowrap; }
+.fade-ctl input { width: 46px; background: #0d1117; color: #e9ecef; border: 1px solid #2b3648; border-radius: 4px; padding: 3px 4px; font-size: 12px; }
+#fade-note { color: #74c0fc; font-size: 10.5px; max-width: 150px; }
