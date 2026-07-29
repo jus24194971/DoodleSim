@@ -43,6 +43,12 @@ html, body, #app { height: 100%; font-family: 'Segoe UI', system-ui, sans-serif;
   flex: 1; min-width: 0; padding: 3px 6px; border: 1px solid #ced4da; border-radius: 4px; font-size: 12px;
 }
 .card .del { margin-left: auto; background: none; border: none; color: #adb5bd; cursor: pointer; font-size: 14px; }
+.label-input {
+  flex: 1; min-width: 0; border: 1px solid transparent; border-radius: 4px; padding: 2px 5px;
+  font-size: 13px; font-weight: 600; font-family: inherit; background: transparent;
+}
+.label-input:hover { border-color: #dee2e6; }
+.label-input:focus { border-color: #1c7ed6; outline: none; background: #fff; }
 .card .del:hover { color: #e03131; }
 .link-stat { display: flex; justify-content: space-between; padding: 2px 0; font-size: 12px; }
 .link-stat b { font-variant-numeric: tabular-nums; }

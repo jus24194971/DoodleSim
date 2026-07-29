@@ -102,6 +102,77 @@ map.on('click', (e) => {
   if (mode === 'add') { addNode(e.lngLat); setMode(null); }
 });
 
+// ---------- Save / Load ----------
+function serializeState() {
+  return {
+    version: 1,
+    savedAt: new Date().toISOString(),
+    view: { center: map.getCenter().toArray(), zoom: map.getZoom() },
+    coverage: { remoteHeightM: coverage.remoteHeightM, remoteGainDbi: coverage.remoteGainDbi },
+    nodes: nodes.map((n) => {
+      const { lng, lat } = n.marker.getLngLat();
+      return { id: n.id, label: n.label, lng, lat, radioId: n.radioId, bandId: n.bandId, freqMhz: n.freqMhz, bwMhz: n.bwMhz, powerDbm: n.powerDbm, antennaId: n.antennaId, antennaGain: n.antennaGain, heightM: n.heightM, cableLoss: n.cableLoss, bdaGain: n.bdaGain, platform: n.platform };
+    }),
+    links: links.map((l) => [l.a.id, l.b.id]),
+  };
+}
+
+function restoreState(data) {
+  nodes.forEach((n) => n.marker.remove());
+  nodes = []; links = []; hideProfile(); clearCoverage();
+  nextNodeId = 1;
+  for (const s of data.nodes || []) {
+    addNode({ lng: s.lng, lat: s.lat });
+    const n = nodes[nodes.length - 1];
+    Object.assign(n, { label: s.label ?? n.label, radioId: s.radioId, bandId: s.bandId, freqMhz: s.freqMhz, bwMhz: s.bwMhz, powerDbm: s.powerDbm, antennaId: s.antennaId ?? null, antennaGain: s.antennaGain, heightM: s.heightM, cableLoss: s.cableLoss ?? 0, bdaGain: s.bdaGain ?? 0, platform: s.platform ?? 'mast' });
+    n._savedId = s.id;
+    n.marker.getElement().title = n.label;
+  }
+  for (const [ida, idb] of data.links || []) {
+    const a = nodes.find((n) => n._savedId === ida), b = nodes.find((n) => n._savedId === idb);
+    if (a && b) links.push({ id: `${a.id}-${b.id}`, a, b, result: null, pathAnalysis: null, profile: null });
+  }
+  if (data.coverage) Object.assign(coverage, { remoteHeightM: data.coverage.remoteHeightM ?? 2, remoteGainDbi: data.coverage.remoteGainDbi ?? 3 });
+  if (data.view) map.jumpTo({ center: data.view.center, zoom: data.view.zoom });
+  renderSidebar(); recomputeAllLinks();
+}
+
+let persistTimer = null;
+function persistState() {
+  clearTimeout(persistTimer);
+  persistTimer = setTimeout(() => {
+    try { localStorage.setItem('doodlesim-layout', JSON.stringify(serializeState())); } catch {}
+  }, 400);
+}
+
+document.getElementById('btn-save').addEventListener('click', () => {
+  const blob = new Blob([JSON.stringify(serializeState(), null, 1)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `doodlesim-layout-${new Date().toISOString().slice(0, 10)}.json`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+});
+document.getElementById('btn-load').addEventListener('click', () => document.getElementById('file-load').click());
+document.getElementById('file-load').addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  try { restoreState(JSON.parse(await file.text())); }
+  catch (err) { alert('Could not read layout file: ' + err.message); }
+  e.target.value = '';
+});
+
+// restore autosaved layout on boot (after map + catalog ready)
+map.once('idle', () => {
+  try {
+    const saved = localStorage.getItem('doodlesim-layout');
+    if (saved && !nodes.length) {
+      const data = JSON.parse(saved);
+      if (data.nodes?.length) restoreState(data);
+    }
+  } catch {}
+});
+
 // ---------- Nodes ----------
 function addNode(lngLat) {
   const id = nextNodeId++;
@@ -114,13 +185,14 @@ function addNode(lngLat) {
     radioId: 'miniOEM_v4', bandId: 'ism2400', freqMhz: 2450, bwMhz: 20,
     powerDbm: 32, antennaId: null, antennaGain: 3, heightM: 10, cableLoss: 0, bdaGain: 0, platform: 'mast',
   };
-  marker.on('dragend', () => recomputeAllLinks());
+  marker.on('dragend', () => { recomputeAllLinks(); persistState(); });
   el.addEventListener('click', (ev) => {
     ev.stopPropagation();
     if (mode === 'link') handleLinkClick(node, el);
   });
   nodes.push(node);
   renderSidebar();
+  persistState();
 }
 
 function handleLinkClick(node, el) {
@@ -134,6 +206,7 @@ function handleLinkClick(node, el) {
     }
     setMode(null);
     recomputeAllLinks();
+    persistState();
   }
 }
 
@@ -143,7 +216,7 @@ function removeNode(node) {
   links = links.filter((l) => l.a !== node && l.b !== node);
   if (selectedLink && (selectedLink.a === node || selectedLink.b === node)) hideProfile();
   if (coverage.nodeId === node.id) clearCoverage();
-  refreshLinks(); renderSidebar();
+  refreshLinks(); renderSidebar(); persistState();
 }
 
 // ---------- Coverage heatmap ----------
@@ -201,7 +274,7 @@ function renderLegend(node) {
 function removeLink(link) {
   links = links.filter((l) => l !== link);
   if (selectedLink === link) hideProfile();
-  refreshLinks(); renderSidebar();
+  refreshLinks(); renderSidebar(); persistState();
 }
 
 // ---------- Link computation ----------
@@ -279,7 +352,8 @@ function renderSidebar() {
     card.className = 'card';
     const ants = antennasForFreq(node.freqMhz);
     card.innerHTML = `
-      <h3><span class="badge" style="background:#1c7ed6">${node.id}</span> ${node.label}
+      <h3><span class="badge" style="background:#1c7ed6">${node.id}</span>
+        <input class="label-input" value="${node.label.replace(/"/g, '&quot;')}" title="Node name (shown to customers)"/>
         <button class="del" title="Delete node">🗑</button></h3>
       <div class="row"><label>Platform</label><select data-f="platform">${PLATFORMS.map((p) => `<option value="${p.id}" ${p.id === node.platform ? 'selected' : ''}>${p.label}</option>`).join('')}</select></div>
       <div class="row"><label>Radio</label><select data-f="radioId">${RADIOS.map((r) => `<option value="${r.id}" ${r.id === node.radioId ? 'selected' : ''}>${r.name}</option>`).join('')}</select></div>
@@ -303,6 +377,11 @@ function renderSidebar() {
         ${coverage.nodeId === node.id ? '<button class="tool-btn" data-coverage-clear title="Remove heatmap">✕</button>' : ''}
       </div>`;
     card.querySelector('.del').addEventListener('click', () => removeNode(node));
+    card.querySelector('.label-input').addEventListener('change', (ev) => {
+      node.label = ev.target.value.trim() || `Node ${node.id}`;
+      node.marker.getElement().title = node.label;
+      renderSidebar(); refreshLinks(); persistState();
+    });
     card.querySelector('[data-coverage]')?.addEventListener('click', () => runCoverage(node));
     card.querySelector('[data-coverage-clear]')?.addEventListener('click', () => clearCoverage());
     card.querySelectorAll('[data-cov]').forEach((el) => {
@@ -327,7 +406,7 @@ function renderSidebar() {
           const a = antennaCatalog.find((x) => x.id === v);
           if (a) node.antennaGain = a.gain_dbi;
         }
-        renderSidebar(); recomputeAllLinks();
+        renderSidebar(); recomputeAllLinks(); persistState();
       });
     });
     nodeList.appendChild(card);
@@ -340,7 +419,7 @@ function renderSidebar() {
     const best = link.result?.best;
     const pa = link.pathAnalysis;
     card.innerHTML = `
-      <h3><span class="badge" style="background:${linkColor(link)}">●</span> Node ${link.a.id} ⟷ Node ${link.b.id}
+      <h3><span class="badge" style="background:${linkColor(link)}">●</span> ${link.a.label} ⟷ ${link.b.label}
         <button class="del" title="Delete link">🗑</button></h3>
       <div class="link-stat"><span>Distance</span><b>${link.distM ? (link.distM / 1000).toFixed(2) + ' km' : '—'}</b></div>
       <div class="link-stat"><span>Path</span><b>${!pa ? '—' : pa.losBlocked ? '⛔ Terrain blocked' : pa.fresnelIntruded ? '⚠ Fresnel intrusion' : '✓ Clear LOS'}</b></div>
@@ -365,7 +444,7 @@ function showProfile(link) {
   if (!link.profile) return;
   selectedLink = link;
   panel.classList.remove('hidden');
-  document.getElementById('profile-title').textContent = `Node ${link.a.id} ⟷ Node ${link.b.id}`;
+  document.getElementById('profile-title').textContent = `${link.a.label} ⟷ ${link.b.label}`;
   const best = link.result?.best;
   document.getElementById('profile-stats').textContent =
     `${(link.distM / 1000).toFixed(2)} km @ ${link.freqMhz} MHz / ${link.bwMhz} MHz · FSPL ${link.result?.fspl.toFixed(1)} dB · diffraction ${link.pathAnalysis?.diffractionLossDb.toFixed(1)} dB · ${best ? `MCS${best.mcs} ${best.mbps.toFixed(0)} Mbps, margin +${best.margin.toFixed(0)} dB` : 'NO LINK'}`;

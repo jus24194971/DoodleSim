@@ -1,0 +1,100 @@
+{
+"_source": "Crawled from logged-in kb.doodlelabs.com, July 29 2026",
+
+"product_index": {
+ "government_bands": [
+  {"freq": "255 + 2245 + 2350 + 2450 MHz", "family": "Quad Band", "nano2": null, "mini": "RM-1300-42M3", "oem": "RM-1300-42O3", "wearable": "RM-1300-42W3"},
+  {"freq": "455 + 2245 + 2350 + 2450 MHz", "family": "Quad Band", "nano2": null, "mini": "RM-1400-42M3", "oem": "RM-1400-42O3", "wearable": "RM-1400-42W3"},
+  {"freq": "1625-2510 MHz", "family": "S-Band M1-M6 HEX", "nano2": "RM-2025-62S3 / -62S4", "mini": "RM-2025-62M3 / -62M4", "oem": "RM-2025-62O3", "wearable": "RM-2025-62W3"},
+  {"freq": "1350-1390 + 2200-2510 MHz", "family": "L + S Band", "nano2": "RM-2100-42S3", "mini": "RM-2100-42M3 / -42M4", "oem": "RM-2100-42O3", "wearable": "RM-2100-42W3"},
+  {"freq": "4940-5895 MHz", "family": "Public Safety + ISM", "nano2": null, "mini": null, "oem": "RM-5400-22O3", "wearable": "RM-5400-22W3"},
+  {"freq": "4400-5925 MHz", "family": "C-Band Extended", "nano2": null, "mini": null, "oem": "RM-5200-92O3", "wearable": "RM-5200-92W3"}
+ ],
+ "unlicensed_bands": [
+  {"freq": "2400-2482 MHz", "family": "2.4 GHz Wi-Fi", "nano2": "RM-2450-12S3", "mini": "RM-2450-12M3 / -12M4", "oem": null, "wearable": null},
+  {"freq": "900 MHz + 2.4 GHz", "family": "Dual-Band ISM", "nano2": "RM-1700-22S3", "mini": "RM-1700-22M3 / -22M4", "oem": "RM-1700-22O3", "wearable": "RM-1700-22W3"},
+  {"freq": "5150-5895 MHz", "family": "5 GHz Wi-Fi", "nano2": null, "mini": null, "oem": "RM-5600-22O3", "wearable": "RM-5600-12W3"}
+ ],
+ "special": [
+  {"freq": "5650-5755 MHz", "family": "5.7 GHz Japan Robotics", "mini": "RM-5700-2LSX-SA-ST", "wearable": "RM-5700-12W3"}
+ ],
+ "systems": [
+  {"name": "Mesh Rider Dual Radio", "model": "DR-2025-5200-69O3", "bandA": "1625-2450 MHz", "bandB": "4400-5925 MHz", "config": "OEM + OEM", "note": "Two Mesh Rider Radios + networking software, dual simultaneous bands"},
+  {"name": "Mesh Rider Boost BDA", "model": "BDA-4464-04-22O2", "freq": "4400-6400 MHz (C-band)", "max_tx_power": "36 dBm (4W)", "tx_gain_db": 13, "mimo": "2x2", "note": "M1-M6 band model 'coming soon'. Doodle Labs' own bi-directional amplifier."}
+ ],
+ "corrections_vs_our_catalog": [
+  "RM-1300/RM-1400 are QUAD band (255|455 + 2245 + 2350 + 2450), not dual",
+  "Nano2 is a distinct current form factor (S3/S4 codes); estimator's power table for it wasn't captured",
+  "M4/S4 generation codes exist alongside M3/S3 for several families"
+ ]
+},
+
+"official_antenna_matrix": {
+ "_note": "Doodle Labs 'Recommended Antenna Matrix' (kb.doodlelabs.com/recommended-antenna-matrix). Gains as listed by Doodle Labs. Reference links point to vendor homepages, not model pages.",
+ "commercial": [
+  {"mfr": "KP Performance", "model": "KPPA-900DPY17", "freq": "880-960 MHz", "gain_db": 17.5, "type": "Yagi"},
+  {"mfr": "TrueRC", "model": "TRURC Gatling", "freq": "2.4 GHz", "gain_db": 16, "type": "Patch"},
+  {"mfr": "KP Performance", "model": "KP-5HA-45-N", "freq": "4.9-6.4 GHz", "gain_db": 16, "type": "Horn"},
+  {"mfr": "Southwest Antennas", "model": "1055-011", "freq": "4.4-7.4 GHz", "gain_db": 15, "type": "Patch"},
+  {"mfr": "Mars Antennas", "model": "MA-WA22-DP14", "freq": "1700-2700 MHz", "gain_db": 14, "type": "Patch"},
+  {"mfr": "Mars Antennas", "model": "MA-WC90-DS13", "freq": "850-960 MHz", "gain_db": 13, "type": "Sector"},
+  {"mfr": "Southwest Antennas", "model": "1009-015", "freq": "1625-2500 MHz", "gain_db": 12, "type": "Patch"},
+  {"mfr": "TrueRC", "model": "X-AIR 2.4 MK. II", "freq": "2.4 GHz", "gain_db": 10, "type": "Patch"},
+  {"mfr": "Mars Antennas", "model": "MA-WO-56-DP10", "freq": "4.9-5.9 GHz", "gain_db": 10, "type": "Omni"},
+  {"mfr": "Southwest Antennas", "model": "1004-005", "freq": "4-6.4 GHz", "gain_db": 9, "type": "Patch"},
+  {"mfr": "KP Performance", "model": "KP-5DPFP-9-NF", "freq": "4.4-6.4 GHz", "gain_db": 9, "type": "Patch"},
+  {"mfr": "Mars Antennas", "model": "MA-WA22-DP8", "freq": "1.7-2.7 GHz", "gain_db": 8, "type": "Patch"},
+  {"mfr": "Mars Antennas", "model": "MA-WA-27TB-DP8B", "freq": "698-960 MHz + 1.7-2.3 + 2.3-2.7 + 5.1-5.9 GHz", "gain_db": "7.5-10", "type": "Patch"},
+  {"mfr": "KP Performance", "model": "KP-24VOMNI-6", "freq": "2.4-2.5 GHz", "gain_db": 6, "type": "Omni"},
+  {"mfr": "KP Performance", "model": "KP-58-SPOMA-6-NF", "freq": "5.1-5.9 GHz", "gain_db": 6, "type": "Omni"},
+  {"mfr": "TrueRC", "model": "TRUE-MOX 2.4", "freq": "2.4 GHz", "gain_db": 5.9, "type": "Patch"},
+  {"mfr": "Pasternack", "model": "PE51078", "freq": "2.4 GHz", "gain_db": 5.5, "type": "Omni"},
+  {"mfr": "Southwest Antennas", "model": "2001-111", "freq": "5.2-5.9 GHz", "gain_db": 3.8, "type": "Omni"},
+  {"mfr": "TE Connectivity", "model": "L9000020-01", "freq": "2.4 GHz", "gain_db": 3.2, "type": "Omni"},
+  {"mfr": "Doodle Labs", "model": "ANT-1700-3-O", "freq": "694-960 + 1710-2750 MHz", "gain_db": 3, "type": "Omni multipolarized", "url": "https://doodlelabs.com/product/multipolarized-antennas/"},
+  {"mfr": "Doodle Labs", "model": "ANT-2025-3-O", "freq": "1625-2500 MHz", "gain_db": 3, "type": "Omni multipolarized"},
+  {"mfr": "Doodle Labs", "model": "ANT-2450-3-O", "freq": "2.4 GHz", "gain_db": 3, "type": "Omni multipolarized"},
+  {"mfr": "Doodle Labs", "model": "ANT-915-3-O", "freq": "915 MHz", "gain_db": 3, "type": "Omni multipolarized", "note": "referenced in UGV gain estimation page"},
+  {"mfr": "MP Antenna", "model": "MPSL900+2400", "freq": "915 MHz + 2.4 GHz", "gain_db": 3, "type": "Omni"},
+  {"mfr": "MP Antenna", "model": "08-ANT-1019", "freq": "915 MHz", "gain_db": 3, "type": "Omni"},
+  {"mfr": "Southwest Antennas", "model": "1001-126", "freq": "4.4-6 GHz", "gain_db": 2.3, "type": "Omni"},
+  {"mfr": "Southwest Antennas", "model": "1001-251", "freq": "4-8 GHz", "gain_db": 2.15, "type": "Omni"},
+  {"mfr": "Pasternack", "model": "PE51RD1020", "freq": "2.4 GHz", "gain_db": 2, "type": "Omni"},
+  {"mfr": "TrueRC", "model": "Singularity 2.4 V2", "freq": "2.4 GHz", "gain_db": 1.9, "type": "Omni"}
+ ],
+ "milspec_dod": [
+  {"mfr": "Optimum Solutions", "model": "OS-PT-25-L/S-48", "freq": "4-6 GHz", "gain_db": 33, "type": "Dish"},
+  {"mfr": "Optimum Solutions", "model": "OS-PT-25-L/S-30", "freq": "4-6 GHz", "gain_db": 31, "type": "Dish"},
+  {"mfr": "Optimum Solutions", "model": "OS-PT-10-C", "freq": "4-6 GHz", "gain_db": 29, "type": "Dish"},
+  {"mfr": "Optimum Solutions", "model": "OS-PT-25-L/S-48", "freq": "1.7-2.5 GHz", "gain_db": 26, "type": "Dish"},
+  {"mfr": "Optimum Solutions", "model": "OS-PT-25-L/S-30", "freq": "1.7-2.5 GHz", "gain_db": 24, "type": "Dish"},
+  {"mfr": "Optimum Solutions", "model": "OS-PT-10-L/S", "freq": "1.7-2.5 GHz", "gain_db": 22, "type": "Dish"},
+  {"mfr": "Hascall-Denke", "model": "FXSP1.35-2.7.14-D", "freq": "1350-2700 MHz", "gain_db": 15, "type": "Patch"},
+  {"mfr": "Hascall-Denke", "model": "MPDP1.25-2.7-5", "freq": "1250-2700 MHz", "gain_db": 5, "type": "Omni"},
+  {"mfr": "Hascall-Denke", "model": "MPDP2.1-2.5/4.4-5.9", "freq": "2.1-2.5 + 4.4-6 GHz", "gain_db": "3-4.5", "type": "Omni"}
+ ]
+},
+
+"official_validation_vectors": {
+ "_note": "Worked examples from KB antenna gain estimation pages. All: telemetry-oriented, fade margin 10 dB (implied), stock config. Verified: UAV example 1 matches our FSPL engine exactly (miniOEM, 2450 MHz, 10 MHz bw, MCS1, sens -88, per-chain 26+3, fade 10 -> 4357 m).",
+ "uav_2450mhz_10mhz_fspl": [
+  {"gains_dbi": [3, 3], "range_m": 4357.7, "mbps": 5.3},
+  {"gains_dbi": [6, 6], "range_m": 8694.8, "mbps": 5.3},
+  {"gains_dbi": [3, 14], "range_m": 15461.8, "mbps": 5.3},
+  {"gains_dbi": [6, 14], "range_m": 21840.4, "mbps": 5.2}
+ ],
+ "ugv_915mhz_20mhz_groundmode": [
+  {"gains_dbi": [3, 3], "range_m": 999.6, "mbps": 9.3},
+  {"gains_dbi": [7.5, 3], "range_m": 1539.3, "mbps": 9.2},
+  {"gains_dbi": [7.5, 7.5], "range_m": 2609.1, "mbps": 9.2},
+  {"gains_dbi": [13, 13], "range_m": 6810.2, "mbps": 8.9}
+ ]
+},
+
+"kb_page_inventory": [
+ "/product-index", "/datasheets (wearable accessories only)", "/quick-start-guide", "/hardware-integration (Nano/Mini/OEM/Wearable/Dual-Radio/Boost BDA)",
+ "/software-integration", "/application-notes", "/firmware", "/antennas", "/recommended-antenna-matrix", "/antenna-gain-estimation-uav", "/antenna-gain-estimation-ugv",
+ "/rf-fundamentals", "/tools-utilities", "/range-estimation-tool", "/log-file-viewer-", "/firmware-update-tool", "/mesh-rider-real-time-graphing-tool", "/mesh-rider-mobile-app",
+ "/troubleshooting"
+]
+}

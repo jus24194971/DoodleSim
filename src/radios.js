@@ -39,10 +39,10 @@ export const RADIOS = [
   { id: 'wearable_v3', name: 'Wearable v3', power: V3_POWER, maxConfig: 30, chains: 2, bands: ['ism900', 'ism2400', 'hex', 'sband'] },
   { id: 'RM5200_44', name: 'RM-5200 (4.4–4.8 GHz)', power: [26, 24, 24, 24, 22, 20, 18, 16], maxConfig: 30, chains: 2, bands: ['natoC'] },
   { id: 'RM5200_51', name: 'RM-5200 (5.1–5.8 GHz)', power: [27, 25, 25, 25, 23, 21, 19, 17], maxConfig: 30, chains: 2, bands: ['pubsafe', 'unii', 'ism5800'] },
-  { id: 'RM1300_245', name: 'RM-1300 (245–265 MHz)', power: [24, 21, 21, 21, 20, 19, 18, 16], maxConfig: 27, chains: 2, bands: ['vhf245'] },
-  { id: 'RM1300_2200', name: 'RM-1300 (2.2–2.5 GHz)', power: [27, 24, 24, 24, 23, 22, 21, 19], maxConfig: 30, chains: 2, bands: ['sband'] },
-  { id: 'RM1400_432', name: 'RM-1400 (432–478 MHz)', power: [24, 21, 21, 21, 20, 19, 18, 16], maxConfig: 27, chains: 2, bands: ['uhf432'] },
-  { id: 'RM1400_2200', name: 'RM-1400 (2.2–2.5 GHz)', power: [27, 24, 24, 24, 23, 22, 21, 19], maxConfig: 30, chains: 2, bands: ['sband'] },
+  { id: 'RM1300_245', name: 'RM-1300 Quad (VHF 245–265)', power: [24, 21, 21, 21, 20, 19, 18, 16], maxConfig: 27, chains: 2, bands: ['vhf245'] },
+  { id: 'RM1300_2200', name: 'RM-1300 Quad (2245–2450)', power: [27, 24, 24, 24, 23, 22, 21, 19], maxConfig: 30, chains: 2, bands: ['sband'] },
+  { id: 'RM1400_432', name: 'RM-1400 Quad (UHF 432–478)', power: [24, 21, 21, 21, 20, 19, 18, 16], maxConfig: 27, chains: 2, bands: ['uhf432'] },
+  { id: 'RM1400_2200', name: 'RM-1400 Quad (2245–2450)', power: [27, 24, 24, 24, 23, 22, 21, 19], maxConfig: 30, chains: 2, bands: ['sband'] },
 ];
 
 export const CHANNEL_WIDTHS = [3, 5, 10, 15, 20, 26, 40];
