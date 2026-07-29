@@ -1,0 +1,116 @@
+// First-run guided tour: dims the app and spotlights each control in sequence.
+// Completion (or skip) is remembered in localStorage so returning users go
+// straight to the tool.
+
+const DONE_KEY = 'doodlesim-tour-done';
+
+const STEPS = [
+  {
+    target: null,
+    title: 'Welcome to the Doodle Labs RF Link Planner',
+    text: 'Design Mesh Rider networks on real terrain: place radios, aim antennas, check links against elevation profiles, and export customer-ready designs. This 60-second tour shows you the essentials.',
+  },
+  {
+    target: '#btn-add-node',
+    title: 'Place your radios',
+    text: 'Click “+ Add Node”, then click anywhere on the map to drop a radio. Drag nodes to reposition them — every calculation updates live.',
+  },
+  {
+    target: '#sidebar',
+    title: 'Configure each install',
+    text: 'Every node is a full install: platform (UAV, vessel, mast…), Mesh Rider model and band, antenna from the verified catalog, height above ground, cable run, and amplification. Height and antenna choice drive the terrain math, so keep them honest.',
+  },
+  {
+    target: '#btn-link-mode',
+    title: 'Analyze links',
+    text: 'Click “⟋ Link Nodes”, then two nodes. The link is checked over the real elevation profile — line of sight, Fresnel-zone clearance, and diffraction — and colored green/amber/orange/red by how healthy it is. Click any link to see its terrain profile.',
+  },
+  {
+    target: '#btn-advisor',
+    title: 'Or let the Plan Advisor design it',
+    text: 'Describe the mission — what talks to what, how far, how much data — and get ranked, compatible configurations with antennas, aiming, heights and cabling. It can also extend your existing infrastructure and even site a relay when terrain blocks a single hop.',
+  },
+  {
+    target: '#btn-save',
+    title: 'Save your work, hand off designs',
+    text: 'Layouts save as portable files (the browser also auto-saves as you go), and “📄 Report” exports a customer-ready design document with terrain profiles and minimum UAV altitudes.',
+  },
+  {
+    target: '#btn-help',
+    title: 'More detail anytime',
+    text: '“Help me plan” has the full guide — color codes, heatmaps, the math behind the predictions, and planning tips. You can replay this tour from there too. Enjoy!',
+  },
+];
+
+let idx = 0;
+let els = null;
+
+function ensureDom() {
+  if (els) return els;
+  const overlay = document.createElement('div');
+  overlay.id = 'tour-overlay';
+  overlay.innerHTML = `
+    <div id="tour-spot"></div>
+    <div id="tour-card">
+      <div id="tour-title"></div>
+      <div id="tour-text"></div>
+      <div id="tour-nav">
+        <button id="tour-skip" class="tour-btn ghost">Skip tutorial</button>
+        <span id="tour-count"></span>
+        <button id="tour-back" class="tour-btn ghost">‹ Back</button>
+        <button id="tour-next" class="tour-btn primary">Next ›</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+  overlay.querySelector('#tour-skip').addEventListener('click', endTour);
+  overlay.querySelector('#tour-back').addEventListener('click', () => show(idx - 1));
+  overlay.querySelector('#tour-next').addEventListener('click', () => (idx >= STEPS.length - 1 ? endTour() : show(idx + 1)));
+  window.addEventListener('resize', () => els && show(idx));
+  els = overlay;
+  return overlay;
+}
+
+function show(i) {
+  idx = Math.max(0, Math.min(i, STEPS.length - 1));
+  const step = STEPS[idx];
+  const overlay = ensureDom();
+  overlay.style.display = 'block';
+  const spot = overlay.querySelector('#tour-spot');
+  const card = overlay.querySelector('#tour-card');
+  overlay.querySelector('#tour-title').textContent = step.title;
+  overlay.querySelector('#tour-text').textContent = step.text;
+  overlay.querySelector('#tour-count').textContent = `${idx + 1} / ${STEPS.length}`;
+  overlay.querySelector('#tour-back').style.visibility = idx === 0 ? 'hidden' : 'visible';
+  overlay.querySelector('#tour-next').textContent = idx === STEPS.length - 1 ? 'Start planning ✓' : 'Next ›';
+
+  const target = step.target ? document.querySelector(step.target) : null;
+  if (target) {
+    const r = target.getBoundingClientRect();
+    const pad = 6;
+    Object.assign(spot.style, {
+      display: 'block',
+      left: r.left - pad + 'px', top: r.top - pad + 'px',
+      width: r.width + pad * 2 + 'px', height: r.height + pad * 2 + 'px',
+    });
+    // place card below the target if room, else above; clamp horizontally
+    const cw = Math.min(400, window.innerWidth - 24);
+    card.style.width = cw + 'px';
+    let cx = Math.max(12, Math.min(r.left, window.innerWidth - cw - 12));
+    let cy = r.bottom + pad + 12;
+    if (cy > window.innerHeight - 190) cy = Math.max(12, r.top - pad - 190);
+    Object.assign(card.style, { left: cx + 'px', top: cy + 'px', transform: 'none' });
+  } else {
+    spot.style.display = 'none';
+    Object.assign(card.style, { left: '50%', top: '42%', transform: 'translate(-50%, -50%)', width: Math.min(440, window.innerWidth - 24) + 'px' });
+  }
+}
+
+export function endTour() {
+  try { localStorage.setItem(DONE_KEY, '1'); } catch {}
+  if (els) els.style.display = 'none';
+}
+
+export function startTour(force = false) {
+  try { if (!force && localStorage.getItem(DONE_KEY)) return; } catch {}
+  show(0);
+}

@@ -7,6 +7,7 @@ import { analyzePath, evaluateLink, fsplDb, throughputMbps, patternLossDb, eleva
 import { computeCoverage, colorForMcs } from './coverage.js';
 import { SCENARIOS, recommend, adviseExtension, REMOTE_PLATFORMS } from './advisor.js';
 import { buildReportHtml } from './report.js';
+import { startTour } from './tour.js';
 
 // ---------- State ----------
 let nodes = []; // {id, label, lngLat, marker, radioId, bandId, freqMhz, bwMhz, powerDbm, antennaGain, heightM, cableLoss, bdaGain, platform}
@@ -452,6 +453,12 @@ map.once('idle', () => {
       if (data.nodes?.length) restoreState(data);
     }
   } catch {}
+  // first-visit guided tour (auto-skipped once completed or dismissed)
+  startTour(false);
+});
+document.getElementById('tour-replay')?.addEventListener('click', () => {
+  helpModal.classList.add('hidden');
+  startTour(true);
 });
 
 // ---------- Nodes ----------
