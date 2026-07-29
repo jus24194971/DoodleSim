@@ -167,3 +167,13 @@ html, body, #app { height: 100%; font-family: 'Segoe UI', system-ui, sans-serif;
 .tour-btn.primary { background: #1c7ed6; border-color: #1c7ed6; color: #fff; font-weight: 600; }
 .tour-btn.primary:hover { background: #1971c2; }
 .tour-btn.ghost:hover { background: #f1f3f5; }
+
+#share-ant-modal { position: fixed; inset: 0; background: rgba(10,14,18,.55); z-index: 70; display: flex; align-items: center; justify-content: center; }
+#share-ant-box { background: #fff; border-radius: 12px; width: min(440px, 94vw); padding: 0 16px 14px; box-shadow: 0 12px 40px rgba(0,0,0,.35); font-size: 13px; }
+#share-ant-head { display: flex; align-items: center; margin: 0 -16px 8px; padding: 12px 16px; background: #101418; color: #fff; border-radius: 12px 12px 0 0; }
+#share-ant-head button { margin-left: auto; background: none; border: none; color: #adb5bd; cursor: pointer; font-size: 15px; }
+.share-note { font-size: 12px; color: #868e96; margin-bottom: 10px; }
+#share-ant-box .adv-row label { min-width: 130px; }
+#share-ant-box input { padding: 4px 6px; border: 1px solid #ced4da; border-radius: 4px; flex: 1; min-width: 0; }
+#sa-msg { min-height: 18px; font-size: 12px; margin: 6px 0; }
+.sa-err { color: #e03131; } .sa-ok { color: #2b8a3e; }

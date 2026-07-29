@@ -76,15 +76,21 @@ document.getElementById('basemap-toggle').addEventListener('change', (e) => {
 });
 
 // ---------- Antenna catalog ----------
-Promise.all([
-  fetch('/data/antennas_app.json').then((r) => r.json()),
-  fetch('/data/antennas_recommended.json').then((r) => r.json()).catch(() => ({ antennas: [] })),
-]).then(([verified, rec]) => {
-  const dedupe = new Set(verified.antennas.map((a) => ((a.manufacturer || '') + a.model).toLowerCase().replace(/\s/g, '')));
-  const extra = rec.antennas.filter((a) => !dedupe.has(((a.manufacturer || '') + a.model).toLowerCase().replace(/\s/g, '')));
-  antennaCatalog = [...rec.antennas.filter((a) => extra.includes(a)), ...verified.antennas];
+async function loadCatalog() {
+  const [verified, rec, community] = await Promise.all([
+    fetch('/data/antennas_app.json').then((r) => r.json()),
+    fetch('/data/antennas_recommended.json').then((r) => r.json()).catch(() => ({ antennas: [] })),
+    fetch('/api/antennas').then((r) => (r.ok ? r.json() : { antennas: [] })).catch(() => ({ antennas: [] })),
+  ]);
+  const key = (a) => ((a.manufacturer || '') + a.model).toLowerCase().replace(/\s/g, '');
+  const seen = new Set(verified.antennas.map(key));
+  const extraRec = rec.antennas.filter((a) => !seen.has(key(a)));
+  extraRec.forEach((a) => seen.add(key(a)));
+  const extraCommunity = (community.antennas || []).filter((a) => !seen.has(key(a)));
+  antennaCatalog = [...extraRec, ...verified.antennas, ...extraCommunity];
   renderSidebar();
-});
+}
+loadCatalog();
 
 function antennasForFreq(freqMhz) {
   return antennaCatalog.filter((a) => a.band_mhz[0] <= freqMhz && a.band_mhz[1] >= freqMhz);
@@ -753,12 +759,13 @@ function renderSidebar() {
       <div class="row"><label>TX power (dBm)</label><input type="number" data-f="powerDbm" value="${node.powerDbm}" min="0" max="${radio.maxConfig}"/></div>
       <div class="row"><label>Antenna</label><select data-f="antennaId">
         <option value="">Other (specify custom)…</option>
-        ${[...ants].sort((x, y) => (y.doodle_recommended ? 1 : 0) - (x.doodle_recommended ? 1 : 0) || y.gain_dbi - x.gain_dbi).map((a) => `<option value="${a.id}" ${a.id === node.antennaId ? 'selected' : ''}>${a.doodle_recommended ? '★ ' : ''}${(a.manufacturer || '').split(' ')[0]} ${a.model} (${a.gain_dbi} dBi ${a.pattern})</option>`).join('')}
+        ${[...ants].sort((x, y) => (y.doodle_recommended ? 1 : 0) - (x.doodle_recommended ? 1 : 0) || y.gain_dbi - x.gain_dbi).map((a) => `<option value="${a.id}" ${a.id === node.antennaId ? 'selected' : ''}>${a.doodle_recommended ? '★ ' : a.community ? '☁ ' : ''}${(a.manufacturer || '').split(' ')[0]} ${a.model} (${a.gain_dbi} dBi ${a.pattern})</option>`).join('')}
       </select></div>
       ${!node.antennaId ? `
       <div class="row"><label>Ant. name</label><input type="text" data-f="customName" value="${(node.customName || '').replace(/"/g, '&quot;')}" placeholder="e.g. Customer's existing yagi" style="flex:1;min-width:0;padding:3px 6px;border:1px solid #ced4da;border-radius:4px;font-size:12px"/></div>
       <div class="row"><label>Ant. type</label><select data-f="customType">${Object.entries(CUSTOM_ANT_TYPES).map(([k, t]) => `<option value="${k}" ${k === node.customType ? 'selected' : ''}>${t.label}</option>`).join('')}</select></div>
-      ${node.customType === 'dish' ? `<div class="row"><label>Dish diameter (m)</label><input type="number" data-f="dishDiaM" value="${node.dishDiaM ?? ''}" min="0.1" step="0.1" placeholder="auto-estimates gain" title="Gain and beamwidth estimated from diameter at the operating frequency"/></div>` : ''}` : ''}
+      ${node.customType === 'dish' ? `<div class="row"><label>Dish diameter (m)</label><input type="number" data-f="dishDiaM" value="${node.dishDiaM ?? ''}" min="0.1" step="0.1" placeholder="auto-estimates gain" title="Gain and beamwidth estimated from diameter at the operating frequency"/></div>` : ''}
+      <div class="row"><button class="tool-btn" data-share-ant style="width:100%" title="Add this antenna to the shared library so every user can select it">☁ Share to antenna library</button></div>` : ''}
       <div class="row"><label>Ant. gain (dBi)</label><input type="number" data-f="antennaGain" value="${node.antennaGain}" step="0.5" ${node.antennaId ? 'disabled' : ''}/></div>
       ${node.antennaId ? `<div class="row"><label>Beamwidth az/el</label><span class="pat-info">${getPattern(node).directional ? getPattern(node).hpbwAz + '° / ' + getPattern(node).hpbwEl + '°' : 'omni / ' + getPattern(node).hpbwEl + '°'}</span></div>`
         : `<div class="row"><label>Beamwidth az (°)</label><input type="number" data-f="customHpbwAz" value="${node.customHpbwAz}" min="5" max="360" step="5" title="360 = omnidirectional"/></div>
@@ -784,6 +791,7 @@ function renderSidebar() {
       node.marker.getElement().title = node.label;
       renderSidebar(); refreshLinks(); persistState();
     });
+    card.querySelector('[data-share-ant]')?.addEventListener('click', () => openShareDialog(node));
     card.querySelector('[data-coverage]')?.addEventListener('click', () => runCoverage(node));
     card.querySelector('[data-coverage-clear]')?.addEventListener('click', () => clearCoverage());
     card.querySelectorAll('[data-cov]').forEach((el) => {
@@ -848,6 +856,59 @@ function renderSidebar() {
     card.querySelector('[data-profile]').addEventListener('click', () => showProfile(link));
     linkList.appendChild(card);
   }
+}
+
+// ---------- Share custom antenna to community library ----------
+function openShareDialog(node) {
+  document.getElementById('share-ant-modal')?.remove();
+  const band = BANDS[node.bandId];
+  const pat = getPattern(node);
+  // best-effort split of "Brand Model" from the custom name
+  const parts = (node.customName || '').trim().split(/\s+/);
+  const guessMfr = parts.length > 1 ? parts[0] : '';
+  const guessModel = parts.length > 1 ? parts.slice(1).join(' ') : (node.customName || '');
+  const div = document.createElement('div');
+  div.id = 'share-ant-modal';
+  div.innerHTML = `<div id="share-ant-box">
+    <div id="share-ant-head"><b>☁ Share to antenna library</b><button id="share-ant-close">✕</button></div>
+    <p class="share-note">Adds this antenna to the shared library for <b>all users</b>. Please give the real, referenceable manufacturer and model number — submissions are validated and deduplicated.</p>
+    <div class="adv-row"><label>Manufacturer</label><input id="sa-mfr" value="${guessMfr.replace(/"/g, '&quot;')}" placeholder="e.g. L-com"/></div>
+    <div class="adv-row"><label>Model number</label><input id="sa-model" value="${guessModel.replace(/"/g, '&quot;')}" placeholder="e.g. HG2424EG"/></div>
+    <div class="adv-row"><label>Band (MHz)</label><input id="sa-lo" type="number" value="${band.lo}" style="width:90px"/> – <input id="sa-hi" type="number" value="${band.hi}" style="width:90px"/></div>
+    <div class="adv-row"><label>Gain (dBi)</label><input id="sa-gain" type="number" step="0.1" value="${node.antennaGain}" style="width:90px"/></div>
+    <div class="adv-row"><label>Beamwidth az/el (°)</label><input id="sa-az" type="number" value="${pat.hpbwAz}" style="width:90px"/> / <input id="sa-el" type="number" value="${pat.hpbwEl}" style="width:90px"/></div>
+    <div class="adv-row"><label>Type</label><input id="sa-type" value="${(CUSTOM_ANT_TYPES[node.customType]?.label || '').replace(/"/g, '&quot;')}"/></div>
+    <div id="sa-msg"></div>
+    <button id="sa-submit" class="tour-btn primary" style="width:100%">Submit to library</button>
+  </div>`;
+  document.body.appendChild(div);
+  div.addEventListener('click', (e) => { if (e.target === div) div.remove(); });
+  div.querySelector('#share-ant-close').addEventListener('click', () => div.remove());
+  div.querySelector('#sa-submit').addEventListener('click', async () => {
+    const msg = div.querySelector('#sa-msg');
+    const payload = {
+      manufacturer: div.querySelector('#sa-mfr').value.trim(),
+      model: div.querySelector('#sa-model').value.trim(),
+      band_lo_mhz: parseFloat(div.querySelector('#sa-lo').value),
+      band_hi_mhz: parseFloat(div.querySelector('#sa-hi').value),
+      gain_dbi: parseFloat(div.querySelector('#sa-gain').value),
+      pattern: parseFloat(div.querySelector('#sa-az').value) >= 360 ? 'omni' : 'directional',
+      hpbw_az_deg: parseFloat(div.querySelector('#sa-az').value),
+      hpbw_el_deg: parseFloat(div.querySelector('#sa-el').value),
+      ant_type: div.querySelector('#sa-type').value.trim(),
+    };
+    msg.className = ''; msg.textContent = 'Submitting…';
+    try {
+      const res = await fetch('/api/antennas', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(payload) });
+      const data = await res.json();
+      if (!res.ok) { msg.className = 'sa-err'; msg.textContent = data.error || 'Submission rejected.'; return; }
+      msg.className = 'sa-ok'; msg.textContent = '✓ Added to the shared library!';
+      await loadCatalog();
+      setTimeout(() => div.remove(), 1200);
+    } catch {
+      msg.className = 'sa-err'; msg.textContent = 'Library service unreachable (dev mode?). Try on the live site.';
+    }
+  });
 }
 
 // ---------- Profile chart ----------
