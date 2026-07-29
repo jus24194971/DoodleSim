@@ -65,3 +65,17 @@ html, body, #app { height: 100%; font-family: 'Segoe UI', system-ui, sans-serif;
 #profile-stats { color: #91a7c0; font-size: 12px; }
 #profile-close { margin-left: auto; background: none; border: none; color: #adb5bd; cursor: pointer; font-size: 15px; }
 #profile-canvas { flex: 1; width: 100%; }
+
+.cov-row { display: flex; gap: 6px; }
+.cov-row .tool-btn { flex: 1; background: #f1f3f5; color: #343a40; border-color: #ced4da; }
+.cov-row .tool-btn:hover { background: #e7f0fa; }
+
+#coverage-legend {
+  position: absolute; bottom: 28px; left: 10px; z-index: 5;
+  background: rgba(16,20,24,.88); color: #dee2e6; border-radius: 8px;
+  padding: 10px 12px; font-size: 12px; min-width: 170px;
+}
+#coverage-legend b { display: block; margin-bottom: 6px; font-size: 12px; }
+.leg-row { display: flex; align-items: center; gap: 7px; padding: 1px 0; }
+.leg-swatch { width: 14px; height: 10px; border-radius: 2px; display: inline-block; }
+.leg-note { color: #91a7c0; margin-top: 5px; }

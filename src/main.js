@@ -3,7 +3,8 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import './style.css';
 import { RADIOS, BANDS, CHANNEL_WIDTHS, PLATFORMS } from './radios.js';
 import { terrainProfile, haversineM } from './terrain.js';
-import { analyzePath, evaluateLink, fsplDb } from './engine.js';
+import { analyzePath, evaluateLink, fsplDb, throughputMbps } from './engine.js';
+import { computeCoverage, colorForMcs } from './coverage.js';
 
 // ---------- State ----------
 let nodes = []; // {id, label, lngLat, marker, radioId, bandId, freqMhz, bwMhz, powerDbm, antennaGain, heightM, cableLoss, bdaGain, platform}
@@ -13,6 +14,7 @@ let mode = null; // 'add' | 'link'
 let linkFirstNode = null;
 let selectedLink = null;
 let antennaCatalog = [];
+let coverage = { nodeId: null, remoteHeightM: 2, remoteGainDbi: 3, computing: false };
 
 const FADE_MARGIN = 10;
 
@@ -140,7 +142,60 @@ function removeNode(node) {
   nodes = nodes.filter((n) => n !== node);
   links = links.filter((l) => l.a !== node && l.b !== node);
   if (selectedLink && (selectedLink.a === node || selectedLink.b === node)) hideProfile();
+  if (coverage.nodeId === node.id) clearCoverage();
   refreshLinks(); renderSidebar();
+}
+
+// ---------- Coverage heatmap ----------
+function clearCoverage() {
+  if (map.getLayer('coverage')) map.removeLayer('coverage');
+  if (map.getSource('coverage')) map.removeSource('coverage');
+  coverage.nodeId = null;
+  document.getElementById('coverage-legend')?.remove();
+  renderSidebar();
+}
+
+async function runCoverage(node) {
+  if (coverage.computing) return;
+  coverage.computing = true;
+  coverage.nodeId = node.id;
+  renderSidebar();
+  const radio = RADIOS.find((r) => r.id === node.radioId);
+  hint.textContent = 'Computing coverage… 0%';
+  try {
+    const result = await computeCoverage(node, radio, {
+      remoteHeightM: coverage.remoteHeightM,
+      remoteGainDbi: coverage.remoteGainDbi,
+      fadeMargin: FADE_MARGIN,
+    }, (p) => { hint.textContent = `Computing coverage… ${Math.round(p * 100)}%`; });
+    if (map.getLayer('coverage')) map.removeLayer('coverage');
+    if (map.getSource('coverage')) map.removeSource('coverage');
+    map.addSource('coverage', { type: 'canvas', canvas: result.canvas, coordinates: result.bounds, animate: false });
+    map.addLayer({ id: 'coverage', type: 'raster', source: 'coverage', paint: { 'raster-opacity': 0.72 } }, 'links');
+    renderLegend(node);
+    hint.textContent = '';
+  } catch (err) {
+    console.error('coverage failed', err);
+    hint.textContent = 'Coverage computation failed';
+    coverage.nodeId = null;
+  }
+  coverage.computing = false;
+  renderSidebar();
+}
+
+function renderLegend(node) {
+  document.getElementById('coverage-legend')?.remove();
+  const div = document.createElement('div');
+  div.id = 'coverage-legend';
+  const entries = [
+    [14, 'MCS 14–15'], [12, 'MCS 12–13'], [10, 'MCS 10–11'], [8, 'MCS 8–9'], [4, 'MCS 4–7'], [0, 'MCS 0–3'],
+  ];
+  div.innerHTML = `<b>Coverage — Node ${node.id}</b>` + entries.map(([mcs, label]) => {
+    const c = colorForMcs(mcs);
+    const mbps = throughputMbps(mcs, node.bwMhz);
+    return `<div class="leg-row"><span class="leg-swatch" style="background:rgb(${c.join(',')})"></span>${label} · ≥${mbps.toFixed(0)} Mbps</div>`;
+  }).join('') + `<div class="leg-row leg-note">Remote: ${coverage.remoteHeightM} m AGL, ${coverage.remoteGainDbi} dBi</div>`;
+  document.getElementById('map').appendChild(div);
 }
 
 function removeLink(link) {
@@ -239,8 +294,20 @@ function renderSidebar() {
       <div class="row"><label>Ant. gain (dBi)</label><input type="number" data-f="antennaGain" value="${node.antennaGain}" step="0.5" ${node.antennaId ? 'disabled' : ''}/></div>
       <div class="row"><label>Height AGL (m)</label><input type="number" data-f="heightM" value="${node.heightM}" min="0.1" step="0.5"/></div>
       <div class="row"><label>Cable loss (dB)</label><input type="number" data-f="cableLoss" value="${node.cableLoss}" min="0" step="0.5"/></div>
-      <div class="row"><label>BDA gain (dB)</label><input type="number" data-f="bdaGain" value="${node.bdaGain}" min="0" step="1"/></div>`;
+      <div class="row"><label>BDA gain (dB)</label><input type="number" data-f="bdaGain" value="${node.bdaGain}" min="0" step="1"/></div>
+      <div class="row"><label>Remote ant. (m / dBi)</label>
+        <input type="number" data-cov="remoteHeightM" value="${coverage.remoteHeightM}" min="0.1" step="0.5" title="Remote node height AGL for coverage"/>
+        <input type="number" data-cov="remoteGainDbi" value="${coverage.remoteGainDbi}" step="0.5" title="Remote node antenna gain for coverage"/></div>
+      <div class="row cov-row">
+        <button class="tool-btn" data-coverage ${coverage.computing ? 'disabled' : ''}>${coverage.nodeId === node.id ? '↻ Recompute heatmap' : '▦ Coverage heatmap'}</button>
+        ${coverage.nodeId === node.id ? '<button class="tool-btn" data-coverage-clear title="Remove heatmap">✕</button>' : ''}
+      </div>`;
     card.querySelector('.del').addEventListener('click', () => removeNode(node));
+    card.querySelector('[data-coverage]')?.addEventListener('click', () => runCoverage(node));
+    card.querySelector('[data-coverage-clear]')?.addEventListener('click', () => clearCoverage());
+    card.querySelectorAll('[data-cov]').forEach((el) => {
+      el.addEventListener('change', () => { coverage[el.dataset.cov] = parseFloat(el.value); });
+    });
     card.querySelectorAll('[data-f]').forEach((el) => {
       el.addEventListener('change', () => {
         const f = el.dataset.f;
@@ -419,4 +486,6 @@ window.__app = {
     return recomputeAllLinks();
   },
   recompute: () => recomputeAllLinks(),
+  runCoverage: (id) => runCoverage(nodes.find((n) => n.id === id)),
+  get coverage() { return coverage; },
 };
