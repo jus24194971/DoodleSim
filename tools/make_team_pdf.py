@@ -154,8 +154,8 @@ S(Paragraph('We have an in-house planning tool that puts Mesh Rider links on a r
             'pick the actual radio, band, antenna and mast height, and it tells you what the link will really do - '
             'throughput, margin, coverage footprint, and where it breaks. Underneath it reproduces the official '
             'Doodle Labs range estimator exactly, then adds the terrain that a distance-only calculator cannot see. '
-            'It is internal-only today, and it is already finding real faults in customer logs and matching '
-            'field results from Ukraine.', BODY))
+            'It is internal-only today. Two independent checks sit behind it: a field result reported from '
+            'Ukraine, and a separate, unrelated batch of customer radio logs.', BODY))
 
 S(Paragraph('What you can do with it', H2))
 for t, d in [
@@ -202,9 +202,12 @@ S(Paragraph('Our recommended-antenna spreadsheet was checked row by row against 
 S(tbl([['Result', 'Count', 'What it means'],
        ['Confirmed', '31', 'Sheet matched the manufacturer datasheet'],
        ['Specs corrected', '19', 'Real product, wrong numbers on our sheet'],
-       ['Not a real product', '20', 'Family labels, platforms, or part numbers that do not exist'],
-       ['Unverifiable', '6', 'No authoritative source found anywhere']],
+       ['Partly verified', '14', 'Some fields confirmed; the rest unpublished or self-contradictory'],
+       ['Not a real product', '20', 'Family labels, radio platforms, or part numbers that do not exist'],
+       ['Unverifiable', '6', 'No authoritative source found anywhere'],
+       ['<b>Total</b>', '<b>90</b>', '<b>Every row on the sheet</b>']],
       [1.5 * inch, 0.7 * inch, 4.7 * inch]))
+S(Paragraph('Every one of the 90 is listed individually in the appendix.', SMALL))
 S(Spacer(1, 5))
 S(callout('Four catches worth knowing about',
           'Most of the L-com HG4958-xx part numbers do not exist as written. Both Poynting entries are '
@@ -213,10 +216,12 @@ S(callout('Four catches worth knowing about',
           'that would have destroyed it.'))
 
 S(Paragraph('Tested against reality', H2))
-S(Paragraph('Ukraine field test', H3))
-S(Paragraph('A colleague reported losing his link at 42-44 km: 24 dBi dish at 2 m, 3 dBi omni at 1000 m, '
-            '5 MHz channel, clear air. Modelled at his own 12-14 dB fade margin, the tool puts the cliff '
-            'inside that exact window, with no adjustment:', BODY))
+S(Paragraph('Check 1: Ukraine field test (colleague-reported figures only)', H3))
+S(Paragraph('A colleague working in country gave us the values he had on hand: a 24 dBi parabolic on the ground '
+            'station at 2 m, a 3 dBi multipolarised omni on the aircraft at 1000 m, a 5 MHz channel swept from '
+            '1675 to 2500 MHz, clear air with no jamming, and the link dropping out at 42-44 km. He works to a '
+            '12-14 dB fade margin. Fed only those numbers, the tool puts the cliff inside his exact window with '
+            'no adjustment:', BODY))
 S(tbl([['Fade margin', 'Tool prediction at 42.6 km'],
        ['10 dB', 'MCS 10, 7.4 Mbps, +10.5 dB margin'],
        ['12 dB', 'MCS 9, 5.1 Mbps, +12.5 dB margin'],
@@ -224,14 +229,22 @@ S(tbl([['Fade margin', 'Tool prediction at 42.6 km'],
        ['20 dB', 'No link']],
       [1.4 * inch, 5.5 * inch]))
 S(Spacer(1, 5))
+S(Spacer(1, 5))
+S(callout('What this check is, and is not',
+          'These are the only figures we have from that site - his stated kit, heights, channel and the '
+          'distance at which he lost the link. There are no logs and no measured signal levels from Ukraine, '
+          'so this is a consistency check against what he reported, not an independent measurement. It is '
+          'still meaningful: the model was not tuned to match, and it landed in his window first time.'))
 S(Paragraph('It also gave him two things to act on. His frequency sweep up to 2500 MHz costs about 3.5 dB, '
             'so staying near 1675 MHz is worth roughly 1.5 times the range. And the tightest point on the whole '
             '43 km path is 200 m in front of his ground station, where a 2 m antenna only just clears - lifting '
             'that dish is the cheapest margin he can buy.', BODY))
 
-S(Paragraph('What it found in customer logs', H3))
-S(Paragraph('We built parsers for Mesh Rider support bundles and ran six of them from three customer systems, '
-            'about 28,000 telemetry samples:', BODY))
+S(Paragraph('Check 2: what it found in customer logs (a separate, unrelated batch)', H3))
+S(Paragraph('We built parsers for Mesh Rider support bundles and ran six of them, from three unrelated '
+            'customer systems, about 28,000 telemetry samples. These are an arbitrary sample of logs and '
+            'have <b>nothing to do with the Ukraine test above</b> - they are a second, independent check '
+            'that the tooling finds real faults:', BODY))
 S(tbl([['System', 'Finding'],
        ['Flight 7 ground station',
         'One receive chain <b>10 dB down</b> (chains at -73 and -63 dBm). The link stayed associated the whole '
@@ -288,6 +301,96 @@ S(Paragraph('Have a play - a 60-second tour runs on your first visit, and Help h
             'tell us where it is wrong, especially anywhere it disagrees with something you have actually '
             'measured: hit <b>Save</b> and send the .json with what you saw. Access control goes in before '
             'anything reaches a customer.', BODY))
+
+
+# ---------------------------------------------------------------- appendix
+import json as _json
+
+_SAFE = {
+    u"\u2264": "<=", u"\u2265": ">=", u"\u2192": "->", u"\u2248": "~",
+    u"\u2013": "-", u"\u2014": "-", u"\u2018": "'", u"\u2019": "'",
+    u"\u201c": '"', u"\u201d": '"', u"\u2022": "-", u"\u00b1": "+/-",
+}
+
+def esc(t):
+    t = u"" if t is None else unicode(t) if str is bytes else str(t)
+    for k, v in _SAFE.items():
+        t = t.replace(k, v)
+    return t.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+
+def clip(t, n):
+    t = esc(t)
+    return t if len(t) <= n else t[:n - 1].rstrip() + "..."
+
+GROUPS = [
+    ("confirmed", "Confirmed", "#1F8A4C",
+     "Our sheet matched the manufacturer datasheet on band, gain, pattern and type."),
+    ("corrected", "Specs corrected", "#C77700",
+     "A real product, but our sheet had it wrong. The tool carries the verified figures."),
+    ("partially_verified", "Partly verified", "#1E73BE",
+     "Some fields confirmed; the rest is unpublished, marketplace-grade, or the vendor contradicts "
+     "itself. Treat the unconfirmed fields with care."),
+    ("not_a_product", "Not a real product", "#B02A2A",
+     "Family labels, radio platforms rather than antennas, or part numbers that do not exist as "
+     "written. These should come off the sheet."),
+    ("unverifiable", "Unverifiable", "#6A6A6A",
+     "No authoritative source could be found. Not necessarily wrong, but nothing supports it."),
+]
+
+def _appendix_table(data):
+    ap = ParagraphStyle("AP", fontName=BASE, fontSize=7.1, leading=9.2, textColor=INK)
+    aph = ParagraphStyle("APH", parent=ap, fontName=BOLD, textColor=white)
+    body = [[Paragraph(c, aph if i == 0 else ap) for c in row] for i, row in enumerate(data)]
+    t = Table(body, colWidths=[0.26 * inch, 1.82 * inch, 1.22 * inch, 1.38 * inch, 2.22 * inch],
+              repeatRows=1)
+    st = [("VALIGN", (0, 0), (-1, -1), "TOP"),
+          ("BACKGROUND", (0, 0), (-1, 0), BRAND),
+          ("TOPPADDING", (0, 0), (-1, -1), 3), ("BOTTOMPADDING", (0, 0), (-1, -1), 3),
+          ("LEFTPADDING", (0, 0), (-1, -1), 5), ("RIGHTPADDING", (0, 0), (-1, -1), 5),
+          ("LINEBELOW", (0, 0), (-1, -2), 0.4, LINE)]
+    for i in range(1, len(data)):
+        if i % 2 == 0:
+            st.append(("BACKGROUND", (0, i), (-1, i), WASH))
+    t.setStyle(TableStyle(st))
+    return t
+
+def antenna_appendix(flow):
+    rows_all = _json.load(open(os.path.join(ROOT, "data", "antennas_verified_master.json"),
+                               encoding="utf-8"))
+    flow.append(Paragraph("Appendix: every antenna checked", H2))
+    flow.append(Paragraph(
+        "All " + str(len(rows_all)) + " rows of the recommended-antenna sheet, each audited against the "
+        "manufacturer's own datasheet. Where our sheet and the datasheet disagree, both figures are shown. "
+        "Source links for every row are in "
+        + A(REPO + "/blob/main/data/verification_report.md", "data/verification_report.md") + ".", BODY))
+    n = 0
+    for key, title, colour, blurb in GROUPS:
+        group = [r for r in rows_all if r["status"] == key]
+        if not group:
+            continue
+        flow.append(KeepTogether([
+            Paragraph('<font color="%s"><b>%s</b></font> &nbsp;<font size="8" color="#6A6A6A">'
+                      "%d of %d</font>" % (colour, title, len(group), len(rows_all)), H3),
+            Paragraph(blurb, SMALL)]))
+        data = [["#", "Manufacturer and model", "Band (verified)", "Gain: sheet / verified", "Note"]]
+        for r in sorted(group, key=lambda x: (esc(x.get("manufacturer") or "zzz").lower(),
+                                              esc(x.get("model")).lower())):
+            n += 1
+            band = r["fields"]["band"].get("verified") or r["fields"]["band"].get("sheet") or "-"
+            gs = r["fields"]["gain_dbi"].get("sheet")
+            gv = r["fields"]["gain_dbi"].get("verified")
+            if key == "confirmed" or not gv or esc(gs) == esc(gv):
+                gain = clip(gs if gs not in (None, "", "-") else (gv or "-"), 28)
+            else:
+                gain = clip(gs, 12) + " / " + clip(gv, 26)
+            note = "" if key == "confirmed" else clip(r.get("notes"), 108)
+            data.append([str(n),
+                         "<b>" + esc(r.get("manufacturer") or "-") + "</b><br/>" + esc(r.get("model") or "-"),
+                         clip(band, 30), gain, note])
+        flow.append(_appendix_table(data))
+        flow.append(Spacer(1, 7))
+
+antenna_appendix(story)
 
 doc = BaseDocTemplate(OUT, pagesize=letter,
                       leftMargin=0.78 * inch, rightMargin=0.78 * inch,
