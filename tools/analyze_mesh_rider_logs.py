@@ -1,9 +1,21 @@
 # -*- coding: utf-8 -*-
-"""Analyse Doodle Labs Mesh Rider longtermlog bundles: telemetry stats + issue detection."""
-import json, os, glob, re, statistics as st
+"""Analyse Doodle Labs Mesh Rider longtermlog bundles: telemetry stats + issue detection.
+
+Works on any number of bundles. Point --bundles at a directory whose subdirectories
+each hold one extracted support bundle (the marker is a */longtermlog inside).
+Labels come from a labels.json sidecar in that directory when present, otherwise
+from the directory name - so a HubSpot pull of hundreds of bundles needs no code edit.
+"""
+import json, os, glob, re, argparse, statistics as st
 from collections import defaultdict
 
-SP = r'C:\Users\jus24\AppData\Local\Temp\claude\C--Users-jus24-Documents-Doodle-Labs-RF-Simulator\e97e0152-920b-456e-abbd-34fa97addf42\scratchpad\bundles'
+HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# The original six bundles were hand-labelled; keep those names exact so previously
+# published figures stay reproducible. Anything else is labelled from its directory.
+DEFAULT_BUNDLES = os.path.join(
+    os.environ.get('TEMP', ''), 'claude', 'C--Users-jus24-Documents-Doodle-Labs-RF-Simulator',
+    'e97e0152-920b-456e-abbd-34fa97addf42', 'scratchpad', 'bundles')
 
 LABELS = {
     'b1': 'Air Flight 7',
@@ -13,6 +25,25 @@ LABELS = {
     'b5': 'longtermmon smartradio-301a3af4e9',
     'b6': 'longtermmon smartradio-301a50814f',
 }
+
+def discover(bundles_dir):
+    """Ordered [(key, dir)] for every subdirectory that actually holds a bundle.
+
+    The */longtermlog marker is what makes a directory a bundle; an empty or
+    unrelated subdirectory is skipped rather than analysed into a null result.
+    """
+    found = []
+    for d in sorted(glob.glob(os.path.join(bundles_dir, '*'))):
+        if os.path.isdir(d) and glob.glob(os.path.join(d, '*', 'longtermlog')):
+            found.append((os.path.basename(d), d))
+    return found
+
+def label_for(key, labels):
+    if key in labels:
+        return labels[key]
+    # derived: strip the tarball crust off a filename-shaped key
+    t = re.sub(r'\.tar(\s*\d+)?(\.gz)?$', '', key)
+    return re.sub(r'[_]+', ' ', t).strip() or key
 
 # DoodleSim sensitivity model (official estimator basis), MCS0-7 @20 MHz; +3 dB for MCS8-15
 SENS20 = [-87, -85, -83, -81, -77, -73, -71, -69]
@@ -102,8 +133,7 @@ def meta(bdir):
             d['cfg'][cf] = open(p, encoding='utf-8', errors='replace').read()[:1200]
     return d, root
 
-def analyse(bkey):
-    bdir = os.path.join(SP, bkey)
+def analyse(bkey, bdir, label):
     m, root = meta(bdir)
     logs = sorted(glob.glob(os.path.join(root, '2*.log')))
     logs += sorted(glob.glob(os.path.join(root, 'nested', '**', '*.log'), recursive=True))
@@ -112,7 +142,7 @@ def analyse(bkey):
         samples.extend(read_lines(lg))
     samples.sort(key=lambda s: s.get('sysinfo', {}).get('localtime', 0))
 
-    res = {'bundle': bkey, 'label': LABELS[bkey], **{k: v for k, v in m.items() if k != 'cfg'},
+    res = {'bundle': bkey, 'label': label, **{k: v for k, v in m.items() if k != 'cfg'},
            'log_files': len(logs), 'samples': len(samples), 'issues': [], 'peers': {}}
     if not samples:
         res['issues'].append({'sev': 'high', 'title': 'No telemetry samples could be parsed'})
@@ -247,54 +277,77 @@ def analyse(bkey):
             'detail': f'At {bw:g} MHz a quiet band should sit near -95 dBm. This raises the level every rate needs.'})
     return res, m
 
-out = {}
-metas = {}
-for b in ('b1', 'b2', 'b3', 'b4', 'b5', 'b6'):
-    r, m = analyse(b)
-    out[b] = r
-    metas[b] = m
+def run(bundles_dir, dest, labels=None):
+    labels = dict(LABELS, **(labels or {}))
+    found = discover(bundles_dir)
+    if not found:
+        raise SystemExit('no bundles found under %s (expected subdirs containing */longtermlog)'
+                         % bundles_dir)
+    out = {}
+    for bkey, bdir in found:
+        r, _m = analyse(bkey, bdir, label_for(bkey, labels))
+        out[bkey] = r
 
-# ---- cross-bundle pairing
-own = {b: out[b].get('own_mac') for b in out}
-pairs = []
-for a in out:
-    for c in out:
-        if a >= c:
-            continue
-        if own.get(c) and own[c] in out[a]['peers'] and own.get(a) and own[a] in out[c]['peers']:
-            pa, pc = out[a]['peers'][own[c]], out[c]['peers'][own[a]]
-            asym = None
-            if pa.get('rssi_dbm') and pc.get('rssi_dbm'):
-                asym = round(pa['rssi_dbm']['median'] - pc['rssi_dbm']['median'], 1)
-            # reciprocity check: path loss must be the same both ways, so
-            # (TX of the far end) - (RSSI here) should match in both directions.
-            txa = out[a].get('mesh_txpower_dbm')
-            txc = out[c].get('mesh_txpower_dbm')
-            pl_a_to_c = pl_c_to_a = recip = None
-            if txa is not None and txc is not None and pa.get('rssi_dbm') and pc.get('rssi_dbm'):
-                pl_c_to_a = round(txc - pa['rssi_dbm']['median'], 1)   # c transmits, a receives
-                pl_a_to_c = round(txa - pc['rssi_dbm']['median'], 1)   # a transmits, c receives
-                recip = round(pl_c_to_a - pl_a_to_c, 1)
-            pairs.append({'a': a, 'b': c, 'a_label': out[a]['label'], 'b_label': out[c]['label'],
-                          'rssi_a_sees_b': pa.get('rssi_dbm', {}).get('median'),
-                          'rssi_b_sees_a': pc.get('rssi_dbm', {}).get('median'),
-                          'asymmetry_db': asym,
-                          'tx_a_dbm': txa, 'tx_b_dbm': txc,
-                          'implied_pathloss_b_to_a_db': pl_c_to_a,
-                          'implied_pathloss_a_to_b_db': pl_a_to_c,
-                          'reciprocity_error_db': recip})
-res = {'bundles': out, 'pairs': pairs,
-       'own_macs': own,
-       'unmatched': [b for b in out if not any(b in (p['a'], p['b']) for p in pairs)]}
+    # ---- cross-bundle pairing
+    own = {b: out[b].get('own_mac') for b in out}
+    pairs = []
+    for a in out:
+        for c in out:
+            if a >= c:
+                continue
+            if own.get(c) and own[c] in out[a]['peers'] and own.get(a) and own[a] in out[c]['peers']:
+                pa, pc = out[a]['peers'][own[c]], out[c]['peers'][own[a]]
+                asym = None
+                if pa.get('rssi_dbm') and pc.get('rssi_dbm'):
+                    asym = round(pa['rssi_dbm']['median'] - pc['rssi_dbm']['median'], 1)
+                # reciprocity check: path loss must be the same both ways, so
+                # (TX of the far end) - (RSSI here) should match in both directions.
+                txa = out[a].get('mesh_txpower_dbm')
+                txc = out[c].get('mesh_txpower_dbm')
+                pl_a_to_c = pl_c_to_a = recip = None
+                if txa is not None and txc is not None and pa.get('rssi_dbm') and pc.get('rssi_dbm'):
+                    pl_c_to_a = round(txc - pa['rssi_dbm']['median'], 1)   # c transmits, a receives
+                    pl_a_to_c = round(txa - pc['rssi_dbm']['median'], 1)   # a transmits, c receives
+                    recip = round(pl_c_to_a - pl_a_to_c, 1)
+                pairs.append({'a': a, 'b': c, 'a_label': out[a]['label'], 'b_label': out[c]['label'],
+                              'rssi_a_sees_b': pa.get('rssi_dbm', {}).get('median'),
+                              'rssi_b_sees_a': pc.get('rssi_dbm', {}).get('median'),
+                              'asymmetry_db': asym,
+                              'tx_a_dbm': txa, 'tx_b_dbm': txc,
+                              'implied_pathloss_b_to_a_db': pl_c_to_a,
+                              'implied_pathloss_a_to_b_db': pl_a_to_c,
+                              'reciprocity_error_db': recip})
+    res = {'bundles': out, 'pairs': pairs,
+           'own_macs': own,
+           'unmatched': [b for b in out if not any(b in (p['a'], p['b']) for p in pairs)]}
 
-dest = r'C:\Users\jus24\Documents\Doodle Labs RF Simulator\data\log_analysis.json'
-with open(dest, 'w', encoding='utf-8') as f:
-    json.dump(res, f, indent=1)
-print('written', dest)
-for b, r in out.items():
-    print(f"\n{b} {r['label']}: {r.get('model')} fw={r.get('firmware')} {r.get('freq_mhz')} MHz/{r.get('chan_width_mhz')} MHz "
-          f"samples={r['samples']} dur={r.get('duration_s', 0)/60:.0f}min connected={r.get('connected_pct')}% issues={len(r['issues'])}")
-    for i in r['issues']:
-        print(f"   [{i['sev']}] {i['title']}")
-print('\nPAIRS:', json.dumps(pairs, indent=1))
-print('UNMATCHED:', res['unmatched'])
+    with open(dest, 'w', encoding='utf-8') as f:
+        json.dump(res, f, indent=1)
+    print('written', dest)
+    for b, r in out.items():
+        print(f"\n{b} {r['label']}: {r.get('model')} fw={r.get('firmware')} {r.get('freq_mhz')} MHz/{r.get('chan_width_mhz')} MHz "
+              f"samples={r['samples']} dur={r.get('duration_s', 0)/60:.0f}min connected={r.get('connected_pct')}% issues={len(r['issues'])}")
+        for i in r['issues']:
+            print(f"   [{i['sev']}] {i['title']}")
+    print('\nPAIRS:', json.dumps(pairs, indent=1))
+    print('UNMATCHED:', res['unmatched'])
+    return res
+
+def main():
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument('--bundles', default=DEFAULT_BUNDLES,
+                    help='directory of extracted bundles (default: the original scratchpad set)')
+    ap.add_argument('--out', default=os.path.join(HERE, 'data', 'log_analysis.json'))
+    ap.add_argument('--labels', help='optional JSON map of bundle-dir name -> display label')
+    a = ap.parse_args()
+    labels = {}
+    # a labels.json sitting beside the bundles is picked up automatically, so an
+    # ingest can record real ticket/company names without a command-line argument
+    side = os.path.join(a.bundles, 'labels.json')
+    for src in (side, a.labels):
+        if src and os.path.exists(src):
+            labels.update(json.load(open(src, encoding='utf-8')))
+    run(a.bundles, a.out, labels)
+
+if __name__ == '__main__':
+    main()
