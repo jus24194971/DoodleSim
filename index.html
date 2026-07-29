@@ -45,7 +45,13 @@
   <div id="help-modal" class="hidden">
     <div id="help-box">
       <div id="help-head"><b>❓ Help me plan</b><span class="adv-sub">How to design a Mesh Rider network with this tool</span><button id="help-close">✕</button></div>
+      <div class="help-tabbar">
+        <button class="help-tab-btn active" data-tab="guide">📖 User Guide</button>
+        <button class="help-tab-btn" data-tab="tutorials">🎓 Tutorials</button>
+        <button class="help-tab-btn" data-tab="faq">❔ FAQ</button>
+      </div>
       <div id="help-body">
+        <div class="help-tab active" id="help-tab-guide">
 
         <section>
           <h2>🚀 Quick start — two ways to begin</h2>
@@ -133,6 +139,130 @@
             <li>For vessels and UGVs, small height changes matter enormously — the first few meters clear the worst of the Fresnel zone.</li>
           </ul>
         </section>
+
+        </div><!-- /guide -->
+
+        <div class="help-tab" id="help-tab-tutorials">
+          <p class="help-intro">Step-by-step walkthroughs of the most common jobs. Each takes 2–5 minutes.</p>
+
+          <details open>
+            <summary>🛩 Tutorial 1: Plan a UAV video downlink</summary>
+            <ol>
+              <li>Click <b>🎯 Plan Advisor</b> (mode: <i>New system</i>).</li>
+              <li>Mission: <i>Ground station ⟷ UAV</i>. Range: your operating radius (e.g. <b>10 km</b>). Throughput preset: <i>Telemetry + HD video (5)</i>.</li>
+              <li>Click <b>Recommend configurations</b> and read the ranked cards — the 🏆 pick is the least exotic build that closes.</li>
+              <li>Pan the map to your actual flying site, then click <b>Apply to map</b>.</li>
+              <li>Rename the nodes (e.g. "GCS", "Bird 1"), drag the GCS to its true launch point, and set the UAV node to your real operating altitude.</li>
+              <li>The link recomputes over real terrain. Green = fly. If it turns amber/red, open the terrain profile to see exactly which ridge is in the way.</li>
+              <li>Finish with <b>📄 Report</b> — it includes the minimum safe altitude for full Fresnel clearance.</li>
+            </ol>
+          </details>
+
+          <details>
+            <summary>📶 Tutorial 2: Design a point-to-point backhaul by hand</summary>
+            <ol>
+              <li><b>+ Add Node</b> → click site A. Again for site B.</li>
+              <li>On each node: platform <i>Fixed mast</i>, set the real mast height, pick a radio + band, and choose a directional antenna (dish/sector) from the catalog.</li>
+              <li>Blue beam wedges appear — <b>drag each white handle</b> so the beams face each other (or type exact bearings in the Azimuth field).</li>
+              <li>Set cable type (MC400/MC600) and length — loss computes automatically.</li>
+              <li><b>⟋ Link Nodes</b> → click both nodes. Check the margin in the link card; +10 dB or better is a solid deployment.</li>
+              <li>Click the link to open the profile — confirm the Fresnel ellipse clears the terrain. If not, raise a mast and watch it clear.</li>
+            </ol>
+          </details>
+
+          <details>
+            <summary>🗺 Tutorial 3: Map handheld coverage around a base</summary>
+            <ol>
+              <li>Place a node at the base location; configure its real antenna and height.</li>
+              <li>In the node card, set <b>Remote ant. (m / dBi)</b> to the handheld's reality: <b>1.5</b> m and <b>3</b> dBi.</li>
+              <li>Click <b>▦ Coverage heatmap</b>. Colors show the best data rate a handheld gets at every spot; the legend explains each band.</li>
+              <li>Now change remote height to 100 m and recompute — that's the same base serving a drone. The difference is the terrain talking.</li>
+              <li>Drag the base node to candidate sites and recompute to compare placements.</li>
+            </ol>
+          </details>
+
+          <details>
+            <summary>🧭 Tutorial 4: Extend an existing network to a new site</summary>
+            <ol>
+              <li>Load (📂) or build your current infrastructure on the map.</li>
+              <li><b>🎯 Plan Advisor</b> → mode <i>Extend existing infrastructure</i>.</li>
+              <li>Pick the anchor node, the platform to serve, and <b>📍 Pick on map</b> for the target location.</li>
+              <li>Read the options — least-change first: sometimes it's just a remote kit, sometimes "re-aim your sector 40°", sometimes a relay with exact coordinates.</li>
+              <li><b>Apply to map</b> places (and aims) everything; verify the new links are green.</li>
+            </ol>
+          </details>
+
+          <details>
+            <summary>📡 Tutorial 5: Model a customer's non-standard antenna</summary>
+            <ol>
+              <li>In the node's Antenna dropdown choose <b>Other (specify custom)…</b></li>
+              <li>Name it, pick the closest type (defaults sensible beamwidths), and enter the gain — or for a dish, just enter the <b>diameter</b> and let it estimate gain/beamwidth.</li>
+              <li>It behaves like any catalog antenna: beam wedge, aiming, pattern math, reports.</li>
+              <li>If it's real hardware with a referenceable model number, hit <b>☁ Share to antenna library</b> so the whole team can reuse it.</li>
+            </ol>
+          </details>
+
+          <details>
+            <summary>📄 Tutorial 6: Produce a customer deliverable</summary>
+            <ol>
+              <li>Rename every node to customer-meaningful labels ("HQ Mast", "Patrol Vessel").</li>
+              <li>Confirm heights, antennas, aiming, and cable specs are the real quote.</li>
+              <li><b>💾 Save</b> the layout .json into the customer's folder — that's your editable source.</li>
+              <li><b>📄 Report</b> → enter a one-line objective → you get a self-contained document with the map, equipment table, per-link terrain analysis, and minimum UAV altitudes. Print to PDF or send as-is.</li>
+            </ol>
+          </details>
+        </div><!-- /tutorials -->
+
+        <div class="help-tab" id="help-tab-faq">
+          <details open>
+            <summary>Why doesn't my link close? The distance seems short.</summary>
+            <p>Nine times out of ten it's <b>height, not distance</b>. Near-ground antennas (1–2 m) graze the terrain, so the Fresnel zone is buried and diffraction eats the budget. Open the terrain profile and look at the ellipse. Fixes in order of cheapness: raise the antennas, narrow the channel (3/5 MHz buys several dB), add gain, add a BDA, add a relay.</p>
+          </details>
+          <details>
+            <summary>The datasheet says 100 km — why does the tool show much less?</summary>
+            <p>The 100 km figures are field demonstrations with high-gain directional antennas, altitude, and clear line of sight. This tool uses Doodle Labs' <b>conservative sales-engineering numbers</b> (same as the official Range Estimation Tool) plus a 10 dB fade margin, so what it promises survives contact with reality. Give it the same dish + altitude and it will show you those big numbers too.</p>
+          </details>
+          <details>
+            <summary>What is MCS and why do I care?</summary>
+            <p>MCS (Modulation and Coding Scheme) is the radio's gearbox: MCS 0 is low gear — slow (≈5 Mbps at 20 MHz) but usable on a whisper of signal; MCS 15 is top gear — ≈83 Mbps but needs ~20 dB more signal. MCS 8–15 use both antennas to carry two data streams (needs 2×2 MIMO both ends). The tool always shows the best MCS your margin supports; the mesh adapts rate automatically in the field.</p>
+          </details>
+          <details>
+            <summary>Why does 900 MHz reach further than 5.8 GHz with the same setup?</summary>
+            <p>Free-space loss grows with frequency (+16 dB from 915 to 5800 MHz). Lower bands also diffract around obstacles better. The trade: less spectrum, narrower channels, less throughput, and bigger antennas. That's why band selection is a mission decision, and why the Plan Advisor searches across bands.</p>
+          </details>
+          <details>
+            <summary>Why does narrowing the channel increase range?</summary>
+            <p>Halving bandwidth halves the noise the receiver ingests: −3 dB noise floor → +3 dB sensitivity. 20 MHz → 5 MHz buys ~6 dB, roughly doubling FSPL range — at proportionally less throughput. When the mission is telemetry, narrow channels are free range.</p>
+          </details>
+          <details>
+            <summary>What do ★, ☁ and unmarked antennas mean?</summary>
+            <p><b>★</b> = on Doodle Labs' official Recommended Antenna Matrix. <b>Unmarked</b> = third-party antennas verified against manufacturer datasheets during this tool's catalog build. <b>☁</b> = community-submitted by users of this tool (validated for plausibility but not datasheet-verified — treat accordingly).</p>
+          </details>
+          <details>
+            <summary>Can a 2.4 GHz node link to a 5.8 GHz node?</summary>
+            <p>No — both ends of a link must be on the same band and channel to communicate. The tool computes the link at Node A's frequency; keep both nodes' bands matched (the Plan Advisor always does). The exception is the Mesh Rider Dual Radio, which runs two bands simultaneously as separate links.</p>
+          </details>
+          <details>
+            <summary>How do I model an amplifier (BDA)?</summary>
+            <p>Enter its effective gain in the node's <b>BDA gain</b> field (e.g. Mesh Rider Boost ≈ +13 dB TX in C-band; Triad units vary by band). The advisor will also suggest amplification automatically when a path needs it. Watch antenna power ratings — some antennas (e.g. certain 5 W-rated sectors) can't take a 20 W BDA.</p>
+          </details>
+          <details>
+            <summary>How accurate is the terrain data? Are buildings included?</summary>
+            <p>Elevation comes from ~30 m resolution global data (SRTM-derived) — excellent for hills and mountains, blind to buildings, trees, and anything smaller than ~30 m. In cities or forests, treat clear-LOS results as optimistic and budget extra margin. Building-aware modeling is on the roadmap.</p>
+          </details>
+          <details>
+            <summary>Does it model interference, rain, or multipath?</summary>
+            <p>Not explicitly — that's what the 10 dB fade margin is for. In congested RF environments (2.4 GHz in cities) or over water (strong multipath), aim for +15–20 dB margin instead, and prefer the quieter bands.</p>
+          </details>
+          <details>
+            <summary>Who can see my layouts?</summary>
+            <p>Layouts live in your browser and in .json files you save — nothing is uploaded. The one shared thing is antenna submissions via "Share to antenna library", which are visible to all users by design.</p>
+          </details>
+          <details>
+            <summary>Are these predictions guaranteed?</summary>
+            <p>They're planning-grade engineering estimates on conservative assumptions — good enough to design against, not a warranty. Field-verify critical links before committing hardware, especially near-ground, maritime, and urban paths.</p>
+          </details>
+        </div><!-- /faq -->
 
       </div>
     </div>

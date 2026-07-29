@@ -269,6 +269,11 @@ const helpModal = document.getElementById('help-modal');
 document.getElementById('btn-help').addEventListener('click', () => helpModal.classList.remove('hidden'));
 document.getElementById('help-close').addEventListener('click', () => helpModal.classList.add('hidden'));
 helpModal.addEventListener('click', (e) => { if (e.target === helpModal) helpModal.classList.add('hidden'); });
+document.querySelectorAll('.help-tab-btn').forEach((btn) => btn.addEventListener('click', () => {
+  document.querySelectorAll('.help-tab-btn').forEach((b) => b.classList.toggle('active', b === btn));
+  document.querySelectorAll('.help-tab').forEach((t) => t.classList.toggle('active', t.id === 'help-tab-' + btn.dataset.tab));
+  document.getElementById('help-body').scrollTop = 0;
+}));
 
 // ---------- Plan Advisor ----------
 const advModal = document.getElementById('advisor-modal');
