@@ -1,0 +1,1802 @@
+[
+ {
+  "excel_row": 5,
+  "rm_match": "RM-2450",
+  "manufacturer": "Antenna Experts",
+  "model": "JC12-2450",
+  "band": "2400–2500",
+  "gain": "12",
+  "pattern_pol": "Omni / Vertical",
+  "type": "Collinear Omni",
+  "price": "TBD",
+  "country": "India ",
+  "datasheet_url": "https://www.antennaexperts.in/docs/JC12-2450-Datasheet.pdf",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM2005D-D01",
+   "desc": "2200 - 2500 MHz 16W Dual Channel Bi-Directional Power Amplifier, Auto-Switching",
+   "power": "16 W",
+   "price": "3150"
+  }
+ },
+ {
+  "excel_row": 6,
+  "rm_match": "RM-2450",
+  "manufacturer": "Antenna Experts",
+  "model": "JCM6-2450",
+  "band": "2400–2500",
+  "gain": "6",
+  "pattern_pol": "Omni / Vertical",
+  "type": "Manpack Omni",
+  "price": "TBD",
+  "country": "India ",
+  "datasheet_url": "https://www.antennaexperts.in/docs/JCM6-2450-Datasheet.pdf",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM2005D-D01",
+   "desc": "2200 - 2500 MHz 16W Dual Channel Bi-Directional Power Amplifier, Auto-Switching",
+   "power": "16 W",
+   "price": "3150"
+  }
+ },
+ {
+  "excel_row": 7,
+  "rm_match": "RM-2450",
+  "manufacturer": "Antenna Experts",
+  "model": "JC10-2450",
+  "band": "2400–2500",
+  "gain": "10",
+  "pattern_pol": "Omni / Vertical",
+  "type": "Collinear Omni",
+  "price": "TBD",
+  "country": "India ",
+  "datasheet_url": "https://www.antennaexperts.in/model-detail.asp?RecID=358",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM2005D-D01",
+   "desc": "2200 - 2500 MHz 16W Dual Channel Bi-Directional Power Amplifier, Auto-Switching",
+   "power": "16 W",
+   "price": "3150"
+  }
+ },
+ {
+  "excel_row": 8,
+  "rm_match": "RM-2450",
+  "manufacturer": "Antenna Experts",
+  "model": "AY-2450",
+  "band": "2300–2600",
+  "gain": "13",
+  "pattern_pol": "Directional",
+  "type": "Yagi",
+  "price": "TBD",
+  "country": "India ",
+  "datasheet_url": "https://www.antennaexperts.co/product/AY-2450-Datasheet.pdf",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM2005D-D01",
+   "desc": "2200 - 2500 MHz 16W Dual Channel Bi-Directional Power Amplifier, Auto-Switching",
+   "power": "16 W",
+   "price": "3150"
+  }
+ },
+ {
+  "excel_row": 9,
+  "rm_match": "RM-2450",
+  "manufacturer": "Eteily",
+  "model": "ET-ACA-8010-A1-MC-S",
+  "band": "2400–2500",
+  "gain": "2.5",
+  "pattern_pol": "Omni",
+  "type": "SMD Omni",
+  "price": "TBD",
+  "country": "India ",
+  "datasheet_url": "https://www.inpaqgp.com/rw_40b272d49797af2cc6cacf409f1a9df0",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM2005D-D01",
+   "desc": "2200 - 2500 MHz 16W Dual Channel Bi-Directional Power Amplifier, Auto-Switching",
+   "power": "16 W",
+   "price": "3150"
+  }
+ },
+ {
+  "excel_row": 10,
+  "rm_match": "RM-2450",
+  "manufacturer": "Select Antenna",
+  "model": "SEL-2417",
+  "band": "2400–2500",
+  "gain": "17",
+  "pattern_pol": "Directional",
+  "type": "Grid Parabolic",
+  "price": "TBD",
+  "country": "India ",
+  "datasheet_url": null,
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM2005D-D01",
+   "desc": "2200 - 2500 MHz 16W Dual Channel Bi-Directional Power Amplifier, Auto-Switching",
+   "power": "16 W",
+   "price": "3150"
+  }
+ },
+ {
+  "excel_row": 11,
+  "rm_match": "RM-2450",
+  "manufacturer": "Select Antenna",
+  "model": "SEL-2424",
+  "band": "2400–2500",
+  "gain": "24–30 (spec conflict)",
+  "pattern_pol": "Directional",
+  "type": "Grid Parabolic",
+  "price": "TBD",
+  "country": "India ",
+  "datasheet_url": "https://2.imimg.com/data2/RC/YP/MY-/specs-2424.pdf",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM2005D-D01",
+   "desc": "2200 - 2500 MHz 16W Dual Channel Bi-Directional Power Amplifier, Auto-Switching",
+   "power": "16 W",
+   "price": "3150"
+  }
+ },
+ {
+  "excel_row": 12,
+  "rm_match": "RM-2450",
+  "manufacturer": "Synergy Antenna",
+  "model": "2.4 GHz Omni (12 dBi)",
+  "band": "2400–2500",
+  "gain": "12",
+  "pattern_pol": "Omni",
+  "type": "Fiberglass Omni",
+  "price": "TBD",
+  "country": "India ",
+  "datasheet_url": null,
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM2005D-D01",
+   "desc": "2200 - 2500 MHz 16W Dual Channel Bi-Directional Power Amplifier, Auto-Switching",
+   "power": "16 W",
+   "price": "3150"
+  }
+ },
+ {
+  "excel_row": 13,
+  "rm_match": "RM-2450",
+  "manufacturer": null,
+  "model": "TM26D-HVPANEL-14",
+  "band": "2.3–2.9 GHz",
+  "gain": "14",
+  "pattern_pol": "Directional / Dual-Pol",
+  "type": "Panel Antenna",
+  "price": "TBD",
+  "country": "India ",
+  "datasheet_url": "https://www.tradeindia.com/products/dual-polarization-panel-antenna-2-3-2-9-ghz-tm26d-hvpanel-14-1721126.html",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": "8W",
+   "price": "3250"
+  }
+ },
+ {
+  "excel_row": 14,
+  "rm_match": "RM-2450",
+  "manufacturer": "CSG Networks",
+  "model": "CSG 62411 ODN",
+  "band": "2400–2500",
+  "gain": "11",
+  "pattern_pol": "Omni / Vertical",
+  "type": "Outdoor Omni",
+  "price": "TBD",
+  "country": "India ",
+  "datasheet_url": "http://www.csgnets.com/wp-content/uploads/2016/01/CSG-62411-ODN-2.4-GHz-Omni-Directional-Antenna.pdf",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM2005D-D01",
+   "desc": "2200 - 2500 MHz 16W Dual Channel Bi-Directional Power Amplifier, Auto-Switching",
+   "power": "16 W",
+   "price": "3150"
+  }
+ },
+ {
+  "excel_row": 15,
+  "rm_match": "RM-2450 series (2.4) / RM-5600 & RM-5400 & RM-5200 series (5.8)",
+  "manufacturer": null,
+  "model": "2.4/5.8 GHz Whip",
+  "band": "2400/5800",
+  "gain": "3",
+  "pattern_pol": "Omni",
+  "type": "Whip Omni",
+  "price": "TBD",
+  "country": "India ",
+  "datasheet_url": null,
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": "8W",
+   "price": "3250"
+  }
+ },
+ {
+  "excel_row": 16,
+  "rm_match": "RM-2450",
+  "manufacturer": "Astra Microwave",
+  "model": "AMP-PATTS-203 (Example)",
+  "band": "S-Band (Telemetry ~2.4 GHz)",
+  "gain": "—",
+  "pattern_pol": "Dual Polarized / Tracking",
+  "type": "Phased Array Telemetry",
+  "price": "TBD",
+  "country": "India ",
+  "datasheet_url": "https://astramwp.com/antenna/",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": "8W",
+   "price": "3250"
+  }
+ },
+ {
+  "excel_row": 17,
+  "rm_match": "RM-2450",
+  "manufacturer": null,
+  "model": "TM26L-SPDISH-15/21",
+  "band": "2.3–3.9 GHz",
+  "gain": "15–21",
+  "pattern_pol": "Directional",
+  "type": "Parabolic Dish",
+  "price": "TBD",
+  "country": "India ",
+  "datasheet_url": "https://www.telimart.in/",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": "8W",
+   "price": "3250"
+  }
+ },
+ {
+  "excel_row": 18,
+  "rm_match": "RM-1700",
+  "manufacturer": null,
+  "model": "ET-9153R-SMMO",
+  "band": "824–960",
+  "gain": "3",
+  "pattern_pol": "Omni",
+  "type": "Rubber-duck Omni",
+  "price": "TBD",
+  "country": "India ",
+  "datasheet_url": "https://eteily.com/915mhz-antenna/65-915mhz-3dbi-rubber-duck-antenna-with-sma-male-movable-connector.html",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": "8W",
+   "price": "3250"
+  }
+ },
+ {
+  "excel_row": 19,
+  "rm_match": "RM-1700",
+  "manufacturer": null,
+  "model": "ET-91518Y2-2L20C-NFS",
+  "band": "824–960",
+  "gain": "18",
+  "pattern_pol": "Directional",
+  "type": "Yagi",
+  "price": "TBD",
+  "country": "India ",
+  "datasheet_url": "https://eteily.com/915mhz-antenna/486-915mhz-18dbi-yagi-antenna-with-rg58-cable-l-20cm-n-f-st-connector.html",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": "8W",
+   "price": "3250"
+  }
+ },
+ {
+  "excel_row": 20,
+  "rm_match": "RM-1700 series (900 MHz) / RM-2450 ",
+  "manufacturer": "Gleam Light India",
+  "model": "GLI/OMNI/01",
+  "band": "0.7–2.4",
+  "gain": "5–7",
+  "pattern_pol": "Omni",
+  "type": "Flat Omni",
+  "price": "TBD",
+  "country": "India ",
+  "datasheet_url": "https://www.gleamlightindia.in/omni-antenna.html",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": "8W",
+   "price": "3250"
+  }
+ },
+ {
+  "excel_row": 21,
+  "rm_match": "RM-1700",
+  "manufacturer": null,
+  "model": "OMNIODA070",
+  "band": "~860–870",
+  "gain": "7",
+  "pattern_pol": "Omni",
+  "type": "Outdoor Fiberglass Omni",
+  "price": "TBD",
+  "country": "India ",
+  "datasheet_url": "https://www.gleamlightindia.in/",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": "8W",
+   "price": "3250"
+  }
+ },
+ {
+  "excel_row": 22,
+  "rm_match": "RM-1700 series (900 MHz) / RM-2025",
+  "manufacturer": null,
+  "model": "OMNIOD4120",
+  "band": "750–960 / 1710–2700",
+  "gain": "10–12",
+  "pattern_pol": "Omni",
+  "type": "Outdoor Omni",
+  "price": "TBD",
+  "country": "India ",
+  "datasheet_url": "https://www.gleamlightindia.in/",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": "8W",
+   "price": "3250"
+  }
+ },
+ {
+  "excel_row": 23,
+  "rm_match": "RM-1700 series (900 MHz) / RM-2450 series (2.4 GHz)",
+  "manufacturer": null,
+  "model": "COMNIID040 / WIFIFOMID2",
+  "band": "0.7–2.4",
+  "gain": "2",
+  "pattern_pol": "Omni",
+  "type": "Ceiling Omni",
+  "price": "TBD",
+  "country": "India ",
+  "datasheet_url": "https://www.gleamlightindia.in/",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": "8W",
+   "price": "3250"
+  }
+ },
+ {
+  "excel_row": 24,
+  "rm_match": "RM-1700 series / RM-2450 series / RM-2025",
+  "manufacturer": "Smart Electronics (SEC Antenna)",
+  "model": "SGP-4/5/6/8 series",
+  "band": "700–3000 (inc. 2.4 GHz)",
+  "gain": "16–34",
+  "pattern_pol": "Directional",
+  "type": "Grid Parabolic",
+  "price": "TBD",
+  "country": "India ",
+  "datasheet_url": "https://secantenna.com/",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": "8W",
+   "price": "3250"
+  }
+ },
+ {
+  "excel_row": 25,
+  "rm_match": "Partial overlap → RM-1700 series (900 MHz)",
+  "manufacturer": null,
+  "model": "JD 401",
+  "band": "20–1200 MHz",
+  "gain": "—",
+  "pattern_pol": "Omni / Vertical",
+  "type": "Dipole Blade",
+  "price": "TBD",
+  "country": "India ",
+  "datasheet_url": "https://www.elcomsys.sg/wp-content/uploads/2019/10/JD_401_1.pdf",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": "8W",
+   "price": "3250"
+  }
+ },
+ {
+  "excel_row": 26,
+  "rm_match": "RM1300/RM1400",
+  "manufacturer": "Verdant Antennas",
+  "model": "JD 201 (Blade)",
+  "band": "110–400 MHz",
+  "gain": "—",
+  "pattern_pol": "Omni / Vertical",
+  "type": "Blade Omni",
+  "price": "TBD",
+  "country": "India ",
+  "datasheet_url": "https://www.elcomsys.sg/wp-content/uploads/2019/10/JD_201_1.pdf",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": "8W",
+   "price": "3250"
+  }
+ },
+ {
+  "excel_row": 27,
+  "rm_match": "RM1300/RM1400",
+  "manufacturer": null,
+  "model": "JD 322 N",
+  "band": "30–550 MHz",
+  "gain": "—",
+  "pattern_pol": "Omni / Vertical",
+  "type": "Blade Omni",
+  "price": "TBD",
+  "country": "India ",
+  "datasheet_url": "https://3.imimg.com/data3/YG/GD/MY-4353615/communication.pdf",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": "8W",
+   "price": "3250"
+  }
+ },
+ {
+  "excel_row": 28,
+  "rm_match": "RM1300/RM1400",
+  "manufacturer": null,
+  "model": "JD 350 B",
+  "band": "30–410 MHz",
+  "gain": "—",
+  "pattern_pol": "Omni / Vertical (Dual-band)",
+  "type": "Blade Omni",
+  "price": "TBD",
+  "country": "India ",
+  "datasheet_url": "https://verdantsales484.en.ec21.com/VUHF_L_Band_Blade_Antenna--9214442_9214477.html",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": "8W",
+   "price": "3250"
+  }
+ },
+ {
+  "excel_row": 29,
+  "rm_match": "RM-5400- / RM-5400- / RM-5200- / RM-5200-",
+  "manufacturer": null,
+  "model": "AH-4959",
+  "band": "4900–5900",
+  "gain": "16 dBic",
+  "pattern_pol": "Directional, LHCP/RHCP",
+  "type": "Helical (fin-style directional)",
+  "price": "TBD",
+  "country": "India ",
+  "datasheet_url": "https://www.antennaexperts.in/docs/AH-4959-Datasheet.pdf",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM4005DR-D02",
+   "desc": "4400-5000 MHz 20W DUAL Bi-Directional Amplifier, Manual,Switching, Rugged Housing",
+   "power": "20W",
+   "price": "7100.25"
+  }
+ },
+ {
+  "excel_row": 30,
+  "rm_match": "RM-2025/RM-5200",
+  "manufacturer": "Verdant Telemetry & Antenna Systems",
+  "model": "multi-band",
+  "band": "1.6–2.5 GHz & 4.4–6.0 GHz",
+  "gain": "Various",
+  "pattern_pol": "— (family name only)",
+  "type": "—",
+  "price": "Contact vendor",
+  "country": "United States",
+  "datasheet_url": "https://verdanttelemetry.com/",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": "8W",
+   "price": "3250"
+  }
+ },
+ {
+  "excel_row": 31,
+  "rm_match": "RM-2025",
+  "manufacturer": "Southwest Antennas",
+  "model": "1009-015",
+  "band": "1.625–2.5 GHz",
+  "gain": "12",
+  "pattern_pol": "Omnidirectional whip",
+  "type": "Linear, vertical. (southwestantennas.com)",
+  "price": "USD$578 (≈SGD$744.87)",
+  "country": "United States",
+  "datasheet_url": "https://www.unmannedsystemssource.com/product/broadband-panel-antenna-1-625-2-5-ghz-12-dbi/",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": "8W",
+   "price": "3250"
+  }
+ },
+ {
+  "excel_row": 32,
+  "rm_match": "RM-2025",
+  "manufacturer": "Cisco",
+  "model": "AIR‑ANT2524V4C‑R",
+  "band": "2.4/5 GHz",
+  "gain": "4",
+  "pattern_pol": "Ceiling-mount omni (4-element MIMO)",
+  "type": "Not explicitly stated by Cisco; 4-port linear elements (typical). (Cisco)",
+  "price": "Contact vendor",
+  "country": "United States",
+  "datasheet_url": "https://www.cisco.com/c/en/us/products/collateral/wireless/aironet-antenna-accessories/datasheet-c78-723449.html",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": "8W",
+   "price": "3250"
+  }
+ },
+ {
+  "excel_row": 33,
+  "rm_match": "RM-2025",
+  "manufacturer": "Cisco",
+  "model": "AIR‑ANT2422DW‑R",
+  "band": "2.4 GHz",
+  "gain": "2.2",
+  "pattern_pol": "Articulated dipole (omni “doughnut”)",
+  "type": "Linear; depends on orientation (typically vertical when upright). (Cisco)",
+  "price": "Contact vendor",
+  "country": "United States",
+  "datasheet_url": "https://www.cisco.com/c/en/us/products/collateral/wireless/aironet-antenna-accessories/datasheet-c78-724250.html",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": "8W",
+   "price": "3250"
+  }
+ },
+ {
+  "excel_row": 34,
+  "rm_match": "RM-2025",
+  "manufacturer": "Poynting",
+  "model": "OMNI-402",
+  "band": "2.4/5 GHz",
+  "gain": "3",
+  "pattern_pol": "Omnidirectional, 2×2 MIMO Wi-Fi",
+  "type": "Vertical (vendor lists omni/MIMO; polarization not explicitly called out). (solwise.co.uk)",
+  "price": "365 $",
+  "country": "South Africa",
+  "datasheet_url": "https://poynting.tech/product/omni-402/",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": "8W",
+   "price": "3250"
+  }
+ },
+ {
+  "excel_row": 35,
+  "rm_match": "RM-2025",
+  "manufacturer": "Poynting",
+  "model": "XPOL-2-5G",
+  "band": "2.4/5 GHz",
+  "gain": "3.5",
+  "pattern_pol": "Directional panel",
+  "type": "Dual slant ±45° (cross-pol). (NetXL)",
+  "price": "Contact vendor",
+  "country": "South Africa",
+  "datasheet_url": "https://poynting.tech/product/xpol-2-5g/",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": "8W",
+   "price": "3250"
+  }
+ },
+ {
+  "excel_row": 36,
+  "rm_match": "RM-2025",
+  "manufacturer": "Aruba",
+  "model": "AP‑ANT‑13B",
+  "band": "2.4/5 GHz",
+  "gain": "4",
+  "pattern_pol": "Ceiling-mount omni",
+  "type": "Linear, vertical. (The Telco Shop, convergetp.co.uk)",
+  "price": "Contact vendor",
+  "country": "United States",
+  "datasheet_url": "https://www.arubanetworks.com/products/networking/antennas/ap-ant-13b/",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": "8W",
+   "price": "3250"
+  }
+ },
+ {
+  "excel_row": 37,
+  "rm_match": "RM-2025",
+  "manufacturer": "MikroTik",
+  "model": "mANT19s",
+  "band": "2.4/5 GHz",
+  "gain": "19",
+  "pattern_pol": "120° sector",
+  "type": "Dual linear (H & V). (cdn.mikrotik.com)",
+  "price": "Contact vendor",
+  "country": "Latvia",
+  "datasheet_url": "https://mikrotik.com/product/mantbox19s",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": "8W",
+   "price": "3250"
+  }
+ },
+ {
+  "excel_row": 38,
+  "rm_match": "RM-2025",
+  "manufacturer": "TP-Link",
+  "model": "TL‑ANT2409A",
+  "band": "2.4 GHz",
+  "gain": "9",
+  "pattern_pol": "Directional panel",
+  "type": "Linear, vertical. (static.tp-link.com)",
+  "price": "Contact vendor",
+  "country": "China",
+  "datasheet_url": "https://www.tp-link.com/us/business-networking/accessory/tl-ant2409a/",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": "8W",
+   "price": "3250"
+  }
+ },
+ {
+  "excel_row": 39,
+  "rm_match": "RM-2025",
+  "manufacturer": "TP-Link",
+  "model": "TL‑ANT2424B",
+  "band": "2.4 GHz",
+  "gain": "24",
+  "pattern_pol": "Grid parabolic dish",
+  "type": "Linear, vertical. (TP-Link)",
+  "price": "Contact vendor",
+  "country": "China",
+  "datasheet_url": "https://www.tp-link.com/us/home-networking/accessory/tl-ant2424b/",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": "8W",
+   "price": "3250"
+  }
+ },
+ {
+  "excel_row": 40,
+  "rm_match": "RM-2025",
+  "manufacturer": "Alfa",
+  "model": "APA‑M04",
+  "band": "2.4 GHz",
+  "gain": "7",
+  "pattern_pol": "— (need exact datasheet)",
+  "type": "—",
+  "price": "Contact vendor",
+  "country": "Taiwan",
+  "datasheet_url": "https://www.alfa.com.tw/products/apa-m04",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": "8W",
+   "price": "3250"
+  }
+ },
+ {
+  "excel_row": 41,
+  "rm_match": "RM-2025",
+  "manufacturer": "Alfa",
+  "model": "AOA‑2458‑59‑TF",
+  "band": "2.4/5.8 GHz",
+  "gain": "9",
+  "pattern_pol": "Omnidirectional fiberglass (dual-band)",
+  "type": "Not stated; typical vertical for this type. (ALFA Network Inc.)",
+  "price": "Contact vendor",
+  "country": "Taiwan",
+  "datasheet_url": "https://www.alfa.com.tw/products/aoa-2458-59-tf",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": "8W",
+   "price": "3250"
+  }
+ },
+ {
+  "excel_row": 42,
+  "rm_match": "RM-2025",
+  "manufacturer": "Netgear",
+  "model": "ANT2408",
+  "band": "2.4 GHz",
+  "gain": "8",
+  "pattern_pol": "— (model unclear; Netgear commonly has ANT2409 9 dBi omni)",
+  "type": "—",
+  "price": "Contact vendor",
+  "country": "United States",
+  "datasheet_url": "https://www.netgear.com/business/wifi/accessories/ant2408/",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": "8W",
+   "price": "3250"
+  }
+ },
+ {
+  "excel_row": 43,
+  "rm_match": "RM-2025",
+  "manufacturer": "D‑Link",
+  "model": "ANT24‑0700",
+  "band": "2.4 GHz",
+  "gain": "7",
+  "pattern_pol": "Omnidirectional",
+  "type": "Linear, vertical. (img.cartimex.com, ftp.dlink.de)",
+  "price": "Contact vendor",
+  "country": "Taiwan",
+  "datasheet_url": "https://www.dlink.com/en/products/ant24-0700",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": "8W",
+   "price": "3250"
+  }
+ },
+ {
+  "excel_row": 44,
+  "rm_match": "RM-2025",
+  "manufacturer": "Ubiquiti",
+  "model": "AMO-2G10",
+  "band": "2.4 GHz",
+  "gain": "10",
+  "pattern_pol": "Omnidirectional 2×2 MIMO",
+  "type": "Dual linear (H & V). (UniFi Cloud Gateways)",
+  "price": "Contact vendor",
+  "country": "United States",
+  "datasheet_url": "https://store.ui.com/collections/airmax-omni/products/airmax-omnidirectional-antenna-2g10",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": "8W",
+   "price": "3250"
+  }
+ },
+ {
+  "excel_row": 45,
+  "rm_match": "RM-2025",
+  "manufacturer": "Ubiquiti",
+  "model": "AM-2G15-120",
+  "band": "2.4 GHz",
+  "gain": "15",
+  "pattern_pol": "120° sector",
+  "type": "Dual linear (H & V). (UniFi Cloud Gateways)",
+  "price": "Contact vendor",
+  "country": "United States",
+  "datasheet_url": "https://store.ui.com/collections/airmax-sector/products/airmax-2g-120-15",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": "8W",
+   "price": "3250"
+  }
+ },
+ {
+  "excel_row": 46,
+  "rm_match": "RM-2025",
+  "manufacturer": "MikroTik",
+  "model": "mANT15s",
+  "band": "2.4/5 GHz",
+  "gain": "15",
+  "pattern_pol": "120° sector",
+  "type": "Dual linear (H & V). (MikroTik)",
+  "price": "Contact vendor",
+  "country": "Latvia",
+  "datasheet_url": "https://mikrotik.com/product/mant15s",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": "8W",
+   "price": "3250"
+  }
+ },
+ {
+  "excel_row": 47,
+  "rm_match": "RM-2025",
+  "manufacturer": "L‑COM",
+  "model": "HG2415P",
+  "band": "2.4 GHz",
+  "gain": "15",
+  "pattern_pol": "Directional flat panel",
+  "type": "Linear (V/H depends on mount). (L-com)",
+  "price": "Contact vendor",
+  "country": "United States",
+  "datasheet_url": "https://www.l-com.com/wireless-antenna/hg2415p-antenna",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": "8W",
+   "price": "3250"
+  }
+ },
+ {
+  "excel_row": 48,
+  "rm_match": "RM-2025",
+  "manufacturer": "Pasternack",
+  "model": "PE51078",
+  "band": "2.4–2.5 GHz",
+  "gain": "5.5",
+  "pattern_pol": "Rubber-duck omni",
+  "type": "Linear, vertical. (pasternack.com, Everything RF)",
+  "price": "€35.53 (≈SGD$52.84)",
+  "country": "United States",
+  "datasheet_url": "https://www.digikey.sg/en/products/detail/pasternack-enterprises-inc/PE51078/",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": "8W",
+   "price": "3250"
+  }
+ },
+ {
+  "excel_row": 49,
+  "rm_match": "RM-2025",
+  "manufacturer": "L‑COM",
+  "model": "HG2403CU",
+  "band": "2.4 GHz",
+  "gain": "3",
+  "pattern_pol": "Ceiling-mount omni (3 dBi)",
+  "type": "Linear, vertical. (southwestantennas.com)",
+  "price": "Contact vendor",
+  "country": "United States",
+  "datasheet_url": "https://www.l-com.com/wireless-antenna/hg2403cu-antenna",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": "8W",
+   "price": "3250"
+  }
+ },
+ {
+  "excel_row": 50,
+  "rm_match": "RM-2025",
+  "manufacturer": "L‑COM",
+  "model": "HG2424EG",
+  "band": "2.4 GHz",
+  "gain": "24",
+  "pattern_pol": "Grid dish (24 dBi)",
+  "type": "Linear (V/H selectable by feed rotation). (southwestantennas.com)",
+  "price": "Contact vendor",
+  "country": "United States",
+  "datasheet_url": "https://www.l-com.com/wireless-antenna/hg2424eg-antenna",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": "8W",
+   "price": "3250"
+  }
+ },
+ {
+  "excel_row": 51,
+  "rm_match": "RM-2025",
+  "manufacturer": "L‑COM",
+  "model": "HG2406CU",
+  "band": "2.4 GHz",
+  "gain": "6",
+  "pattern_pol": "Ceiling-mount omni (6 dBi)",
+  "type": "Linear, vertical. (Products)",
+  "price": "Contact vendor",
+  "country": "United States",
+  "datasheet_url": "https://www.l-com.com/wireless-antenna/hg2406cu-antenna",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": "8W",
+   "price": "3250"
+  }
+ },
+ {
+  "excel_row": 52,
+  "rm_match": "RM-2025",
+  "manufacturer": "L‑COM",
+  "model": "HG2410U",
+  "band": "2.4 GHz",
+  "gain": "10",
+  "pattern_pol": "Outdoor omni (10 dBi)",
+  "type": "Linear, vertical. (southwestantennas.com)",
+  "price": "Contact vendor",
+  "country": "United States",
+  "datasheet_url": "https://www.l-com.com/wireless-antenna/hg2410u-antenna",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": "8W",
+   "price": "3250"
+  }
+ },
+ {
+  "excel_row": 53,
+  "rm_match": "RM-2025",
+  "manufacturer": "Hascall‑Denke",
+  "model": "FXPR1350-2700-D",
+  "band": "1350-2700 MHz",
+  "gain": "26",
+  "pattern_pol": "Dual Polarization",
+  "type": "Directional ",
+  "price": "Contact vendor",
+  "country": "United States",
+  "datasheet_url": "https://hascall-denke.com/project/1350-2700-mhz-1y28200fxpr1350-2700-d/",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": "8W",
+   "price": "3250"
+  }
+ },
+ {
+  "excel_row": 55,
+  "rm_match": "RM-2025",
+  "manufacturer": "L‑COM",
+  "model": "HG2405U",
+  "band": "2.4 GHz",
+  "gain": "5",
+  "pattern_pol": "Outdoor omni (5 dBi)",
+  "type": "Linear, vertical. (southwestantennas.com)",
+  "price": "Contact vendor",
+  "country": "United States",
+  "datasheet_url": "https://www.l-com.com/wireless-antenna/hg2405u-antenna",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": "8W",
+   "price": "3250"
+  }
+ },
+ {
+  "excel_row": 56,
+  "rm_match": "RM-2025 (1.6–2.5 GHz) / RM-2450 / RM-5200 / RM-5400 / RM-5600",
+  "manufacturer": null,
+  "model": "(Portfolio)",
+  "band": "1–18 GHz (various)",
+  "gain": "Varies",
+  "pattern_pol": "Linear / Circular",
+  "type": "Horn, Helical, Spiral, Vivaldi, Biconical, Patch",
+  "price": "TBD",
+  "country": "India ",
+  "datasheet_url": "https://astramwp.com/antenna/",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": "8W",
+   "price": "3250"
+  }
+ },
+ {
+  "excel_row": 57,
+  "rm_match": "Partial overlap → RM-2100",
+  "manufacturer": "Celestial",
+  "model": "CST-L-7070",
+  "band": "L-Band (1.5 GHz)",
+  "gain": "—",
+  "pattern_pol": "Omni / Vertical",
+  "type": "Patch Antenna",
+  "price": "TBD",
+  "country": "India ",
+  "datasheet_url": "https://satsearch.co/products/celestial-l-band-antenna",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": "8W",
+   "price": "3250"
+  }
+ },
+ {
+  "excel_row": 58,
+  "rm_match": "RM-2100",
+  "manufacturer": "Celestial",
+  "model": "Celestial S-Band Patch",
+  "band": "2.2–2.3 GHz (LEO TT&C)",
+  "gain": "6–8",
+  "pattern_pol": "Circular Polarized",
+  "type": "Patch Antenna",
+  "price": "TBD",
+  "country": "India ",
+  "datasheet_url": "https://satsearch.co/products/celestial-cst-s-9882-s-band-patch-antenna",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": "8W",
+   "price": "3250"
+  }
+ },
+ {
+  "excel_row": 59,
+  "rm_match": "Partial overlap → RM-2100- / RM-2100-",
+  "manufacturer": null,
+  "model": "JL 50",
+  "band": "1430–1540 MHz",
+  "gain": "—",
+  "pattern_pol": "Omni / Vertical",
+  "type": "L-band Blade",
+  "price": "TBD",
+  "country": "India ",
+  "datasheet_url": "https://www.elcomsys.sg/wp-content/uploads/2019/10/L-Band-Blade-Antenna.pdf",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": "8W",
+   "price": "3250"
+  }
+ },
+ {
+  "excel_row": 60,
+  "rm_match": "RM-5400/ RM-5400 / RM-5200-",
+  "manufacturer": "Select Antenna",
+  "model": "SEL-SEC-5816M",
+  "band": "4900–6000",
+  "gain": "2×16",
+  "pattern_pol": "Directional, Dual-Pol",
+  "type": "MIMO Sector",
+  "price": "TBD",
+  "country": "India ",
+  "datasheet_url": "https://www.selectantenna.com/product/16-dbi-mimo-sector/",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM4005DR-D02 / TTRM4302-D01",
+   "desc": "4400-5000 MHz 20W DUAL Bi-Directional Amplifier, Manual,Switching, Rugged Housing",
+   "power": "20W/ 10W",
+   "price": "7100.25 / $2,950.00"
+  }
+ },
+ {
+  "excel_row": 61,
+  "rm_match": "RM-5400/ RM-5200",
+  "manufacturer": "Telimart India",
+  "model": "TM55D-HVOMNI-12",
+  "band": "4.9–5.9 GHz",
+  "gain": "12",
+  "pattern_pol": "Omni / H&V Dual-Pol",
+  "type": "Fiberglass Omni",
+  "price": "TBD",
+  "country": "India ",
+  "datasheet_url": "https://www.telimart.in/omni-antenna.htm",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM4005DR-D02 / TTRM4302-D01",
+   "desc": "4400-5000 MHz 20W DUAL Bi-Directional Amplifier, Manual,Switching, Rugged Housing",
+   "power": "20W/ 10W",
+   "price": "7100.25 / $2,950.00"
+  }
+ },
+ {
+  "excel_row": 62,
+  "rm_match": "RM-5400/ RM-5200",
+  "manufacturer": "Telimart India",
+  "model": "TM55D-HVSCTR-16",
+  "band": "4.9–5.9 GHz",
+  "gain": "16",
+  "pattern_pol": "Directional / Dual-Pol",
+  "type": "Sector Antenna",
+  "price": "TBD",
+  "country": "India ",
+  "datasheet_url": "https://www.tradeindia.com/products/dual-polarization-sector-antenna-4-9-5-9-ghz-tm55d-hvsctr-16-1721202.html",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM4005DR-D02 / TTRM4302-D01",
+   "desc": "4400-5000 MHz 20W DUAL Bi-Directional Amplifier, Manual,Switching, Rugged Housing",
+   "power": "20W/ 10W",
+   "price": "7100.25 / $2,950.00"
+  }
+ },
+ {
+  "excel_row": 63,
+  "rm_match": "RM-5400/ RM-5200",
+  "manufacturer": "Telimart India",
+  "model": "TM55L-SPDISH-23/38",
+  "band": "4.9–5.9 GHz",
+  "gain": "23–38",
+  "pattern_pol": "Directional",
+  "type": "Parabolic Dish",
+  "price": "TBD",
+  "country": "India ",
+  "datasheet_url": "https://www.telimart.in/",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM4005DR-D02 / TTRM4302-D01",
+   "desc": "4400-5000 MHz 20W DUAL Bi-Directional Amplifier, Manual,Switching, Rugged Housing",
+   "power": "20W/ 10W",
+   "price": "7100.25 / $2,950.00"
+  }
+ },
+ {
+  "excel_row": 64,
+  "rm_match": "RM-5600/ RM-5400",
+  "manufacturer": null,
+  "model": "ET-5812FG5-NMS",
+  "band": "5100–5800",
+  "gain": "12",
+  "pattern_pol": "Omni",
+  "type": "Fiberglass Omni",
+  "price": "TBD",
+  "country": "India ",
+  "datasheet_url": "https://eteily.com/wi-fi-outdoor-antenna/815-58ghz-12dbi-fiberglass-antenna-with-n-male-connector.html",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM4005DR-D02 / TTRM4302-D01",
+   "desc": "4400-5000 MHz 20W DUAL Bi-Directional Amplifier, Manual,Switching, Rugged Housing",
+   "power": "20W/ 10W",
+   "price": "7100.25 / $2,950.00"
+  }
+ },
+ {
+  "excel_row": 65,
+  "rm_match": "RM-5600/ RM-5400",
+  "manufacturer": null,
+  "model": "REN 65817 BFN",
+  "band": "5725–5825",
+  "gain": "—",
+  "pattern_pol": "Directional",
+  "type": "Backfire",
+  "price": "TBD",
+  "country": "India ",
+  "datasheet_url": "http://www.csgnets.com/rfproducts_category/antennas/page/2/",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM4005DR-D02 / TTRM4302-D01",
+   "desc": "4400-5000 MHz 20W DUAL Bi-Directional Amplifier, Manual,Switching, Rugged Housing",
+   "power": "20W/ 10W",
+   "price": "7100.25 / $2,950.00"
+  }
+ },
+ {
+  "excel_row": 66,
+  "rm_match": "RM-5600 / RM-5400",
+  "manufacturer": null,
+  "model": "REN 65824 SGPN",
+  "band": "5725–5825",
+  "gain": "—",
+  "pattern_pol": "Directional",
+  "type": "Semi-parabolic Grid",
+  "price": "TBD",
+  "country": "India ",
+  "datasheet_url": "http://www.csgnets.com/rfproducts-view/semi-parabolic-grid-antennasren-65824-sgpn/",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM4005DR-D02 / TTRM4302-D01",
+   "desc": "4400-5000 MHz 20W DUAL Bi-Directional Amplifier, Manual,Switching, Rugged Housing",
+   "power": "20W/ 10W",
+   "price": "7100.25 / $2,950.00"
+  }
+ },
+ {
+  "excel_row": 67,
+  "rm_match": "RM-5600/ RM-5400",
+  "manufacturer": "Select Antenna",
+  "model": "5.8 GHz Dish",
+  "band": "5150–5850",
+  "gain": "29",
+  "pattern_pol": "Directional",
+  "type": "Parabolic Dish",
+  "price": "TBD",
+  "country": "India ",
+  "datasheet_url": "https://secantenna.com/",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM4005DR-D02 / TTRM4302-D01",
+   "desc": "4400-5000 MHz 20W DUAL Bi-Directional Amplifier, Manual,Switching, Rugged Housing",
+   "power": "20W/ 10W",
+   "price": "7100.25 / $2,950.00"
+  }
+ },
+ {
+  "excel_row": 68,
+  "rm_match": "RM-5200",
+  "manufacturer": "Southwest Antennas",
+  "model": "1004-005",
+  "band": "4.0–6.4 GHz",
+  "gain": "9",
+  "pattern_pol": "Omnidirectional",
+  "type": "Vertical (product family page indicates vertical). (Mouser Electronics)",
+  "price": "USD$379 (≈SGD$488.42)",
+  "country": "United States",
+  "datasheet_url": "https://www.southwestantennas.com/product/1004-005",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM4005DR-D02",
+   "desc": "4400-5000 MHz 20W DUAL Bi-Directional Amplifier, Manual,Switching, Rugged Housing",
+   "power": null,
+   "price": null
+  }
+ },
+ {
+  "excel_row": 69,
+  "rm_match": "RM-5200",
+  "manufacturer": "Poynting",
+  "model": "XPOL‑2‑5G",
+  "band": "4.4–6.0 GHz",
+  "gain": "4",
+  "pattern_pol": "Directional panel",
+  "type": "Dual slant ±45°. (NetXL)",
+  "price": "Contact vendor",
+  "country": "South Africa",
+  "datasheet_url": "https://poynting.tech/product/xpol-2-5g/",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM4005DR-D02",
+   "desc": "4400-5000 MHz 20W DUAL Bi-Directional Amplifier, Manual,Switching, Rugged Housing",
+   "power": null,
+   "price": null
+  }
+ },
+ {
+  "excel_row": 70,
+  "rm_match": "RM-5200",
+  "manufacturer": "Hascall‑Denke",
+  "model": "FXDP4.4-6.0-6-D",
+  "band": "4.4–6.0 GHz",
+  "gain": "6",
+  "pattern_pol": "Omnidirectional",
+  "type": "Dual polarization (H & V). (hascall-denke.com, hascall-denke.com)",
+  "price": "Contact vendor",
+  "country": "United States",
+  "datasheet_url": "https://www.hascalldenke.com/",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM4005DR-D02",
+   "desc": "4400-5000 MHz 20W DUAL Bi-Directional Amplifier, Manual,Switching, Rugged Housing",
+   "power": null,
+   "price": null
+  }
+ },
+ {
+  "excel_row": 71,
+  "rm_match": "RM-5200",
+  "manufacturer": "Poynting",
+  "model": "OMNI‑600",
+  "band": "4.4–6.0 GHz",
+  "gain": "7",
+  "pattern_pol": "Omnidirectional (cellular family)",
+  "type": "Not stated; typically vertical. (L-com)",
+  "price": "Contact vendor",
+  "country": "South Africa",
+  "datasheet_url": "https://poynting.tech/product/omni-600/",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM4005DR-D02",
+   "desc": "4400-5000 MHz 20W DUAL Bi-Directional Amplifier, Manual,Switching, Rugged Housing",
+   "power": null,
+   "price": null
+  }
+ },
+ {
+  "excel_row": 72,
+  "rm_match": "RM-5200",
+  "manufacturer": "Cobham Antenna Systems",
+  "model": "C‑Band",
+  "band": "4.4–6.0 GHz",
+  "gain": "Various",
+  "pattern_pol": "— (family label only)",
+  "type": "—",
+  "price": "Contact vendor",
+  "country": "United Kingdom",
+  "datasheet_url": "https://www.cobham.com/",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM4005DR-D02",
+   "desc": "4400-5000 MHz 20W DUAL Bi-Directional Amplifier, Manual,Switching, Rugged Housing",
+   "power": null,
+   "price": null
+  }
+ },
+ {
+  "excel_row": 73,
+  "rm_match": "RM-5200",
+  "manufacturer": "Southwest Antennas",
+  "model": "1001-126",
+  "band": "4.4–6.0 GHz",
+  "gain": "1.5",
+  "pattern_pol": "Directional panel",
+  "type": "Linear (product family spec). (L-com)",
+  "price": "USD$164 (≈SGD$211.35)",
+  "country": "United States",
+  "datasheet_url": "https://www.southwestantennas.com/product/1001-126",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM4005DR-D02",
+   "desc": "4400-5000 MHz 20W DUAL Bi-Directional Amplifier, Manual,Switching, Rugged Housing",
+   "power": null,
+   "price": null
+  }
+ },
+ {
+  "excel_row": 74,
+  "rm_match": "RM-5200",
+  "manufacturer": "L‑COM",
+  "model": "HG4958‑18",
+  "band": "4.9–5.8 GHz",
+  "gain": "18",
+  "pattern_pol": "Directional flat panel (18 dBi)",
+  "type": "Linear (panel; mounting sets V/H). (L-com)",
+  "price": "Contact vendor",
+  "country": "United States",
+  "datasheet_url": "https://www.l-com.com/wireless-antenna/hg4958-18",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM4005DR-D02",
+   "desc": "4400-5000 MHz 20W DUAL Bi-Directional Amplifier, Manual,Switching, Rugged Housing",
+   "power": null,
+   "price": null
+  }
+ },
+ {
+  "excel_row": 75,
+  "rm_match": "RM-5200",
+  "manufacturer": "L‑COM",
+  "model": "HG4958‑24D",
+  "band": "4.9–5.8 GHz",
+  "gain": "24",
+  "pattern_pol": "Dish (24 dBi)",
+  "type": "Linear (V/H selectable). (L-com)",
+  "price": "Contact vendor",
+  "country": "United States",
+  "datasheet_url": "https://www.l-com.com/wireless-antenna/hg4958-24d",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM4005DR-D02",
+   "desc": "4400-5000 MHz 20W DUAL Bi-Directional Amplifier, Manual,Switching, Rugged Housing",
+   "power": null,
+   "price": null
+  }
+ },
+ {
+  "excel_row": 76,
+  "rm_match": "RM-5200",
+  "manufacturer": "L‑COM",
+  "model": "HG4958‑22D",
+  "band": "4.9–5.8 GHz",
+  "gain": "22",
+  "pattern_pol": "Dish (22 dBi)",
+  "type": "Linear (V/H selectable). (L-com)",
+  "price": "Contact vendor",
+  "country": "United States",
+  "datasheet_url": "https://www.l-com.com/wireless-antenna/hg4958-22d",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM4005DR-D02",
+   "desc": "4400-5000 MHz 20W DUAL Bi-Directional Amplifier, Manual,Switching, Rugged Housing",
+   "power": null,
+   "price": null
+  }
+ },
+ {
+  "excel_row": 77,
+  "rm_match": "RM-5200",
+  "manufacturer": "L‑COM",
+  "model": "HG4958‑19",
+  "band": "4.9–5.8 GHz",
+  "gain": "19",
+  "pattern_pol": "Directional panel (19 dBi)",
+  "type": "Linear. (L-com)",
+  "price": "Contact vendor",
+  "country": "United States",
+  "datasheet_url": "https://www.l-com.com/wireless-antenna/hg4958-19",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM4005DR-D02",
+   "desc": "4400-5000 MHz 20W DUAL Bi-Directional Amplifier, Manual,Switching, Rugged Housing",
+   "power": null,
+   "price": null
+  }
+ },
+ {
+  "excel_row": 78,
+  "rm_match": "RM-5200",
+  "manufacturer": "L‑COM",
+  "model": "HG4958‑29D",
+  "band": "4.9–5.8 GHz",
+  "gain": "29",
+  "pattern_pol": "Dish (29 dBi)",
+  "type": "Linear (V/H selectable). (MikroTik)",
+  "price": "Contact vendor",
+  "country": "United States",
+  "datasheet_url": "https://www.l-com.com/wireless-antenna/hg4958-29d",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM4005DR-D02",
+   "desc": "4400-5000 MHz 20W DUAL Bi-Directional Amplifier, Manual,Switching, Rugged Housing",
+   "power": null,
+   "price": null
+  }
+ },
+ {
+  "excel_row": 79,
+  "rm_match": "RM-5200",
+  "manufacturer": "L‑COM",
+  "model": "HG4958‑15U",
+  "band": "4.9–5.8 GHz",
+  "gain": "15",
+  "pattern_pol": "Outdoor omni (15 dBi)",
+  "type": "Linear, vertical. (mars-antennas.com)",
+  "price": "Contact vendor",
+  "country": "United States",
+  "datasheet_url": "https://www.l-com.com/wireless-antenna/hg4958-15u",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM4005DR-D02",
+   "desc": "4400-5000 MHz 20W DUAL Bi-Directional Amplifier, Manual,Switching, Rugged Housing",
+   "power": null,
+   "price": null
+  }
+ },
+ {
+  "excel_row": 80,
+  "rm_match": "RM-5200",
+  "manufacturer": "L‑COM",
+  "model": "HG4958‑12",
+  "band": "4.9–5.8 GHz",
+  "gain": "12",
+  "pattern_pol": "Outdoor omni (12 dBi)",
+  "type": "Linear, vertical. (benelec.au)",
+  "price": "Contact vendor",
+  "country": "United States",
+  "datasheet_url": "https://www.l-com.com/wireless-antenna/hg4958-12",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM4005DR-D02",
+   "desc": "4400-5000 MHz 20W DUAL Bi-Directional Amplifier, Manual,Switching, Rugged Housing",
+   "power": null,
+   "price": null
+  }
+ },
+ {
+  "excel_row": 81,
+  "rm_match": "RM-5200",
+  "manufacturer": "Mars Antennas",
+  "model": "MA-WO56-DP10",
+  "band": "4.9–5.9 GHz",
+  "gain": "10",
+  "pattern_pol": "Omnidirectional",
+  "type": "Dual polarization (MIMO). (MikroTik)",
+  "price": "USD$276.99 (≈SGD$356.96)",
+  "country": "Israel",
+  "datasheet_url": "https://www.solidsignal.com/",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM4005DR-D02",
+   "desc": "4400-5000 MHz 20W DUAL Bi-Directional Amplifier, Manual,Switching, Rugged Housing",
+   "power": null,
+   "price": null
+  }
+ },
+ {
+  "excel_row": 82,
+  "rm_match": "RM-5200",
+  "manufacturer": "Benelec",
+  "model": 2759,
+  "band": "4.9–5.825 GHz",
+  "gain": "10",
+  "pattern_pol": "— (exact model unclear)",
+  "type": "—",
+  "price": "Contact vendor",
+  "country": "Australia",
+  "datasheet_url": "https://www.benelec.com.au/product/02759/",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM4005DR-D02",
+   "desc": "4400-5000 MHz 20W DUAL Bi-Directional Amplifier, Manual,Switching, Rugged Housing",
+   "power": null,
+   "price": null
+  }
+ },
+ {
+  "excel_row": 83,
+  "rm_match": "RM-5200",
+  "manufacturer": "L‑COM",
+  "model": "HG4958‑14",
+  "band": "4.9–5.8 GHz",
+  "gain": "14",
+  "pattern_pol": "Directional panel (14 dBi)",
+  "type": "Linear. (winncom.com)",
+  "price": "Contact vendor",
+  "country": "United States",
+  "datasheet_url": "https://www.l-com.com/wireless-antenna/hg4958-14",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM4005DR-D02",
+   "desc": "4400-5000 MHz 20W DUAL Bi-Directional Amplifier, Manual,Switching, Rugged Housing",
+   "power": null,
+   "price": null
+  }
+ },
+ {
+  "excel_row": 84,
+  "rm_match": "RM-5200",
+  "manufacturer": "Cambium Networks",
+  "model": "450i",
+  "band": "5.0 GHz",
+  "gain": "17",
+  "pattern_pol": "Platform/radio (antenna varies by SKU)",
+  "type": "—",
+  "price": "Contact vendor",
+  "country": "United States",
+  "datasheet_url": "https://www.cambiumnetworks.com/products/antenna/pmp-450i-5-ghz-60-degree-sector/",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM4005DR-D02",
+   "desc": "4400-5000 MHz 20W DUAL Bi-Directional Amplifier, Manual,Switching, Rugged Housing",
+   "power": null,
+   "price": null
+  }
+ },
+ {
+  "excel_row": 85,
+  "rm_match": "RM-5200",
+  "manufacturer": "Ubiquiti",
+  "model": "AM‑5G20‑90",
+  "band": "5.0 GHz",
+  "gain": "20",
+  "pattern_pol": "90° sector",
+  "type": "Dual linear. (UniFi Cloud Gateways)",
+  "price": "Contact vendor",
+  "country": "United States",
+  "datasheet_url": "https://store.ui.com/collections/airmax-sector/products/airmax-5g-90-20",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM4005DR-D02",
+   "desc": "4400-5000 MHz 20W DUAL Bi-Directional Amplifier, Manual,Switching, Rugged Housing",
+   "power": null,
+   "price": null
+  }
+ },
+ {
+  "excel_row": 86,
+  "rm_match": "RM-5200",
+  "manufacturer": "Ubiquiti",
+  "model": "AM‑5G19‑120",
+  "band": "5.0 GHz",
+  "gain": "19",
+  "pattern_pol": "120° sector",
+  "type": "Dual linear. (UniFi Cloud Gateways)",
+  "price": "Contact vendor",
+  "country": "United States",
+  "datasheet_url": "https://store.ui.com/collections/airmax-sector/products/airmax-5g-19-120",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM4005DR-D02",
+   "desc": "4400-5000 MHz 20W DUAL Bi-Directional Amplifier, Manual,Switching, Rugged Housing",
+   "power": null,
+   "price": null
+  }
+ },
+ {
+  "excel_row": 87,
+  "rm_match": "RM-5200",
+  "manufacturer": "Ubiquiti",
+  "model": "AMO‑5G10",
+  "band": "5.0 GHz",
+  "gain": "10",
+  "pattern_pol": "Omnidirectional 2×2 MIMO",
+  "type": "Dual linear. (UniFi Cloud Gateways)",
+  "price": "Contact vendor",
+  "country": "United States",
+  "datasheet_url": "https://store.ui.com/collections/airmax-omni/products/airmax-omni-5g10",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM4005DR-D02",
+   "desc": "4400-5000 MHz 20W DUAL Bi-Directional Amplifier, Manual,Switching, Rugged Housing",
+   "power": null,
+   "price": null
+  }
+ },
+ {
+  "excel_row": 88,
+  "rm_match": "RM-5200",
+  "manufacturer": "Ubiquiti",
+  "model": "RD‑5G30‑LW",
+  "band": "5.0 GHz",
+  "gain": "30",
+  "pattern_pol": "Parabolic dish",
+  "type": "Dual linear (H & V). (UniFi Cloud Gateways)",
+  "price": "Contact vendor",
+  "country": "United States",
+  "datasheet_url": "https://store.ui.com/collections/airmax-dish/products/rocketdish-5g30-lw",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM4005DR-D02",
+   "desc": "4400-5000 MHz 20W DUAL Bi-Directional Amplifier, Manual,Switching, Rugged Housing",
+   "power": null,
+   "price": null
+  }
+ },
+ {
+  "excel_row": 89,
+  "rm_match": "RM-5200",
+  "manufacturer": "Ubiquiti",
+  "model": "RD‑5G34",
+  "band": "5.0 GHz",
+  "gain": "34",
+  "pattern_pol": "Parabolic dish",
+  "type": "Dual linear (H & V). (UniFi Cloud Gateways)",
+  "price": "Contact vendor",
+  "country": "United States",
+  "datasheet_url": "https://store.ui.com/collections/airmax-dish/products/rocketdish-5g34",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM4005DR-D02",
+   "desc": "4400-5000 MHz 20W DUAL Bi-Directional Amplifier, Manual,Switching, Rugged Housing",
+   "power": null,
+   "price": null
+  }
+ },
+ {
+  "excel_row": 90,
+  "rm_match": "RM-5200",
+  "manufacturer": "MikroTik",
+  "model": "mANT30",
+  "band": "5.0 GHz",
+  "gain": "30",
+  "pattern_pol": "Parabolic dish (30 dBi)",
+  "type": "Dual linear (H & V). (MikroTik mANT series are dual-pol.) (cdn.mikrotik.com)",
+  "price": "Contact vendor",
+  "country": "Latvia",
+  "datasheet_url": "https://mikrotik.com/product/mant30",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM4005DR-D02",
+   "desc": "4400-5000 MHz 20W DUAL Bi-Directional Amplifier, Manual,Switching, Rugged Housing",
+   "power": null,
+   "price": null
+  }
+ },
+ {
+  "excel_row": 91,
+  "rm_match": "RM-5200",
+  "manufacturer": "MikroTik",
+  "model": "mANT30PA",
+  "band": "5.0 GHz",
+  "gain": "30",
+  "pattern_pol": "Parabolic dish (30 dBi)",
+  "type": "Dual linear (H & V). (Precision-align variant.) (cdn.mikrotik.com)",
+  "price": "Contact vendor",
+  "country": "Latvia",
+  "datasheet_url": "https://mikrotik.com/product/mant30pa",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM4005DR-D02",
+   "desc": "4400-5000 MHz 20W DUAL Bi-Directional Amplifier, Manual,Switching, Rugged Housing",
+   "power": null,
+   "price": null
+  }
+ },
+ {
+  "excel_row": 92,
+  "rm_match": "RM-5200",
+  "manufacturer": "Cambium Networks",
+  "model": "ePMP",
+  "band": "5.0 GHz",
+  "gain": "15",
+  "pattern_pol": "Platform/radio (antenna varies by sector/dish chosen)",
+  "type": "—",
+  "price": "Contact vendor",
+  "country": "United States",
+  "datasheet_url": "https://www.cambiumnetworks.com/products/antenna/epmp-5-ghz-sector-antenna/",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM4005DR-D02",
+   "desc": "4400-5000 MHz 20W DUAL Bi-Directional Amplifier, Manual,Switching, Rugged Housing",
+   "power": null,
+   "price": null
+  }
+ },
+ {
+  "excel_row": 93,
+  "rm_match": "RM-5200",
+  "manufacturer": "Commscope",
+  "model": "5 GHz",
+  "band": "5.0 GHz",
+  "gain": "18",
+  "pattern_pol": "— (family label only)",
+  "type": "—",
+  "price": "Contact vendor",
+  "country": "United States",
+  "datasheet_url": "https://www.commscope.com/",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM4005DR-D02",
+   "desc": "4400-5000 MHz 20W DUAL Bi-Directional Amplifier, Manual,Switching, Rugged Housing",
+   "power": null,
+   "price": null
+  }
+ },
+ {
+  "excel_row": 94,
+  "rm_match": "RM-2025",
+  "manufacturer": "Hascall‑Denke",
+  "model": "2.2–2.5/4.4–5.875 GHz)",
+  "band": "Custom models",
+  "gain": "Various",
+  "pattern_pol": "Family label",
+  "type": "—",
+  "price": "Contact vendor",
+  "country": "United States",
+  "datasheet_url": "https://www.hascalldenke.com/",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": null,
+   "price": null
+  }
+ },
+ {
+  "excel_row": 95,
+  "rm_match": "RM-2025/RM-5200",
+  "manufacturer": "Telemart India",
+  "model": "(reseller",
+  "band": "Various",
+  "gain": "Various",
+  "pattern_pol": "—",
+  "type": "—",
+  "price": "Contact vendor",
+  "country": "India",
+  "datasheet_url": "https://www.telemartindia.com/",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01/TTRM4005DR-D02",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching/4400-5000 MHz 20W DUAL Bi-Directional Amplifier, Manual,Switching, Rugged Housing",
+   "power": null,
+   "price": null
+  }
+ }
+]

@@ -1,0 +1,302 @@
+[
+ {
+  "excel_row": 5,
+  "rm_match": "RM-2450",
+  "manufacturer": "Antenna Experts",
+  "model": "JC12-2450",
+  "band": "2400–2500",
+  "gain": "12",
+  "pattern_pol": "Omni / Vertical",
+  "type": "Collinear Omni",
+  "price": "TBD",
+  "country": "India ",
+  "datasheet_url": "https://www.antennaexperts.in/docs/JC12-2450-Datasheet.pdf",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM2005D-D01",
+   "desc": "2200 - 2500 MHz 16W Dual Channel Bi-Directional Power Amplifier, Auto-Switching",
+   "power": "16 W",
+   "price": "3150"
+  }
+ },
+ {
+  "excel_row": 6,
+  "rm_match": "RM-2450",
+  "manufacturer": "Antenna Experts",
+  "model": "JCM6-2450",
+  "band": "2400–2500",
+  "gain": "6",
+  "pattern_pol": "Omni / Vertical",
+  "type": "Manpack Omni",
+  "price": "TBD",
+  "country": "India ",
+  "datasheet_url": "https://www.antennaexperts.in/docs/JCM6-2450-Datasheet.pdf",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM2005D-D01",
+   "desc": "2200 - 2500 MHz 16W Dual Channel Bi-Directional Power Amplifier, Auto-Switching",
+   "power": "16 W",
+   "price": "3150"
+  }
+ },
+ {
+  "excel_row": 7,
+  "rm_match": "RM-2450",
+  "manufacturer": "Antenna Experts",
+  "model": "JC10-2450",
+  "band": "2400–2500",
+  "gain": "10",
+  "pattern_pol": "Omni / Vertical",
+  "type": "Collinear Omni",
+  "price": "TBD",
+  "country": "India ",
+  "datasheet_url": "https://www.antennaexperts.in/model-detail.asp?RecID=358",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM2005D-D01",
+   "desc": "2200 - 2500 MHz 16W Dual Channel Bi-Directional Power Amplifier, Auto-Switching",
+   "power": "16 W",
+   "price": "3150"
+  }
+ },
+ {
+  "excel_row": 8,
+  "rm_match": "RM-2450",
+  "manufacturer": "Antenna Experts",
+  "model": "AY-2450",
+  "band": "2300–2600",
+  "gain": "13",
+  "pattern_pol": "Directional",
+  "type": "Yagi",
+  "price": "TBD",
+  "country": "India ",
+  "datasheet_url": "https://www.antennaexperts.co/product/AY-2450-Datasheet.pdf",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM2005D-D01",
+   "desc": "2200 - 2500 MHz 16W Dual Channel Bi-Directional Power Amplifier, Auto-Switching",
+   "power": "16 W",
+   "price": "3150"
+  }
+ },
+ {
+  "excel_row": 9,
+  "rm_match": "RM-2450",
+  "manufacturer": "Eteily",
+  "model": "ET-ACA-8010-A1-MC-S",
+  "band": "2400–2500",
+  "gain": "2.5",
+  "pattern_pol": "Omni",
+  "type": "SMD Omni",
+  "price": "TBD",
+  "country": "India ",
+  "datasheet_url": "https://www.inpaqgp.com/rw_40b272d49797af2cc6cacf409f1a9df0",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM2005D-D01",
+   "desc": "2200 - 2500 MHz 16W Dual Channel Bi-Directional Power Amplifier, Auto-Switching",
+   "power": "16 W",
+   "price": "3150"
+  }
+ },
+ {
+  "excel_row": 10,
+  "rm_match": "RM-2450",
+  "manufacturer": "Select Antenna",
+  "model": "SEL-2417",
+  "band": "2400–2500",
+  "gain": "17",
+  "pattern_pol": "Directional",
+  "type": "Grid Parabolic",
+  "price": "TBD",
+  "country": "India ",
+  "datasheet_url": null,
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM2005D-D01",
+   "desc": "2200 - 2500 MHz 16W Dual Channel Bi-Directional Power Amplifier, Auto-Switching",
+   "power": "16 W",
+   "price": "3150"
+  }
+ },
+ {
+  "excel_row": 11,
+  "rm_match": "RM-2450",
+  "manufacturer": "Select Antenna",
+  "model": "SEL-2424",
+  "band": "2400–2500",
+  "gain": "24–30 (spec conflict)",
+  "pattern_pol": "Directional",
+  "type": "Grid Parabolic",
+  "price": "TBD",
+  "country": "India ",
+  "datasheet_url": "https://2.imimg.com/data2/RC/YP/MY-/specs-2424.pdf",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM2005D-D01",
+   "desc": "2200 - 2500 MHz 16W Dual Channel Bi-Directional Power Amplifier, Auto-Switching",
+   "power": "16 W",
+   "price": "3150"
+  }
+ },
+ {
+  "excel_row": 12,
+  "rm_match": "RM-2450",
+  "manufacturer": "Synergy Antenna",
+  "model": "2.4 GHz Omni (12 dBi)",
+  "band": "2400–2500",
+  "gain": "12",
+  "pattern_pol": "Omni",
+  "type": "Fiberglass Omni",
+  "price": "TBD",
+  "country": "India ",
+  "datasheet_url": null,
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM2005D-D01",
+   "desc": "2200 - 2500 MHz 16W Dual Channel Bi-Directional Power Amplifier, Auto-Switching",
+   "power": "16 W",
+   "price": "3150"
+  }
+ },
+ {
+  "excel_row": 14,
+  "rm_match": "RM-2450",
+  "manufacturer": "CSG Networks",
+  "model": "CSG 62411 ODN",
+  "band": "2400–2500",
+  "gain": "11",
+  "pattern_pol": "Omni / Vertical",
+  "type": "Outdoor Omni",
+  "price": "TBD",
+  "country": "India ",
+  "datasheet_url": "http://www.csgnets.com/wp-content/uploads/2016/01/CSG-62411-ODN-2.4-GHz-Omni-Directional-Antenna.pdf",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM2005D-D01",
+   "desc": "2200 - 2500 MHz 16W Dual Channel Bi-Directional Power Amplifier, Auto-Switching",
+   "power": "16 W",
+   "price": "3150"
+  }
+ },
+ {
+  "excel_row": 16,
+  "rm_match": "RM-2450",
+  "manufacturer": "Astra Microwave",
+  "model": "AMP-PATTS-203 (Example)",
+  "band": "S-Band (Telemetry ~2.4 GHz)",
+  "gain": "—",
+  "pattern_pol": "Dual Polarized / Tracking",
+  "type": "Phased Array Telemetry",
+  "price": "TBD",
+  "country": "India ",
+  "datasheet_url": "https://astramwp.com/antenna/",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": "8W",
+   "price": "3250"
+  }
+ },
+ {
+  "excel_row": 18,
+  "rm_match": "RM-1700",
+  "manufacturer": null,
+  "model": "ET-9153R-SMMO",
+  "band": "824–960",
+  "gain": "3",
+  "pattern_pol": "Omni",
+  "type": "Rubber-duck Omni",
+  "price": "TBD",
+  "country": "India ",
+  "datasheet_url": "https://eteily.com/915mhz-antenna/65-915mhz-3dbi-rubber-duck-antenna-with-sma-male-movable-connector.html",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": "8W",
+   "price": "3250"
+  }
+ },
+ {
+  "excel_row": 19,
+  "rm_match": "RM-1700",
+  "manufacturer": null,
+  "model": "ET-91518Y2-2L20C-NFS",
+  "band": "824–960",
+  "gain": "18",
+  "pattern_pol": "Directional",
+  "type": "Yagi",
+  "price": "TBD",
+  "country": "India ",
+  "datasheet_url": "https://eteily.com/915mhz-antenna/486-915mhz-18dbi-yagi-antenna-with-rg58-cable-l-20cm-n-f-st-connector.html",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": "8W",
+   "price": "3250"
+  }
+ },
+ {
+  "excel_row": 60,
+  "rm_match": "RM-5400/ RM-5400 / RM-5200-",
+  "manufacturer": "Select Antenna",
+  "model": "SEL-SEC-5816M",
+  "band": "4900–6000",
+  "gain": "2×16",
+  "pattern_pol": "Directional, Dual-Pol",
+  "type": "MIMO Sector",
+  "price": "TBD",
+  "country": "India ",
+  "datasheet_url": "https://www.selectantenna.com/product/16-dbi-mimo-sector/",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM4005DR-D02 / TTRM4302-D01",
+   "desc": "4400-5000 MHz 20W DUAL Bi-Directional Amplifier, Manual,Switching, Rugged Housing",
+   "power": "20W/ 10W",
+   "price": "7100.25 / $2,950.00"
+  }
+ },
+ {
+  "excel_row": 64,
+  "rm_match": "RM-5600/ RM-5400",
+  "manufacturer": null,
+  "model": "ET-5812FG5-NMS",
+  "band": "5100–5800",
+  "gain": "12",
+  "pattern_pol": "Omni",
+  "type": "Fiberglass Omni",
+  "price": "TBD",
+  "country": "India ",
+  "datasheet_url": "https://eteily.com/wi-fi-outdoor-antenna/815-58ghz-12dbi-fiberglass-antenna-with-n-male-connector.html",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM4005DR-D02 / TTRM4302-D01",
+   "desc": "4400-5000 MHz 20W DUAL Bi-Directional Amplifier, Manual,Switching, Rugged Housing",
+   "power": "20W/ 10W",
+   "price": "7100.25 / $2,950.00"
+  }
+ },
+ {
+  "excel_row": 67,
+  "rm_match": "RM-5600/ RM-5400",
+  "manufacturer": "Select Antenna",
+  "model": "5.8 GHz Dish",
+  "band": "5150–5850",
+  "gain": "29",
+  "pattern_pol": "Directional",
+  "type": "Parabolic Dish",
+  "price": "TBD",
+  "country": "India ",
+  "datasheet_url": "https://secantenna.com/",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM4005DR-D02 / TTRM4302-D01",
+   "desc": "4400-5000 MHz 20W DUAL Bi-Directional Amplifier, Manual,Switching, Rugged Housing",
+   "power": "20W/ 10W",
+   "price": "7100.25 / $2,950.00"
+  }
+ }
+]

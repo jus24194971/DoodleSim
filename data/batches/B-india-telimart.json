@@ -1,0 +1,422 @@
+[
+ {
+  "excel_row": 13,
+  "rm_match": "RM-2450",
+  "manufacturer": null,
+  "model": "TM26D-HVPANEL-14",
+  "band": "2.3–2.9 GHz",
+  "gain": "14",
+  "pattern_pol": "Directional / Dual-Pol",
+  "type": "Panel Antenna",
+  "price": "TBD",
+  "country": "India ",
+  "datasheet_url": "https://www.tradeindia.com/products/dual-polarization-panel-antenna-2-3-2-9-ghz-tm26d-hvpanel-14-1721126.html",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": "8W",
+   "price": "3250"
+  }
+ },
+ {
+  "excel_row": 15,
+  "rm_match": "RM-2450 series (2.4) / RM-5600 & RM-5400 & RM-5200 series (5.8)",
+  "manufacturer": null,
+  "model": "2.4/5.8 GHz Whip",
+  "band": "2400/5800",
+  "gain": "3",
+  "pattern_pol": "Omni",
+  "type": "Whip Omni",
+  "price": "TBD",
+  "country": "India ",
+  "datasheet_url": null,
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": "8W",
+   "price": "3250"
+  }
+ },
+ {
+  "excel_row": 17,
+  "rm_match": "RM-2450",
+  "manufacturer": null,
+  "model": "TM26L-SPDISH-15/21",
+  "band": "2.3–3.9 GHz",
+  "gain": "15–21",
+  "pattern_pol": "Directional",
+  "type": "Parabolic Dish",
+  "price": "TBD",
+  "country": "India ",
+  "datasheet_url": "https://www.telimart.in/",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": "8W",
+   "price": "3250"
+  }
+ },
+ {
+  "excel_row": 20,
+  "rm_match": "RM-1700 series (900 MHz) / RM-2450 ",
+  "manufacturer": "Gleam Light India",
+  "model": "GLI/OMNI/01",
+  "band": "0.7–2.4",
+  "gain": "5–7",
+  "pattern_pol": "Omni",
+  "type": "Flat Omni",
+  "price": "TBD",
+  "country": "India ",
+  "datasheet_url": "https://www.gleamlightindia.in/omni-antenna.html",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": "8W",
+   "price": "3250"
+  }
+ },
+ {
+  "excel_row": 21,
+  "rm_match": "RM-1700",
+  "manufacturer": null,
+  "model": "OMNIODA070",
+  "band": "~860–870",
+  "gain": "7",
+  "pattern_pol": "Omni",
+  "type": "Outdoor Fiberglass Omni",
+  "price": "TBD",
+  "country": "India ",
+  "datasheet_url": "https://www.gleamlightindia.in/",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": "8W",
+   "price": "3250"
+  }
+ },
+ {
+  "excel_row": 22,
+  "rm_match": "RM-1700 series (900 MHz) / RM-2025",
+  "manufacturer": null,
+  "model": "OMNIOD4120",
+  "band": "750–960 / 1710–2700",
+  "gain": "10–12",
+  "pattern_pol": "Omni",
+  "type": "Outdoor Omni",
+  "price": "TBD",
+  "country": "India ",
+  "datasheet_url": "https://www.gleamlightindia.in/",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": "8W",
+   "price": "3250"
+  }
+ },
+ {
+  "excel_row": 23,
+  "rm_match": "RM-1700 series (900 MHz) / RM-2450 series (2.4 GHz)",
+  "manufacturer": null,
+  "model": "COMNIID040 / WIFIFOMID2",
+  "band": "0.7–2.4",
+  "gain": "2",
+  "pattern_pol": "Omni",
+  "type": "Ceiling Omni",
+  "price": "TBD",
+  "country": "India ",
+  "datasheet_url": "https://www.gleamlightindia.in/",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": "8W",
+   "price": "3250"
+  }
+ },
+ {
+  "excel_row": 24,
+  "rm_match": "RM-1700 series / RM-2450 series / RM-2025",
+  "manufacturer": "Smart Electronics (SEC Antenna)",
+  "model": "SGP-4/5/6/8 series",
+  "band": "700–3000 (inc. 2.4 GHz)",
+  "gain": "16–34",
+  "pattern_pol": "Directional",
+  "type": "Grid Parabolic",
+  "price": "TBD",
+  "country": "India ",
+  "datasheet_url": "https://secantenna.com/",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": "8W",
+   "price": "3250"
+  }
+ },
+ {
+  "excel_row": 25,
+  "rm_match": "Partial overlap → RM-1700 series (900 MHz)",
+  "manufacturer": null,
+  "model": "JD 401",
+  "band": "20–1200 MHz",
+  "gain": "—",
+  "pattern_pol": "Omni / Vertical",
+  "type": "Dipole Blade",
+  "price": "TBD",
+  "country": "India ",
+  "datasheet_url": "https://www.elcomsys.sg/wp-content/uploads/2019/10/JD_401_1.pdf",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": "8W",
+   "price": "3250"
+  }
+ },
+ {
+  "excel_row": 26,
+  "rm_match": "RM1300/RM1400",
+  "manufacturer": "Verdant Antennas",
+  "model": "JD 201 (Blade)",
+  "band": "110–400 MHz",
+  "gain": "—",
+  "pattern_pol": "Omni / Vertical",
+  "type": "Blade Omni",
+  "price": "TBD",
+  "country": "India ",
+  "datasheet_url": "https://www.elcomsys.sg/wp-content/uploads/2019/10/JD_201_1.pdf",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": "8W",
+   "price": "3250"
+  }
+ },
+ {
+  "excel_row": 27,
+  "rm_match": "RM1300/RM1400",
+  "manufacturer": null,
+  "model": "JD 322 N",
+  "band": "30–550 MHz",
+  "gain": "—",
+  "pattern_pol": "Omni / Vertical",
+  "type": "Blade Omni",
+  "price": "TBD",
+  "country": "India ",
+  "datasheet_url": "https://3.imimg.com/data3/YG/GD/MY-4353615/communication.pdf",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": "8W",
+   "price": "3250"
+  }
+ },
+ {
+  "excel_row": 28,
+  "rm_match": "RM1300/RM1400",
+  "manufacturer": null,
+  "model": "JD 350 B",
+  "band": "30–410 MHz",
+  "gain": "—",
+  "pattern_pol": "Omni / Vertical (Dual-band)",
+  "type": "Blade Omni",
+  "price": "TBD",
+  "country": "India ",
+  "datasheet_url": "https://verdantsales484.en.ec21.com/VUHF_L_Band_Blade_Antenna--9214442_9214477.html",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": "8W",
+   "price": "3250"
+  }
+ },
+ {
+  "excel_row": 29,
+  "rm_match": "RM-5400- / RM-5400- / RM-5200- / RM-5200-",
+  "manufacturer": null,
+  "model": "AH-4959",
+  "band": "4900–5900",
+  "gain": "16 dBic",
+  "pattern_pol": "Directional, LHCP/RHCP",
+  "type": "Helical (fin-style directional)",
+  "price": "TBD",
+  "country": "India ",
+  "datasheet_url": "https://www.antennaexperts.in/docs/AH-4959-Datasheet.pdf",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM4005DR-D02",
+   "desc": "4400-5000 MHz 20W DUAL Bi-Directional Amplifier, Manual,Switching, Rugged Housing",
+   "power": "20W",
+   "price": "7100.25"
+  }
+ },
+ {
+  "excel_row": 56,
+  "rm_match": "RM-2025 (1.6–2.5 GHz) / RM-2450 / RM-5200 / RM-5400 / RM-5600",
+  "manufacturer": null,
+  "model": "(Portfolio)",
+  "band": "1–18 GHz (various)",
+  "gain": "Varies",
+  "pattern_pol": "Linear / Circular",
+  "type": "Horn, Helical, Spiral, Vivaldi, Biconical, Patch",
+  "price": "TBD",
+  "country": "India ",
+  "datasheet_url": "https://astramwp.com/antenna/",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": "8W",
+   "price": "3250"
+  }
+ },
+ {
+  "excel_row": 59,
+  "rm_match": "Partial overlap → RM-2100- / RM-2100-",
+  "manufacturer": null,
+  "model": "JL 50",
+  "band": "1430–1540 MHz",
+  "gain": "—",
+  "pattern_pol": "Omni / Vertical",
+  "type": "L-band Blade",
+  "price": "TBD",
+  "country": "India ",
+  "datasheet_url": "https://www.elcomsys.sg/wp-content/uploads/2019/10/L-Band-Blade-Antenna.pdf",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": "8W",
+   "price": "3250"
+  }
+ },
+ {
+  "excel_row": 61,
+  "rm_match": "RM-5400/ RM-5200",
+  "manufacturer": "Telimart India",
+  "model": "TM55D-HVOMNI-12",
+  "band": "4.9–5.9 GHz",
+  "gain": "12",
+  "pattern_pol": "Omni / H&V Dual-Pol",
+  "type": "Fiberglass Omni",
+  "price": "TBD",
+  "country": "India ",
+  "datasheet_url": "https://www.telimart.in/omni-antenna.htm",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM4005DR-D02 / TTRM4302-D01",
+   "desc": "4400-5000 MHz 20W DUAL Bi-Directional Amplifier, Manual,Switching, Rugged Housing",
+   "power": "20W/ 10W",
+   "price": "7100.25 / $2,950.00"
+  }
+ },
+ {
+  "excel_row": 62,
+  "rm_match": "RM-5400/ RM-5200",
+  "manufacturer": "Telimart India",
+  "model": "TM55D-HVSCTR-16",
+  "band": "4.9–5.9 GHz",
+  "gain": "16",
+  "pattern_pol": "Directional / Dual-Pol",
+  "type": "Sector Antenna",
+  "price": "TBD",
+  "country": "India ",
+  "datasheet_url": "https://www.tradeindia.com/products/dual-polarization-sector-antenna-4-9-5-9-ghz-tm55d-hvsctr-16-1721202.html",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM4005DR-D02 / TTRM4302-D01",
+   "desc": "4400-5000 MHz 20W DUAL Bi-Directional Amplifier, Manual,Switching, Rugged Housing",
+   "power": "20W/ 10W",
+   "price": "7100.25 / $2,950.00"
+  }
+ },
+ {
+  "excel_row": 63,
+  "rm_match": "RM-5400/ RM-5200",
+  "manufacturer": "Telimart India",
+  "model": "TM55L-SPDISH-23/38",
+  "band": "4.9–5.9 GHz",
+  "gain": "23–38",
+  "pattern_pol": "Directional",
+  "type": "Parabolic Dish",
+  "price": "TBD",
+  "country": "India ",
+  "datasheet_url": "https://www.telimart.in/",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM4005DR-D02 / TTRM4302-D01",
+   "desc": "4400-5000 MHz 20W DUAL Bi-Directional Amplifier, Manual,Switching, Rugged Housing",
+   "power": "20W/ 10W",
+   "price": "7100.25 / $2,950.00"
+  }
+ },
+ {
+  "excel_row": 65,
+  "rm_match": "RM-5600/ RM-5400",
+  "manufacturer": null,
+  "model": "REN 65817 BFN",
+  "band": "5725–5825",
+  "gain": "—",
+  "pattern_pol": "Directional",
+  "type": "Backfire",
+  "price": "TBD",
+  "country": "India ",
+  "datasheet_url": "http://www.csgnets.com/rfproducts_category/antennas/page/2/",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM4005DR-D02 / TTRM4302-D01",
+   "desc": "4400-5000 MHz 20W DUAL Bi-Directional Amplifier, Manual,Switching, Rugged Housing",
+   "power": "20W/ 10W",
+   "price": "7100.25 / $2,950.00"
+  }
+ },
+ {
+  "excel_row": 66,
+  "rm_match": "RM-5600 / RM-5400",
+  "manufacturer": null,
+  "model": "REN 65824 SGPN",
+  "band": "5725–5825",
+  "gain": "—",
+  "pattern_pol": "Directional",
+  "type": "Semi-parabolic Grid",
+  "price": "TBD",
+  "country": "India ",
+  "datasheet_url": "http://www.csgnets.com/rfproducts-view/semi-parabolic-grid-antennasren-65824-sgpn/",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM4005DR-D02 / TTRM4302-D01",
+   "desc": "4400-5000 MHz 20W DUAL Bi-Directional Amplifier, Manual,Switching, Rugged Housing",
+   "power": "20W/ 10W",
+   "price": "7100.25 / $2,950.00"
+  }
+ },
+ {
+  "excel_row": 95,
+  "rm_match": "RM-2025/RM-5200",
+  "manufacturer": "Telemart India",
+  "model": "(reseller",
+  "band": "Various",
+  "gain": "Various",
+  "pattern_pol": "—",
+  "type": "—",
+  "price": "Contact vendor",
+  "country": "India",
+  "datasheet_url": "https://www.telemartindia.com/",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01/TTRM4005DR-D02",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching/4400-5000 MHz 20W DUAL Bi-Directional Amplifier, Manual,Switching, Rugged Housing",
+   "power": null,
+   "price": null
+  }
+ }
+]

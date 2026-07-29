@@ -1,0 +1,202 @@
+[
+ {
+  "excel_row": 30,
+  "rm_match": "RM-2025/RM-5200",
+  "manufacturer": "Verdant Telemetry & Antenna Systems",
+  "model": "multi-band",
+  "band": "1.6–2.5 GHz & 4.4–6.0 GHz",
+  "gain": "Various",
+  "pattern_pol": "— (family name only)",
+  "type": "—",
+  "price": "Contact vendor",
+  "country": "United States",
+  "datasheet_url": "https://verdanttelemetry.com/",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": "8W",
+   "price": "3250"
+  }
+ },
+ {
+  "excel_row": 31,
+  "rm_match": "RM-2025",
+  "manufacturer": "Southwest Antennas",
+  "model": "1009-015",
+  "band": "1.625–2.5 GHz",
+  "gain": "12",
+  "pattern_pol": "Omnidirectional whip",
+  "type": "Linear, vertical. (southwestantennas.com)",
+  "price": "USD$578 (≈SGD$744.87)",
+  "country": "United States",
+  "datasheet_url": "https://www.unmannedsystemssource.com/product/broadband-panel-antenna-1-625-2-5-ghz-12-dbi/",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": "8W",
+   "price": "3250"
+  }
+ },
+ {
+  "excel_row": 53,
+  "rm_match": "RM-2025",
+  "manufacturer": "Hascall‑Denke",
+  "model": "FXPR1350-2700-D",
+  "band": "1350-2700 MHz",
+  "gain": "26",
+  "pattern_pol": "Dual Polarization",
+  "type": "Directional ",
+  "price": "Contact vendor",
+  "country": "United States",
+  "datasheet_url": "https://hascall-denke.com/project/1350-2700-mhz-1y28200fxpr1350-2700-d/",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": "8W",
+   "price": "3250"
+  }
+ },
+ {
+  "excel_row": 57,
+  "rm_match": "Partial overlap → RM-2100",
+  "manufacturer": "Celestial",
+  "model": "CST-L-7070",
+  "band": "L-Band (1.5 GHz)",
+  "gain": "—",
+  "pattern_pol": "Omni / Vertical",
+  "type": "Patch Antenna",
+  "price": "TBD",
+  "country": "India ",
+  "datasheet_url": "https://satsearch.co/products/celestial-l-band-antenna",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": "8W",
+   "price": "3250"
+  }
+ },
+ {
+  "excel_row": 58,
+  "rm_match": "RM-2100",
+  "manufacturer": "Celestial",
+  "model": "Celestial S-Band Patch",
+  "band": "2.2–2.3 GHz (LEO TT&C)",
+  "gain": "6–8",
+  "pattern_pol": "Circular Polarized",
+  "type": "Patch Antenna",
+  "price": "TBD",
+  "country": "India ",
+  "datasheet_url": "https://satsearch.co/products/celestial-cst-s-9882-s-band-patch-antenna",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": "8W",
+   "price": "3250"
+  }
+ },
+ {
+  "excel_row": 68,
+  "rm_match": "RM-5200",
+  "manufacturer": "Southwest Antennas",
+  "model": "1004-005",
+  "band": "4.0–6.4 GHz",
+  "gain": "9",
+  "pattern_pol": "Omnidirectional",
+  "type": "Vertical (product family page indicates vertical). (Mouser Electronics)",
+  "price": "USD$379 (≈SGD$488.42)",
+  "country": "United States",
+  "datasheet_url": "https://www.southwestantennas.com/product/1004-005",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM4005DR-D02",
+   "desc": "4400-5000 MHz 20W DUAL Bi-Directional Amplifier, Manual,Switching, Rugged Housing",
+   "power": null,
+   "price": null
+  }
+ },
+ {
+  "excel_row": 70,
+  "rm_match": "RM-5200",
+  "manufacturer": "Hascall‑Denke",
+  "model": "FXDP4.4-6.0-6-D",
+  "band": "4.4–6.0 GHz",
+  "gain": "6",
+  "pattern_pol": "Omnidirectional",
+  "type": "Dual polarization (H & V). (hascall-denke.com, hascall-denke.com)",
+  "price": "Contact vendor",
+  "country": "United States",
+  "datasheet_url": "https://www.hascalldenke.com/",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM4005DR-D02",
+   "desc": "4400-5000 MHz 20W DUAL Bi-Directional Amplifier, Manual,Switching, Rugged Housing",
+   "power": null,
+   "price": null
+  }
+ },
+ {
+  "excel_row": 72,
+  "rm_match": "RM-5200",
+  "manufacturer": "Cobham Antenna Systems",
+  "model": "C‑Band",
+  "band": "4.4–6.0 GHz",
+  "gain": "Various",
+  "pattern_pol": "— (family label only)",
+  "type": "—",
+  "price": "Contact vendor",
+  "country": "United Kingdom",
+  "datasheet_url": "https://www.cobham.com/",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM4005DR-D02",
+   "desc": "4400-5000 MHz 20W DUAL Bi-Directional Amplifier, Manual,Switching, Rugged Housing",
+   "power": null,
+   "price": null
+  }
+ },
+ {
+  "excel_row": 73,
+  "rm_match": "RM-5200",
+  "manufacturer": "Southwest Antennas",
+  "model": "1001-126",
+  "band": "4.4–6.0 GHz",
+  "gain": "1.5",
+  "pattern_pol": "Directional panel",
+  "type": "Linear (product family spec). (L-com)",
+  "price": "USD$164 (≈SGD$211.35)",
+  "country": "United States",
+  "datasheet_url": "https://www.southwestantennas.com/product/1001-126",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM4005DR-D02",
+   "desc": "4400-5000 MHz 20W DUAL Bi-Directional Amplifier, Manual,Switching, Rugged Housing",
+   "power": null,
+   "price": null
+  }
+ },
+ {
+  "excel_row": 94,
+  "rm_match": "RM-2025",
+  "manufacturer": "Hascall‑Denke",
+  "model": "2.2–2.5/4.4–5.875 GHz)",
+  "band": "Custom models",
+  "gain": "Various",
+  "pattern_pol": "Family label",
+  "type": "—",
+  "price": "Contact vendor",
+  "country": "United States",
+  "datasheet_url": "https://www.hascalldenke.com/",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": null,
+   "price": null
+  }
+ }
+]

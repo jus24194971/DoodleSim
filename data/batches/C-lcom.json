@@ -1,0 +1,302 @@
+[
+ {
+  "excel_row": 47,
+  "rm_match": "RM-2025",
+  "manufacturer": "L‑COM",
+  "model": "HG2415P",
+  "band": "2.4 GHz",
+  "gain": "15",
+  "pattern_pol": "Directional flat panel",
+  "type": "Linear (V/H depends on mount). (L-com)",
+  "price": "Contact vendor",
+  "country": "United States",
+  "datasheet_url": "https://www.l-com.com/wireless-antenna/hg2415p-antenna",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": "8W",
+   "price": "3250"
+  }
+ },
+ {
+  "excel_row": 48,
+  "rm_match": "RM-2025",
+  "manufacturer": "Pasternack",
+  "model": "PE51078",
+  "band": "2.4–2.5 GHz",
+  "gain": "5.5",
+  "pattern_pol": "Rubber-duck omni",
+  "type": "Linear, vertical. (pasternack.com, Everything RF)",
+  "price": "€35.53 (≈SGD$52.84)",
+  "country": "United States",
+  "datasheet_url": "https://www.digikey.sg/en/products/detail/pasternack-enterprises-inc/PE51078/",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": "8W",
+   "price": "3250"
+  }
+ },
+ {
+  "excel_row": 49,
+  "rm_match": "RM-2025",
+  "manufacturer": "L‑COM",
+  "model": "HG2403CU",
+  "band": "2.4 GHz",
+  "gain": "3",
+  "pattern_pol": "Ceiling-mount omni (3 dBi)",
+  "type": "Linear, vertical. (southwestantennas.com)",
+  "price": "Contact vendor",
+  "country": "United States",
+  "datasheet_url": "https://www.l-com.com/wireless-antenna/hg2403cu-antenna",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": "8W",
+   "price": "3250"
+  }
+ },
+ {
+  "excel_row": 50,
+  "rm_match": "RM-2025",
+  "manufacturer": "L‑COM",
+  "model": "HG2424EG",
+  "band": "2.4 GHz",
+  "gain": "24",
+  "pattern_pol": "Grid dish (24 dBi)",
+  "type": "Linear (V/H selectable by feed rotation). (southwestantennas.com)",
+  "price": "Contact vendor",
+  "country": "United States",
+  "datasheet_url": "https://www.l-com.com/wireless-antenna/hg2424eg-antenna",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": "8W",
+   "price": "3250"
+  }
+ },
+ {
+  "excel_row": 51,
+  "rm_match": "RM-2025",
+  "manufacturer": "L‑COM",
+  "model": "HG2406CU",
+  "band": "2.4 GHz",
+  "gain": "6",
+  "pattern_pol": "Ceiling-mount omni (6 dBi)",
+  "type": "Linear, vertical. (Products)",
+  "price": "Contact vendor",
+  "country": "United States",
+  "datasheet_url": "https://www.l-com.com/wireless-antenna/hg2406cu-antenna",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": "8W",
+   "price": "3250"
+  }
+ },
+ {
+  "excel_row": 52,
+  "rm_match": "RM-2025",
+  "manufacturer": "L‑COM",
+  "model": "HG2410U",
+  "band": "2.4 GHz",
+  "gain": "10",
+  "pattern_pol": "Outdoor omni (10 dBi)",
+  "type": "Linear, vertical. (southwestantennas.com)",
+  "price": "Contact vendor",
+  "country": "United States",
+  "datasheet_url": "https://www.l-com.com/wireless-antenna/hg2410u-antenna",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": "8W",
+   "price": "3250"
+  }
+ },
+ {
+  "excel_row": 55,
+  "rm_match": "RM-2025",
+  "manufacturer": "L‑COM",
+  "model": "HG2405U",
+  "band": "2.4 GHz",
+  "gain": "5",
+  "pattern_pol": "Outdoor omni (5 dBi)",
+  "type": "Linear, vertical. (southwestantennas.com)",
+  "price": "Contact vendor",
+  "country": "United States",
+  "datasheet_url": "https://www.l-com.com/wireless-antenna/hg2405u-antenna",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": "8W",
+   "price": "3250"
+  }
+ },
+ {
+  "excel_row": 74,
+  "rm_match": "RM-5200",
+  "manufacturer": "L‑COM",
+  "model": "HG4958‑18",
+  "band": "4.9–5.8 GHz",
+  "gain": "18",
+  "pattern_pol": "Directional flat panel (18 dBi)",
+  "type": "Linear (panel; mounting sets V/H). (L-com)",
+  "price": "Contact vendor",
+  "country": "United States",
+  "datasheet_url": "https://www.l-com.com/wireless-antenna/hg4958-18",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM4005DR-D02",
+   "desc": "4400-5000 MHz 20W DUAL Bi-Directional Amplifier, Manual,Switching, Rugged Housing",
+   "power": null,
+   "price": null
+  }
+ },
+ {
+  "excel_row": 75,
+  "rm_match": "RM-5200",
+  "manufacturer": "L‑COM",
+  "model": "HG4958‑24D",
+  "band": "4.9–5.8 GHz",
+  "gain": "24",
+  "pattern_pol": "Dish (24 dBi)",
+  "type": "Linear (V/H selectable). (L-com)",
+  "price": "Contact vendor",
+  "country": "United States",
+  "datasheet_url": "https://www.l-com.com/wireless-antenna/hg4958-24d",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM4005DR-D02",
+   "desc": "4400-5000 MHz 20W DUAL Bi-Directional Amplifier, Manual,Switching, Rugged Housing",
+   "power": null,
+   "price": null
+  }
+ },
+ {
+  "excel_row": 76,
+  "rm_match": "RM-5200",
+  "manufacturer": "L‑COM",
+  "model": "HG4958‑22D",
+  "band": "4.9–5.8 GHz",
+  "gain": "22",
+  "pattern_pol": "Dish (22 dBi)",
+  "type": "Linear (V/H selectable). (L-com)",
+  "price": "Contact vendor",
+  "country": "United States",
+  "datasheet_url": "https://www.l-com.com/wireless-antenna/hg4958-22d",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM4005DR-D02",
+   "desc": "4400-5000 MHz 20W DUAL Bi-Directional Amplifier, Manual,Switching, Rugged Housing",
+   "power": null,
+   "price": null
+  }
+ },
+ {
+  "excel_row": 77,
+  "rm_match": "RM-5200",
+  "manufacturer": "L‑COM",
+  "model": "HG4958‑19",
+  "band": "4.9–5.8 GHz",
+  "gain": "19",
+  "pattern_pol": "Directional panel (19 dBi)",
+  "type": "Linear. (L-com)",
+  "price": "Contact vendor",
+  "country": "United States",
+  "datasheet_url": "https://www.l-com.com/wireless-antenna/hg4958-19",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM4005DR-D02",
+   "desc": "4400-5000 MHz 20W DUAL Bi-Directional Amplifier, Manual,Switching, Rugged Housing",
+   "power": null,
+   "price": null
+  }
+ },
+ {
+  "excel_row": 78,
+  "rm_match": "RM-5200",
+  "manufacturer": "L‑COM",
+  "model": "HG4958‑29D",
+  "band": "4.9–5.8 GHz",
+  "gain": "29",
+  "pattern_pol": "Dish (29 dBi)",
+  "type": "Linear (V/H selectable). (MikroTik)",
+  "price": "Contact vendor",
+  "country": "United States",
+  "datasheet_url": "https://www.l-com.com/wireless-antenna/hg4958-29d",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM4005DR-D02",
+   "desc": "4400-5000 MHz 20W DUAL Bi-Directional Amplifier, Manual,Switching, Rugged Housing",
+   "power": null,
+   "price": null
+  }
+ },
+ {
+  "excel_row": 79,
+  "rm_match": "RM-5200",
+  "manufacturer": "L‑COM",
+  "model": "HG4958‑15U",
+  "band": "4.9–5.8 GHz",
+  "gain": "15",
+  "pattern_pol": "Outdoor omni (15 dBi)",
+  "type": "Linear, vertical. (mars-antennas.com)",
+  "price": "Contact vendor",
+  "country": "United States",
+  "datasheet_url": "https://www.l-com.com/wireless-antenna/hg4958-15u",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM4005DR-D02",
+   "desc": "4400-5000 MHz 20W DUAL Bi-Directional Amplifier, Manual,Switching, Rugged Housing",
+   "power": null,
+   "price": null
+  }
+ },
+ {
+  "excel_row": 80,
+  "rm_match": "RM-5200",
+  "manufacturer": "L‑COM",
+  "model": "HG4958‑12",
+  "band": "4.9–5.8 GHz",
+  "gain": "12",
+  "pattern_pol": "Outdoor omni (12 dBi)",
+  "type": "Linear, vertical. (benelec.au)",
+  "price": "Contact vendor",
+  "country": "United States",
+  "datasheet_url": "https://www.l-com.com/wireless-antenna/hg4958-12",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM4005DR-D02",
+   "desc": "4400-5000 MHz 20W DUAL Bi-Directional Amplifier, Manual,Switching, Rugged Housing",
+   "power": null,
+   "price": null
+  }
+ },
+ {
+  "excel_row": 83,
+  "rm_match": "RM-5200",
+  "manufacturer": "L‑COM",
+  "model": "HG4958‑14",
+  "band": "4.9–5.8 GHz",
+  "gain": "14",
+  "pattern_pol": "Directional panel (14 dBi)",
+  "type": "Linear. (winncom.com)",
+  "price": "Contact vendor",
+  "country": "United States",
+  "datasheet_url": "https://www.l-com.com/wireless-antenna/hg4958-14",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM4005DR-D02",
+   "desc": "4400-5000 MHz 20W DUAL Bi-Directional Amplifier, Manual,Switching, Rugged Housing",
+   "power": null,
+   "price": null
+  }
+ }
+]

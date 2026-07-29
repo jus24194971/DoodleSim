@@ -1,0 +1,49 @@
+{
+"_source": "Doodle Labs Range Estimation Tool (kb.doodlelabs.com/range-estimation-tool), extracted via authenticated browser session July 29 2026. Model tables read directly from page JS; propagation math reverse-engineered from probe runs (see probes).",
+"model_tables": {
+ "_note": "power arrays are PER-CHAIN TX power (dBm) indexed by MCS pair [0/8, 1/9, 2/10, 3/11, 4/12, 5/13, 6/14, 7/15]. Combined output with 2 antennas = +3 dB. sensitivity arrays are dBm at 20 MHz for MCS0-7; MCS8-15 = value + 3 dB (worse). All models share the same sensitivity curve; only TX power differs.",
+ "power": {
+  "nanoOEM_v3_1L": [27,26,26,26,25,24,23,21],
+  "miniOEM_v3_2L": [27,26,26,26,25,24,23,21],
+  "OEM_v3_2KO": [27,26,26,26,25,24,23,21],
+  "Wearable_v3_2KW": [27,26,26,26,25,24,23,21],
+  "nanoOEM_v4_1L": [29,28,28,28,27,26,25,23],
+  "miniOEM_v4_2L": [29,28,28,28,27,26,25,23],
+  "OEM_v4_2KO": [29,28,28,28,27,26,25,23],
+  "Wearable_v4_2KW": [29,28,28,28,27,26,25,23],
+  "RM5200_4400-4800": [26,24,24,24,22,20,18,16],
+  "RM5200_5180-5800": [27,25,25,25,23,21,19,17],
+  "RM1300_245-265": [24,21,21,21,20,19,18,16],
+  "RM1300_2200-2500": [27,24,24,24,23,22,21,19],
+  "RM1400_432-478": [24,21,21,21,20,19,18,16],
+  "RM1400_2200-2500": [27,24,24,24,23,22,21,19]
+ },
+ "sensitivity_mcs0_7_at_20mhz": [-87,-85,-83,-81,-77,-73,-71,-69],
+ "max_throughput_mbps_at_20mhz": {"mcs0_7": [5.4,10.62,15.66,20.52,29.97,38.88,43.11,47.34], "mcs8_15": [10.53,20.43,29.70,38.43,54.72,69.30,76.14,82.71]}
+},
+"reverse_engineered_model": {
+ "tx_combined_dbm": "min(configured_power, per_chain_power[mcs % 8] + (antennas==2 ? 3 : 0))",
+ "rx_sensitivity_dbm": "sens[mcs % 8] + (mcs >= 8 ? 3 : 0) + 10*log10(bw_mhz/20)  // wider bw = worse sensitivity",
+ "allowed_path_loss_db": "tx_combined + tx_gain + rx_gain + bda_gain - attenuation - fade_margin - sensitivity",
+ "range_normal_mode": "pure FSPL inversion: d_km = 10^((PL - 32.45 - 20*log10(f_MHz))/20). Antenna heights are COMPLETELY IGNORED (no two-ray, no horizon cap - 1 m antennas can 'reach' 387 km).",
+ "range_ground_mode": "empirical steeper model, exact formula not extracted (DLP blocked code text). Constant 22.25 dB/decade distance slope at fixed frequency; frequency dependence is NOT a simple 20logf term (see probes). Heights ignored here too.",
+ "verified_exact_matches": "FSPL mode reproduces tool output to the meter across bw (10/20/40), power clamps, attenuation, BDA gain, 1 vs 2 antennas.",
+ "airtime_constants": {"ipv4_header_bytes": 20, "header_total_bytes": 98, "mpdu_delimiter": 0}
+},
+"probes": {
+ "_note": "All at telemetry=250kbps, video=3Mbps, txGain=3, rxGain=3, fade=10, atten=0, bda=0 unless stated. Entries: [mcs, range_m, max_mbps].",
+ "baseline_miniOEM_v4_32dBm_2450MHz_20MHz_2ant": [[8,3879.2,10.53],[9,2746.3,20.43],[10,2181.5,29.7],[11,1732.8,38.43],[12,974.4,54.72],[13,548,69.3],[14,387.9,76.14],[15,244.8,82.71]],
+ "bw10MHz": [[8,5486.1,5.31],[9,3883.8,10.35],[10,3085,15.21],[11,2450.5,19.8],[12,1378,28.53],[13,774.9,36.63],[14,548.6,40.5],[15,346.1,44.19]],
+ "bw40MHz": [[8,2743,22.59],[9,1941.9,42.48],[10,1542.5,60.21],[11,1225.3,76.05],[12,689,103.86],[13,387.5,126.72],[14,274.3,136.62],[15,173.1,146.52]],
+ "one_antenna_mcs0_7": [[0,3879.2,5.4],[1,2746.3,10.62],[2,2181.5,15.66],[3,1732.8,20.52],[4,974.4,29.97],[5,548,38.88],[6,387.9,43.11],[7,244.8,47.34]],
+ "power_limit_20dBm": [[8,974.4,10.62],[9,774,20.52],[10,614.8,29.88],[11,488.4,38.7],[12,308.1,54.99],[13,194.4,69.48],[14,154.4,76.23],[15,122.7,82.89]],
+ "attenuation_6dB": [[8,1944.2,10.53],[9,1376.4,20.52],[10,1093.3,29.79],[11,868.5,38.61],[12,488.4,54.9],[13,274.6,69.48],[14,194.4,76.23],[15,122.7,82.89]],
+ "bda_gain_10dB": [[8,12267.2,10.44],[9,8684.5,20.07],[10,6898.4,29.16],[11,5479.6,37.8],[12,3081.4,53.91],[13,1732.8,68.58],[14,1226.7,75.51],[15,774,82.26]],
+ "ground_mode_2450MHz_h2_h2": [[8,1053,9.27],[9,771.9,16.29],[10,627.6,21.78],[11,510.3,26.28],[12,304.1,33.03],[13,181.3,37.89],[14,132.9,40.05],[15,87.9,41.58]],
+ "ground_mode_height_invariance": {"h1_1": 1053, "h2_2": 1053, "h4_4": 1053, "h8_8": 1053, "h2_8": 1053},
+ "ground_mode_freq_sweep_miniOEM_v4_budget112dB_mcs8_range_m": {"250": 2584.9, "500": 1601.1, "915": 999.6, "1000": 1178.6, "2000": 1067.4, "2450": 1053, "4000": 919.6, "5800": 748.3, "_note": "915 value used 2L v3 radio (budget 110); others 2L_v4 budget 112"},
+ "ground_mode_other_radios_mcs8": {"RM5200@5180": 636.1, "RM5200@5800": 602.8, "RM1300@2250": 863.1, "RM1300@255": 1613.6},
+ "no_horizon_cap": {"bda40_h1_1": 387922.8, "bda40_h30_122": 387922.8}
+},
+"discrepancy_vs_datasheets": "Estimator sensitivities (-87..-69 MCS0-7 @20MHz) are ~6 dB MORE CONSERVATIVE than published datasheet sensitivities (-93..-75 for 2x2 mini-OEM). Estimator TX powers are per-chain and lower than datasheet 'combined' figures. The estimator is the sales-facing conservative reference; datasheets are the optimistic lab reference. Simulator should default to estimator-grade numbers with a toggle."
+}

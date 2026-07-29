@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Doodle Labs RF Link Planner</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='80' font-size='80'>📡</text></svg>" />
+</head>
+<body>
+  <div id="app">
+    <header id="topbar">
+      <div class="brand"><span class="brand-mark">M</span> Doodle Labs <span class="brand-light">RF Link Planner</span></div>
+      <div class="toolbar">
+        <button id="btn-add-node" class="tool-btn" title="Add a radio node (N)">+ Add Node</button>
+        <button id="btn-link-mode" class="tool-btn" title="Create a link between two nodes (L)">⟋ Link Nodes</button>
+        <button id="btn-clear" class="tool-btn danger" title="Remove all nodes and links">Clear</button>
+        <span id="mode-hint"></span>
+      </div>
+      <div class="toolbar-right">
+        <label class="sat-toggle"><input type="checkbox" id="basemap-toggle" /> Satellite</label>
+      </div>
+    </header>
+    <div id="main">
+      <div id="map"></div>
+      <aside id="sidebar">
+        <div id="node-list"></div>
+        <div id="link-list"></div>
+      </aside>
+    </div>
+    <div id="profile-panel" class="hidden">
+      <div id="profile-header">
+        <span id="profile-title"></span>
+        <span id="profile-stats"></span>
+        <button id="profile-close">✕</button>
+      </div>
+      <canvas id="profile-canvas"></canvas>
+    </div>
+  </div>
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

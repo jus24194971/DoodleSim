@@ -1,0 +1,905 @@
+{
+ "antennas": [
+  {
+   "id": "antenna-experts-jc12-2450",
+   "manufacturer": "Antenna Experts",
+   "model": "JC12-2450",
+   "band_mhz": [
+    2400.0,
+    2500.0
+   ],
+   "gain_dbi": 12.0,
+   "pattern": "omni",
+   "hpbw_az_deg": 360,
+   "hpbw_el_deg": 8,
+   "type": "Jammer collinear omni (fiberglass radome)",
+   "verify_status": "confirmed",
+   "rm_match": "RM-2450",
+   "source": "https://www.antennaexperts.in/docs/JC12-2450-Datasheet.pdf"
+  },
+  {
+   "id": "antenna-experts-jcm6-2450",
+   "manufacturer": "Antenna Experts",
+   "model": "JCM6-2450",
+   "band_mhz": [
+    2400.0,
+    2500.0
+   ],
+   "gain_dbi": 6.0,
+   "pattern": "omni",
+   "hpbw_az_deg": 360,
+   "hpbw_el_deg": 36,
+   "type": "Manpack jammer collinear omni (ABS radome)",
+   "verify_status": "partially_verified",
+   "rm_match": "RM-2450",
+   "source": "https://www.antennaexperts.in/docs/JCM6-2450-Datasheet.pdf"
+  },
+  {
+   "id": "antenna-experts-jc10-2450",
+   "manufacturer": "Antenna Experts",
+   "model": "JC10-2450",
+   "band_mhz": [
+    2400.0,
+    2500.0
+   ],
+   "gain_dbi": 10.0,
+   "pattern": "omni",
+   "hpbw_az_deg": 360,
+   "hpbw_el_deg": 12,
+   "type": "High power jammer collinear omni",
+   "verify_status": "confirmed",
+   "rm_match": "RM-2450",
+   "source": "https://www.antennaexperts.in/model-detail.asp?RecID=358"
+  },
+  {
+   "id": "antenna-experts-ay-2450",
+   "manufacturer": "Antenna Experts",
+   "model": "AY-2450",
+   "band_mhz": [
+    2300.0,
+    2600.0
+   ],
+   "gain_dbi": 13.0,
+   "pattern": "directional",
+   "hpbw_az_deg": 44,
+   "hpbw_el_deg": 38,
+   "type": "Yagi",
+   "verify_status": "confirmed",
+   "rm_match": "RM-2450",
+   "source": "https://www.antennaexperts.co/product/AY-2450-Datasheet.pdf"
+  },
+  {
+   "id": "inpaq-technology-aca-8010-a1-mc-s",
+   "manufacturer": "INPAQ Technology",
+   "model": "ACA-8010-A1-MC-S",
+   "band_mhz": [
+    2400.0,
+    2500.0
+   ],
+   "gain_dbi": 1.9,
+   "pattern": "directional",
+   "hpbw_az_deg": 60,
+   "hpbw_el_deg": 20,
+   "type": "Monopole-type SMD chip antenna, 8.0x1.0x1.0 mm",
+   "verify_status": "corrected",
+   "rm_match": "RM-2450",
+   "source": "https://www.inpaqgp.com/upload/link/test1/INPAQ_Chip_Antenna_2.4GHz_A2.pdf"
+  },
+  {
+   "id": "select-antenna-sel24-17",
+   "manufacturer": "Select Antenna (Select Telecom)",
+   "model": "SEL 24-17",
+   "band_mhz": [
+    2400.0,
+    2500.0
+   ],
+   "gain_dbi": 17.0,
+   "pattern": "directional",
+   "hpbw_az_deg": 5,
+   "hpbw_el_deg": 7,
+   "type": "Grid antenna",
+   "verify_status": "corrected",
+   "rm_match": "RM-2450",
+   "source": "https://www.selectantenna.com/product/17-dbi-2-4ghz-grid-antenna/"
+  },
+  {
+   "id": "select-antenna-sel24-24",
+   "manufacturer": "Select Antenna (Select Telecom)",
+   "model": "SEL 24-24",
+   "band_mhz": [
+    2400.0,
+    2500.0
+   ],
+   "gain_dbi": 24.0,
+   "pattern": "directional",
+   "hpbw_az_deg": 6,
+   "hpbw_el_deg": 8,
+   "type": "Grid antenna, 1000x600 mm",
+   "verify_status": "partially_verified",
+   "rm_match": "RM-2450",
+   "source": "https://www.selectantenna.com/product/24-dbi-2-4-ghz-grid-antenna/"
+  },
+  {
+   "id": "telimart-india-pvt.-ltd.-tm26d-hvpanel-14",
+   "manufacturer": "Telimart India Pvt. Ltd.",
+   "model": "TM26D-HVPANEL-14",
+   "band_mhz": [
+    2300.0,
+    2900.0
+   ],
+   "gain_dbi": 8.0,
+   "pattern": "directional",
+   "hpbw_az_deg": 60,
+   "hpbw_el_deg": 20,
+   "type": "Panel antenna",
+   "verify_status": "partially_verified",
+   "rm_match": "RM-2450",
+   "source": "https://www.tradeindia.com/products/dual-polarization-panel-antenna-2-3-2-9-ghz-tm26d-hvpanel-14-1721126.html"
+  },
+  {
+   "id": "telimart-india-pvt.-ltd.-tm26l-spdish-15-21",
+   "manufacturer": "Telimart India Pvt. Ltd.",
+   "model": "TM26L-SPDISH-15/21",
+   "band_mhz": [
+    2300.0,
+    3900.0
+   ],
+   "gain_dbi": 15.0,
+   "pattern": "directional",
+   "hpbw_az_deg": 60,
+   "hpbw_el_deg": 20,
+   "type": "High-performance parabolic dish",
+   "verify_status": "partially_verified",
+   "rm_match": "RM-2450",
+   "source": "https://www.tradeindia.com/products/parabolic-dish-antenna-527293.html"
+  },
+  {
+   "id": "gleam-light-india-pvt.-ltd.-gli-omni-01",
+   "manufacturer": "Gleam Light India Pvt. Ltd.",
+   "model": "GLI/OMNI/01",
+   "band_mhz": [
+    700.0,
+    2700.0
+   ],
+   "gain_dbi": 2.0,
+   "pattern": "omni",
+   "hpbw_az_deg": 360,
+   "hpbw_el_deg": 12,
+   "type": "Indoor wall-mount flat omni",
+   "verify_status": "corrected",
+   "rm_match": "RM-1700 series (900 MHz) / RM-2450 ",
+   "source": "https://www.gleamlightindia.in/omni-antenna.html"
+  },
+  {
+   "id": "gleam-light-india-pvt.-ltd.-omnioda070",
+   "manufacturer": "Gleam Light India Pvt. Ltd.",
+   "model": "OMNIODA070",
+   "band_mhz": [
+    860.0,
+    870.0
+   ],
+   "gain_dbi": 7.0,
+   "pattern": "omni",
+   "hpbw_az_deg": 360,
+   "hpbw_el_deg": 12,
+   "type": "Outdoor pole-mount fiberglass LoRa omni",
+   "verify_status": "partially_verified",
+   "rm_match": "RM-1700",
+   "source": "https://www.indiamart.com/proddetail/lora-omni-directional-antenna-7dbi-21115291755.html"
+  },
+  {
+   "id": "gleam-light-india-pvt.-ltd.-omniod4120",
+   "manufacturer": "Gleam Light India Pvt. Ltd.",
+   "model": "OMNIOD4120",
+   "band_mhz": [
+    824.0,
+    960.0
+   ],
+   "gain_dbi": 12.0,
+   "pattern": "omni",
+   "hpbw_az_deg": 360,
+   "hpbw_el_deg": 12,
+   "type": "Outdoor fiberglass cylindrical omni",
+   "verify_status": "partially_verified",
+   "rm_match": "RM-1700 series (900 MHz) / RM-2025",
+   "source": "https://www.gleamindia.com/omni-cylindrical-antenna-12-dbi-8562932.html"
+  },
+  {
+   "id": "gleam-light-india-pvt.-ltd.-comniid040-wififomid2",
+   "manufacturer": "Gleam Light India Pvt. Ltd.",
+   "model": "COMNIID040 / WIFIFOMID2",
+   "band_mhz": [
+    700.0,
+    2700.0
+   ],
+   "gain_dbi": 5.0,
+   "pattern": "omni",
+   "hpbw_az_deg": 360,
+   "hpbw_el_deg": 12,
+   "type": "COMNIID040 is ceiling omni; WIFIFOMID2 is a dual-band WiFi a",
+   "verify_status": "corrected",
+   "rm_match": "RM-1700 series (900 MHz) / RM-2450 series (2.4 GHz)",
+   "source": "https://www.gleamlightindia.in/omni-antenna.html"
+  },
+  {
+   "id": "smart-electronics-communication-sgp-4-5-6-8series",
+   "manufacturer": "Smart Electronics Communication (SEC Antenna)",
+   "model": "SGP-4/5/6/8 series",
+   "band_mhz": [
+    700.0,
+    3000.0
+   ],
+   "gain_dbi": 34.7,
+   "pattern": "directional",
+   "hpbw_az_deg": 60,
+   "hpbw_el_deg": 20,
+   "type": "Grid parabolic dish",
+   "verify_status": "confirmed",
+   "rm_match": "RM-1700 series / RM-2450 series / RM-2025",
+   "source": "https://secantenna.com/grid-parabolic-dish-antenna/"
+  },
+  {
+   "id": "antenna-experts-ah-4959",
+   "manufacturer": "Antenna Experts (India)",
+   "model": "AH-4959",
+   "band_mhz": [
+    4900.0,
+    5900.0
+   ],
+   "gain_dbi": 16.0,
+   "pattern": "directional",
+   "hpbw_az_deg": 35,
+   "hpbw_el_deg": 35,
+   "type": "Circularly polarized helical antenna",
+   "verify_status": "confirmed",
+   "rm_match": "RM-5400- / RM-5400- / RM-5200- / RM-5200-",
+   "source": "https://www.antennaexperts.in/docs/AH-4959-Datasheet.pdf"
+  },
+  {
+   "id": "southwest-antennas-1009-015",
+   "manufacturer": "Southwest Antennas",
+   "model": "1009-015",
+   "band_mhz": [
+    1625.0,
+    2500.0
+   ],
+   "gain_dbi": 12.0,
+   "pattern": "directional",
+   "hpbw_az_deg": 55,
+   "hpbw_el_deg": 32,
+   "type": "Panel antenna, linear vertical polarization",
+   "verify_status": "corrected",
+   "rm_match": "RM-2025",
+   "source": "https://www.everythingrf.com/products/all-antennas/southwest-antennas/741-685-1009-015"
+  },
+  {
+   "id": "cisco-air-ant2422dw-r",
+   "manufacturer": "Cisco",
+   "model": "AIR-ANT2422DW-R",
+   "band_mhz": [
+    2400.0,
+    2484.0
+   ],
+   "gain_dbi": 2.2,
+   "pattern": "omni",
+   "hpbw_az_deg": 360,
+   "hpbw_el_deg": 65,
+   "type": "Linear polarization",
+   "verify_status": "confirmed",
+   "rm_match": "RM-2025",
+   "source": "https://www.cisco.com/c/en/us/td/docs/wireless/antenna/installation/guide/2422dw.html"
+  },
+  {
+   "id": "poynting-omni-402",
+   "manufacturer": "Poynting",
+   "model": "OMNI-402",
+   "band_mhz": [
+    410.0,
+    3800.0
+   ],
+   "gain_dbi": 6.2,
+   "pattern": "omni",
+   "hpbw_az_deg": 360,
+   "hpbw_el_deg": 12,
+   "type": "Linear polarization",
+   "verify_status": "corrected",
+   "rm_match": "RM-2025",
+   "source": "https://poynting.tech/product/omni-402/"
+  },
+  {
+   "id": "poynting-xpol-2-5g",
+   "manufacturer": "Poynting",
+   "model": "XPOL-2-5G",
+   "band_mhz": [
+    617.0,
+    4200.0
+   ],
+   "gain_dbi": 11.0,
+   "pattern": "directional",
+   "hpbw_az_deg": 60,
+   "hpbw_el_deg": 20,
+   "type": "Cross-polarized (X-pol) 2x2 MIMO",
+   "verify_status": "corrected",
+   "rm_match": "RM-2025",
+   "source": "https://poynting.tech/product/xpol-2-5g/"
+  },
+  {
+   "id": "aruba-ap-ant-13b(jw001a)",
+   "manufacturer": "Aruba (HPE)",
+   "model": "AP-ANT-13B (JW001A)",
+   "band_mhz": [
+    2400.0,
+    2500.0
+   ],
+   "gain_dbi": 4.4,
+   "pattern": "omni",
+   "hpbw_az_deg": 360,
+   "hpbw_el_deg": 60,
+   "type": "Linear vertical polarization",
+   "verify_status": "corrected",
+   "rm_match": "RM-2025",
+   "source": "https://hpe.ict-hardware.com/product/aruba-ap-ant-13b-antenna/"
+  },
+  {
+   "id": "mikrotik-mant19s",
+   "manufacturer": "MikroTik",
+   "model": "mANT19s",
+   "band_mhz": [
+    5170.0,
+    5825.0
+   ],
+   "gain_dbi": 19.0,
+   "pattern": "directional",
+   "hpbw_az_deg": 120,
+   "hpbw_el_deg": 5,
+   "type": "Dual-polarization sector antenna, vertical + horizontal",
+   "verify_status": "corrected",
+   "rm_match": "RM-2025",
+   "source": "https://mikrotik.com/product/MTAS-5G-19D120"
+  },
+  {
+   "id": "tp-link-tl-ant2409a",
+   "manufacturer": "TP-Link",
+   "model": "TL-ANT2409A",
+   "band_mhz": [
+    2400.0,
+    2500.0
+   ],
+   "gain_dbi": 9.0,
+   "pattern": "directional",
+   "hpbw_az_deg": 60,
+   "hpbw_el_deg": 76,
+   "type": "Linear, vertical",
+   "verify_status": "confirmed",
+   "rm_match": "RM-2025",
+   "source": "https://www.tp-link.com/us/business-networking/antenna-and-accessory/tl-ant2409a/"
+  },
+  {
+   "id": "tp-link-tl-ant2424b",
+   "manufacturer": "TP-Link",
+   "model": "TL-ANT2424B",
+   "band_mhz": [
+    2400.0,
+    2500.0
+   ],
+   "gain_dbi": 24.0,
+   "pattern": "directional",
+   "hpbw_az_deg": 14,
+   "hpbw_el_deg": 10,
+   "type": "Linear; vertical or horizontal depending on mounting orienta",
+   "verify_status": "confirmed",
+   "rm_match": "RM-2025",
+   "source": "https://static.tp-link.com/resources/document/TL-ANT2424B_V1_Datasheet.pdf"
+  },
+  {
+   "id": "alfa-network-apa-m04",
+   "manufacturer": "Alfa Network",
+   "model": "APA-M04",
+   "band_mhz": [
+    2400.0,
+    2500.0
+   ],
+   "gain_dbi": 7.0,
+   "pattern": "directional",
+   "hpbw_az_deg": 65,
+   "hpbw_el_deg": 65,
+   "type": "Linear, vertical",
+   "verify_status": "confirmed",
+   "rm_match": "RM-2025",
+   "source": "http://www.rokland.com/support/specs/APA-M04-datasheet.pdf"
+  },
+  {
+   "id": "alfa-network-aoa-2458-59-tf",
+   "manufacturer": "Alfa Network",
+   "model": "AOA-2458-59-TF",
+   "band_mhz": [
+    2400.0,
+    2500.0
+   ],
+   "gain_dbi": 5.0,
+   "pattern": "omni",
+   "hpbw_az_deg": 360,
+   "hpbw_el_deg": 12,
+   "type": "Vertical polarization",
+   "verify_status": "corrected",
+   "rm_match": "RM-2025",
+   "source": "http://www.rokland.com/support/manuals/AOA-2458-59.pdf"
+  },
+  {
+   "id": "d-link-ant24-0700",
+   "manufacturer": "D-Link",
+   "model": "ANT24-0700",
+   "band_mhz": [
+    2400.0,
+    2500.0
+   ],
+   "gain_dbi": 7.0,
+   "pattern": "omni",
+   "hpbw_az_deg": 360,
+   "hpbw_el_deg": 24,
+   "type": "Linear, vertical",
+   "verify_status": "confirmed",
+   "rm_match": "RM-2025",
+   "source": "https://www.barcodesinc.com/media/pdf/D-Link/ant24-0700.pdf"
+  },
+  {
+   "id": "ubiquiti-amo-2g10",
+   "manufacturer": "Ubiquiti",
+   "model": "AMO-2G10",
+   "band_mhz": [
+    2350.0,
+    2550.0
+   ],
+   "gain_dbi": 10.0,
+   "pattern": "omni",
+   "hpbw_az_deg": 360,
+   "hpbw_el_deg": 12,
+   "type": "Dual-Linear",
+   "verify_status": "confirmed",
+   "rm_match": "RM-2025",
+   "source": "https://store.ui.com/us/en/products/amo-2g10"
+  },
+  {
+   "id": "ubiquiti-am-2g15-120",
+   "manufacturer": "Ubiquiti",
+   "model": "AM-2G15-120",
+   "band_mhz": [
+    2300.0,
+    2700.0
+   ],
+   "gain_dbi": -16.0,
+   "pattern": "directional",
+   "hpbw_az_deg": 118,
+   "hpbw_el_deg": 9,
+   "type": "Dual-Linear",
+   "verify_status": "confirmed",
+   "rm_match": "RM-2025",
+   "source": "https://store.ui.com/us/en/products/am-2g15-120"
+  },
+  {
+   "id": "mikrotik-mant15s",
+   "manufacturer": "MikroTik",
+   "model": "mANT15s",
+   "band_mhz": [
+    5170.0,
+    5825.0
+   ],
+   "gain_dbi": 15.0,
+   "pattern": "directional",
+   "hpbw_az_deg": 120,
+   "hpbw_el_deg": 10,
+   "type": "Dual-polarization, vertical + horizontal",
+   "verify_status": "corrected",
+   "rm_match": "RM-2025",
+   "source": "https://mikrotik.com/product/MTAS-5G-15D120"
+  },
+  {
+   "id": "pasternack-enterprises-pe51078",
+   "manufacturer": "Pasternack Enterprises",
+   "model": "PE51078",
+   "band_mhz": [
+    2400.0,
+    2500.0
+   ],
+   "gain_dbi": 5.5,
+   "pattern": "omni",
+   "hpbw_az_deg": 360,
+   "hpbw_el_deg": 12,
+   "type": "Datasheet lists polarization 'Omni'; vertical whip (linear)",
+   "verify_status": "confirmed",
+   "rm_match": "RM-2025",
+   "source": "https://www.pasternack.com/images/ProductPDF/PE51078.pdf"
+  },
+  {
+   "id": "l-com-hg2403cu",
+   "manufacturer": "L-com (HyperLink)",
+   "model": "HG2403CU",
+   "band_mhz": [
+    2400.0,
+    2500.0
+   ],
+   "gain_dbi": 3.0,
+   "pattern": "omni",
+   "hpbw_az_deg": 360,
+   "hpbw_el_deg": 12,
+   "type": "Vertical polarization",
+   "verify_status": "confirmed",
+   "rm_match": "RM-2025",
+   "source": "https://www.l-com.com/Images/Downloadables/Datasheets/ds_HG2403CU.pdf"
+  },
+  {
+   "id": "l-com-hg2424eg",
+   "manufacturer": "L-com (HyperLink)",
+   "model": "HG2424EG",
+   "band_mhz": [
+    2400.0,
+    2500.0
+   ],
+   "gain_dbi": 24.0,
+   "pattern": "directional",
+   "hpbw_az_deg": 9,
+   "hpbw_el_deg": 11,
+   "type": "Linear; installable vertical or horizontal",
+   "verify_status": "confirmed",
+   "rm_match": "RM-2025",
+   "source": "https://www.l-com.com/Images/Downloadables/Datasheets/ds_HG2424EG.pdf"
+  },
+  {
+   "id": "hascall-denke-fxpr1350-2700-d",
+   "manufacturer": "Hascall-Denke",
+   "model": "FXPR1350-2700-D",
+   "band_mhz": [
+    1350.0,
+    2700.0
+   ],
+   "gain_dbi": 26.0,
+   "pattern": "directional",
+   "hpbw_az_deg": 14,
+   "hpbw_el_deg": 14,
+   "type": "Fixed-mount parabolic dish, directional",
+   "verify_status": "corrected",
+   "rm_match": "RM-2025",
+   "source": "https://hascall-denke.com/project/1350-2700-mhz-1y28200fxpr1350-2700-d/"
+  },
+  {
+   "id": "celestial-cst-s-9882(sheet:'celest",
+   "manufacturer": "Celestial (Celestial Space Technologies)",
+   "model": "CST-S-9882 (sheet: 'Celestial S-Band Patch')",
+   "band_mhz": [
+    2050.0,
+    2300.0
+   ],
+   "gain_dbi": 8.0,
+   "pattern": "directional",
+   "hpbw_az_deg": 60,
+   "hpbw_el_deg": 20,
+   "type": "S-band patch antenna, 1U footprint, <100 g",
+   "verify_status": "corrected",
+   "rm_match": "RM-2100",
+   "source": "https://satsearch.co/products/celestial-cst-s-9882-s-band-patch-antenna"
+  },
+  {
+   "id": "select-antenna-sel-sec-5816m",
+   "manufacturer": "Select Antenna (Select Telecom)",
+   "model": "SEL-SEC-5816M",
+   "band_mhz": [
+    4900.0,
+    6000.0
+   ],
+   "gain_dbi": 16.0,
+   "pattern": "directional",
+   "hpbw_az_deg": 90,
+   "hpbw_el_deg": 8,
+   "type": "MIMO sector",
+   "verify_status": "confirmed",
+   "rm_match": "RM-5400/ RM-5400 / RM-5200-",
+   "source": "https://www.selectantenna.com/product/16-dbi-mimo-sector/"
+  },
+  {
+   "id": "telimart-india-pvt.-ltd.-tm55d-hvomni-12",
+   "manufacturer": "Telimart India Pvt. Ltd.",
+   "model": "TM55D-HVOMNI-12",
+   "band_mhz": [
+    4900.0,
+    5900.0
+   ],
+   "gain_dbi": 0.5,
+   "pattern": "omni",
+   "hpbw_az_deg": 360,
+   "hpbw_el_deg": 7,
+   "type": "Omni with UPVC radome (not fiberglass)",
+   "verify_status": "confirmed",
+   "rm_match": "RM-5400/ RM-5200",
+   "source": "https://www.exportersindia.com/product-detail/standard-omni-directional-antenna-tm55d-hvomni-12-sma-3963287.htm"
+  },
+  {
+   "id": "telimart-india-pvt.-ltd.-tm55d-hvsctr-16",
+   "manufacturer": "Telimart India Pvt. Ltd.",
+   "model": "TM55D-HVSCTR-16",
+   "band_mhz": [
+    4900.0,
+    5900.0
+   ],
+   "gain_dbi": 16.0,
+   "pattern": "directional",
+   "hpbw_az_deg": 65,
+   "hpbw_el_deg": 20,
+   "type": "Sector antenna",
+   "verify_status": "confirmed",
+   "rm_match": "RM-5400/ RM-5200",
+   "source": "https://www.tradeindia.com/products/dual-polarization-sector-antenna-4-9-5-9-ghz-tm55d-hvsctr-16-1721202.html"
+  },
+  {
+   "id": "telimart-india-pvt.-ltd.-tm55l-spdish-23-38",
+   "manufacturer": "Telimart India Pvt. Ltd.",
+   "model": "TM55L-SPDISH-23/38",
+   "band_mhz": [
+    4900.0,
+    5900.0
+   ],
+   "gain_dbi": 38.0,
+   "pattern": "directional",
+   "hpbw_az_deg": 60,
+   "hpbw_el_deg": 20,
+   "type": "Parabolic dish",
+   "verify_status": "partially_verified",
+   "rm_match": "RM-5400/ RM-5200",
+   "source": "https://www.tradeindia.com/products/high-performance-dish-antenna-4-9-5-9-ghz-tm55l-dpdish-26-1720638.html"
+  },
+  {
+   "id": "csg-networks-ren65817bfn",
+   "manufacturer": "CSG Networks (REN brand); design equiv. Madhu Subtronic MES",
+   "model": "REN 65817 BFN",
+   "band_mhz": [
+    5725.0,
+    5850.0
+   ],
+   "gain_dbi": 17.0,
+   "pattern": "directional",
+   "hpbw_az_deg": 25,
+   "hpbw_el_deg": 25,
+   "type": "Backfire antenna",
+   "verify_status": "partially_verified",
+   "rm_match": "RM-5600/ RM-5400",
+   "source": "https://mscpl.com/wifi-5-8-backfireantenna.html"
+  },
+  {
+   "id": "sec-antenna-ssp58spg29",
+   "manufacturer": "SEC Antenna (Smart Electronics Communication)",
+   "model": "SSP58SPG29",
+   "band_mhz": [
+    5150.0,
+    5850.0
+   ],
+   "gain_dbi": 29.0,
+   "pattern": "directional",
+   "hpbw_az_deg": 6,
+   "hpbw_el_deg": 6,
+   "type": "Solid parabolic dish, 600 mm",
+   "verify_status": "corrected",
+   "rm_match": "RM-5600/ RM-5400",
+   "source": "https://www.secantenna.com/5-8-ghz-single-polarized-dish-antenna/"
+  },
+  {
+   "id": "southwest-antennas-1004-005",
+   "manufacturer": "Southwest Antennas",
+   "model": "1004-005",
+   "band_mhz": [
+    4000.0,
+    6400.0
+   ],
+   "gain_dbi": 9.0,
+   "pattern": "omni",
+   "hpbw_az_deg": 360,
+   "hpbw_el_deg": 12,
+   "type": "Vertical",
+   "verify_status": "partially_verified",
+   "rm_match": "RM-5200",
+   "source": "https://www.rfmw.com/products/detail/1004005-southwest-antennas/601845/"
+  },
+  {
+   "id": "poynting-xpol-2-5g-2",
+   "manufacturer": "Poynting",
+   "model": "XPOL-2-5G",
+   "band_mhz": [
+    617.0,
+    4200.0
+   ],
+   "gain_dbi": 11.0,
+   "pattern": "directional",
+   "hpbw_az_deg": 60,
+   "hpbw_el_deg": 20,
+   "type": "Cross-polarized (X-pol) 2x2 MIMO",
+   "verify_status": "corrected",
+   "rm_match": "RM-5200",
+   "source": "https://poynting.tech/product/xpol-2-5g/"
+  },
+  {
+   "id": "hascall-denke-fxdp4.4-6.0-6-d",
+   "manufacturer": "Hascall-Denke",
+   "model": "FXDP4.4-6.0-6-D",
+   "band_mhz": [
+    4400.0,
+    6000.0
+   ],
+   "gain_dbi": 6.0,
+   "pattern": "omni",
+   "hpbw_az_deg": 360,
+   "hpbw_el_deg": 24,
+   "type": "Dual-polarization (H & V) omni dipole",
+   "verify_status": "confirmed",
+   "rm_match": "RM-5200",
+   "source": "https://www.hascall-denke.com/wp-content/uploads/4400-6000MHz-1Y47650-FXDP4.4-6.0-6-D-REV-A.pdf"
+  },
+  {
+   "id": "poynting-omni-600",
+   "manufacturer": "Poynting",
+   "model": "OMNI-600",
+   "band_mhz": [
+    410.0,
+    3800.0
+   ],
+   "gain_dbi": 6.2,
+   "pattern": "omni",
+   "hpbw_az_deg": 360,
+   "hpbw_el_deg": 12,
+   "type": "Linear polarization",
+   "verify_status": "corrected",
+   "rm_match": "RM-5200",
+   "source": "https://poynting.tech/product/omni-600/"
+  },
+  {
+   "id": "southwest-antennas-1001-126",
+   "manufacturer": "Southwest Antennas",
+   "model": "1001-126",
+   "band_mhz": [
+    4400.0,
+    6000.0
+   ],
+   "gain_dbi": 1.5,
+   "pattern": "omni",
+   "hpbw_az_deg": 360,
+   "hpbw_el_deg": 12,
+   "type": "Half-wave dipole, linear (vertical) polarization",
+   "verify_status": "corrected",
+   "rm_match": "RM-5200",
+   "source": "https://southwestantennas.com/omni-antennas/half-wave-dipole/1001-126"
+  },
+  {
+   "id": "mars-antennas-ma-wo56-dp10",
+   "manufacturer": "MARS Antennas",
+   "model": "MA-WO56-DP10",
+   "band_mhz": [
+    4900.0,
+    5900.0
+   ],
+   "gain_dbi": 10.0,
+   "pattern": "omni",
+   "hpbw_az_deg": 360,
+   "hpbw_el_deg": 12,
+   "type": "Dual polarization (V+H), 2-port MIMO",
+   "verify_status": "confirmed",
+   "rm_match": "RM-5200",
+   "source": "https://mars-antennas.com/product/ma-wo56-dp10/"
+  },
+  {
+   "id": "ubiquiti-am-5g20-90",
+   "manufacturer": "Ubiquiti",
+   "model": "AM-5G20-90",
+   "band_mhz": [
+    5150.0,
+    5850.0
+   ],
+   "gain_dbi": -20.3,
+   "pattern": "directional",
+   "hpbw_az_deg": 91,
+   "hpbw_el_deg": 4,
+   "type": "Dual Linear",
+   "verify_status": "confirmed",
+   "rm_match": "RM-5200",
+   "source": "https://dl.ui.com/qsg/AM-5G20-90/AM-5G20-90_EN.html"
+  },
+  {
+   "id": "ubiquiti-am-5g19-120",
+   "manufacturer": "Ubiquiti",
+   "model": "AM-5G19-120",
+   "band_mhz": [
+    5150.0,
+    5850.0
+   ],
+   "gain_dbi": -19.1,
+   "pattern": "directional",
+   "hpbw_az_deg": 123,
+   "hpbw_el_deg": 4,
+   "type": "Dual Linear",
+   "verify_status": "confirmed",
+   "rm_match": "RM-5200",
+   "source": "https://dl.ui.com/qsg/AM-5G19-120/AM-5G19-120_EN.html"
+  },
+  {
+   "id": "ubiquiti-amo-5g10",
+   "manufacturer": "Ubiquiti",
+   "model": "AMO-5G10",
+   "band_mhz": [
+    5450.0,
+    5850.0
+   ],
+   "gain_dbi": 10.0,
+   "pattern": "omni",
+   "hpbw_az_deg": 360,
+   "hpbw_el_deg": 12,
+   "type": "Dual-Linear",
+   "verify_status": "confirmed",
+   "rm_match": "RM-5200",
+   "source": "https://store.ui.com/us/en/products/amo-5g10"
+  },
+  {
+   "id": "ubiquiti-rd-5g30-lw",
+   "manufacturer": "Ubiquiti",
+   "model": "RD-5G30-LW",
+   "band_mhz": [
+    5100.0,
+    5900.0
+   ],
+   "gain_dbi": 30.0,
+   "pattern": "directional",
+   "hpbw_az_deg": 5.8,
+   "hpbw_el_deg": 5.8,
+   "type": "Dual-Linear",
+   "verify_status": "confirmed",
+   "rm_match": "RM-5200",
+   "source": "https://eu.store.ui.com/eu/en/products/rd-5g30-lw"
+  },
+  {
+   "id": "ubiquiti-rd-5g34",
+   "manufacturer": "Ubiquiti",
+   "model": "RD-5G34",
+   "band_mhz": [
+    5100.0,
+    5900.0
+   ],
+   "gain_dbi": 34.0,
+   "pattern": "directional",
+   "hpbw_az_deg": 3,
+   "hpbw_el_deg": 3,
+   "type": "Dual Linear",
+   "verify_status": "confirmed",
+   "rm_match": "RM-5200",
+   "source": "https://dl.ui.com/qsg/RD-5G34/RD-5G34_EN.html"
+  },
+  {
+   "id": "mikrotik-mant30",
+   "manufacturer": "MikroTik",
+   "model": "mANT30",
+   "band_mhz": [
+    4700.0,
+    5875.0
+   ],
+   "gain_dbi": 30.0,
+   "pattern": "directional",
+   "hpbw_az_deg": 5,
+   "hpbw_el_deg": 5,
+   "type": "Vertical and Horizontal dual polarization",
+   "verify_status": "confirmed",
+   "rm_match": "RM-5200",
+   "source": "https://mikrotik.com/product/MTAD-5G-30D3"
+  },
+  {
+   "id": "mikrotik-mant30pa",
+   "manufacturer": "MikroTik",
+   "model": "mANT30PA",
+   "band_mhz": [
+    4700.0,
+    5875.0
+   ],
+   "gain_dbi": 30.0,
+   "pattern": "directional",
+   "hpbw_az_deg": 5,
+   "hpbw_el_deg": 5,
+   "type": "Vertical and Horizontal dual polarization; PA = precision al",
+   "verify_status": "confirmed",
+   "rm_match": "RM-5200",
+   "source": "https://mikrotik.com/product/MTAD-5G-30D3-PA"
+  }
+ ]
+}

@@ -1,0 +1,282 @@
+[
+ {
+  "excel_row": 37,
+  "rm_match": "RM-2025",
+  "manufacturer": "MikroTik",
+  "model": "mANT19s",
+  "band": "2.4/5 GHz",
+  "gain": "19",
+  "pattern_pol": "120° sector",
+  "type": "Dual linear (H & V). (cdn.mikrotik.com)",
+  "price": "Contact vendor",
+  "country": "Latvia",
+  "datasheet_url": "https://mikrotik.com/product/mantbox19s",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": "8W",
+   "price": "3250"
+  }
+ },
+ {
+  "excel_row": 44,
+  "rm_match": "RM-2025",
+  "manufacturer": "Ubiquiti",
+  "model": "AMO-2G10",
+  "band": "2.4 GHz",
+  "gain": "10",
+  "pattern_pol": "Omnidirectional 2×2 MIMO",
+  "type": "Dual linear (H & V). (UniFi Cloud Gateways)",
+  "price": "Contact vendor",
+  "country": "United States",
+  "datasheet_url": "https://store.ui.com/collections/airmax-omni/products/airmax-omnidirectional-antenna-2g10",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": "8W",
+   "price": "3250"
+  }
+ },
+ {
+  "excel_row": 45,
+  "rm_match": "RM-2025",
+  "manufacturer": "Ubiquiti",
+  "model": "AM-2G15-120",
+  "band": "2.4 GHz",
+  "gain": "15",
+  "pattern_pol": "120° sector",
+  "type": "Dual linear (H & V). (UniFi Cloud Gateways)",
+  "price": "Contact vendor",
+  "country": "United States",
+  "datasheet_url": "https://store.ui.com/collections/airmax-sector/products/airmax-2g-120-15",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": "8W",
+   "price": "3250"
+  }
+ },
+ {
+  "excel_row": 46,
+  "rm_match": "RM-2025",
+  "manufacturer": "MikroTik",
+  "model": "mANT15s",
+  "band": "2.4/5 GHz",
+  "gain": "15",
+  "pattern_pol": "120° sector",
+  "type": "Dual linear (H & V). (MikroTik)",
+  "price": "Contact vendor",
+  "country": "Latvia",
+  "datasheet_url": "https://mikrotik.com/product/mant15s",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM1210-D01",
+   "desc": "30-2700 MHz GaN, 8W Bi-Directional Amplifier, Automatic Tx/Rx Switching",
+   "power": "8W",
+   "price": "3250"
+  }
+ },
+ {
+  "excel_row": 84,
+  "rm_match": "RM-5200",
+  "manufacturer": "Cambium Networks",
+  "model": "450i",
+  "band": "5.0 GHz",
+  "gain": "17",
+  "pattern_pol": "Platform/radio (antenna varies by SKU)",
+  "type": "—",
+  "price": "Contact vendor",
+  "country": "United States",
+  "datasheet_url": "https://www.cambiumnetworks.com/products/antenna/pmp-450i-5-ghz-60-degree-sector/",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM4005DR-D02",
+   "desc": "4400-5000 MHz 20W DUAL Bi-Directional Amplifier, Manual,Switching, Rugged Housing",
+   "power": null,
+   "price": null
+  }
+ },
+ {
+  "excel_row": 85,
+  "rm_match": "RM-5200",
+  "manufacturer": "Ubiquiti",
+  "model": "AM‑5G20‑90",
+  "band": "5.0 GHz",
+  "gain": "20",
+  "pattern_pol": "90° sector",
+  "type": "Dual linear. (UniFi Cloud Gateways)",
+  "price": "Contact vendor",
+  "country": "United States",
+  "datasheet_url": "https://store.ui.com/collections/airmax-sector/products/airmax-5g-90-20",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM4005DR-D02",
+   "desc": "4400-5000 MHz 20W DUAL Bi-Directional Amplifier, Manual,Switching, Rugged Housing",
+   "power": null,
+   "price": null
+  }
+ },
+ {
+  "excel_row": 86,
+  "rm_match": "RM-5200",
+  "manufacturer": "Ubiquiti",
+  "model": "AM‑5G19‑120",
+  "band": "5.0 GHz",
+  "gain": "19",
+  "pattern_pol": "120° sector",
+  "type": "Dual linear. (UniFi Cloud Gateways)",
+  "price": "Contact vendor",
+  "country": "United States",
+  "datasheet_url": "https://store.ui.com/collections/airmax-sector/products/airmax-5g-19-120",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM4005DR-D02",
+   "desc": "4400-5000 MHz 20W DUAL Bi-Directional Amplifier, Manual,Switching, Rugged Housing",
+   "power": null,
+   "price": null
+  }
+ },
+ {
+  "excel_row": 87,
+  "rm_match": "RM-5200",
+  "manufacturer": "Ubiquiti",
+  "model": "AMO‑5G10",
+  "band": "5.0 GHz",
+  "gain": "10",
+  "pattern_pol": "Omnidirectional 2×2 MIMO",
+  "type": "Dual linear. (UniFi Cloud Gateways)",
+  "price": "Contact vendor",
+  "country": "United States",
+  "datasheet_url": "https://store.ui.com/collections/airmax-omni/products/airmax-omni-5g10",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM4005DR-D02",
+   "desc": "4400-5000 MHz 20W DUAL Bi-Directional Amplifier, Manual,Switching, Rugged Housing",
+   "power": null,
+   "price": null
+  }
+ },
+ {
+  "excel_row": 88,
+  "rm_match": "RM-5200",
+  "manufacturer": "Ubiquiti",
+  "model": "RD‑5G30‑LW",
+  "band": "5.0 GHz",
+  "gain": "30",
+  "pattern_pol": "Parabolic dish",
+  "type": "Dual linear (H & V). (UniFi Cloud Gateways)",
+  "price": "Contact vendor",
+  "country": "United States",
+  "datasheet_url": "https://store.ui.com/collections/airmax-dish/products/rocketdish-5g30-lw",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM4005DR-D02",
+   "desc": "4400-5000 MHz 20W DUAL Bi-Directional Amplifier, Manual,Switching, Rugged Housing",
+   "power": null,
+   "price": null
+  }
+ },
+ {
+  "excel_row": 89,
+  "rm_match": "RM-5200",
+  "manufacturer": "Ubiquiti",
+  "model": "RD‑5G34",
+  "band": "5.0 GHz",
+  "gain": "34",
+  "pattern_pol": "Parabolic dish",
+  "type": "Dual linear (H & V). (UniFi Cloud Gateways)",
+  "price": "Contact vendor",
+  "country": "United States",
+  "datasheet_url": "https://store.ui.com/collections/airmax-dish/products/rocketdish-5g34",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM4005DR-D02",
+   "desc": "4400-5000 MHz 20W DUAL Bi-Directional Amplifier, Manual,Switching, Rugged Housing",
+   "power": null,
+   "price": null
+  }
+ },
+ {
+  "excel_row": 90,
+  "rm_match": "RM-5200",
+  "manufacturer": "MikroTik",
+  "model": "mANT30",
+  "band": "5.0 GHz",
+  "gain": "30",
+  "pattern_pol": "Parabolic dish (30 dBi)",
+  "type": "Dual linear (H & V). (MikroTik mANT series are dual-pol.) (cdn.mikrotik.com)",
+  "price": "Contact vendor",
+  "country": "Latvia",
+  "datasheet_url": "https://mikrotik.com/product/mant30",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM4005DR-D02",
+   "desc": "4400-5000 MHz 20W DUAL Bi-Directional Amplifier, Manual,Switching, Rugged Housing",
+   "power": null,
+   "price": null
+  }
+ },
+ {
+  "excel_row": 91,
+  "rm_match": "RM-5200",
+  "manufacturer": "MikroTik",
+  "model": "mANT30PA",
+  "band": "5.0 GHz",
+  "gain": "30",
+  "pattern_pol": "Parabolic dish (30 dBi)",
+  "type": "Dual linear (H & V). (Precision-align variant.) (cdn.mikrotik.com)",
+  "price": "Contact vendor",
+  "country": "Latvia",
+  "datasheet_url": "https://mikrotik.com/product/mant30pa",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM4005DR-D02",
+   "desc": "4400-5000 MHz 20W DUAL Bi-Directional Amplifier, Manual,Switching, Rugged Housing",
+   "power": null,
+   "price": null
+  }
+ },
+ {
+  "excel_row": 92,
+  "rm_match": "RM-5200",
+  "manufacturer": "Cambium Networks",
+  "model": "ePMP",
+  "band": "5.0 GHz",
+  "gain": "15",
+  "pattern_pol": "Platform/radio (antenna varies by sector/dish chosen)",
+  "type": "—",
+  "price": "Contact vendor",
+  "country": "United States",
+  "datasheet_url": "https://www.cambiumnetworks.com/products/antenna/epmp-5-ghz-sector-antenna/",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM4005DR-D02",
+   "desc": "4400-5000 MHz 20W DUAL Bi-Directional Amplifier, Manual,Switching, Rugged Housing",
+   "power": null,
+   "price": null
+  }
+ },
+ {
+  "excel_row": 93,
+  "rm_match": "RM-5200",
+  "manufacturer": "Commscope",
+  "model": "5 GHz",
+  "band": "5.0 GHz",
+  "gain": "18",
+  "pattern_pol": "— (family label only)",
+  "type": "—",
+  "price": "Contact vendor",
+  "country": "United States",
+  "datasheet_url": "https://www.commscope.com/",
+  "bda": {
+   "mfr": "Triad RF",
+   "model": "TTRM4005DR-D02",
+   "desc": "4400-5000 MHz 20W DUAL Bi-Directional Amplifier, Manual,Switching, Rugged Housing",
+   "power": null,
+   "price": null
+  }
+ }
+]
