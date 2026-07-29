@@ -1,7 +1,7 @@
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import './style.css';
-import { RADIOS, BANDS, CHANNEL_WIDTHS, PLATFORMS, CABLES, cableLossDb } from './radios.js';
+import { RADIOS, BANDS, CHANNEL_WIDTHS, PLATFORMS, CABLES, cableLossDb, hasGps, FORM_FACTORS } from './radios.js';
 import { terrainProfile, haversineM, bearingDeg, destination, elevationAt, elevationAtSync, prewarmArea } from './terrain.js';
 import { analyzePath, evaluateLink, fsplDb, throughputMbps, patternLossDb, elevationAngleDeg, angDiff } from './engine.js';
 import {
@@ -12,6 +12,7 @@ import {
 } from './coverage.js';
 import { SCENARIOS, recommend, adviseExtension, REMOTE_PLATFORMS } from './advisor.js';
 import { analyzeRoute, parseCoordinates, colorForMbps, nodeColor } from './route.js';
+import { impliedRangeM, locateWithUncertainty, ringCoords, annulusCoords, MODELS } from './ranging.js';
 import { buildReportHtml } from './report.js';
 import { startTour } from './tour.js';
 
@@ -1080,6 +1081,9 @@ function renderSidebar() {
         <input class="label-input" value="${node.label.replace(/"/g, '&quot;')}" title="Node name (shown to customers)"/>
         <button class="del" title="Delete node">🗑</button></h3>
       <div class="row"><label>Platform</label><select data-f="platform">${PLATFORMS.map((p) => `<option value="${p.id}" ${p.id === node.platform ? 'selected' : ''}>${p.label}</option>`).join('')}</select></div>
+      <div class="row"><label>GPS</label><span class="pat-info">${hasGps(node.radioId)
+        ? 'onboard — this radio reports its own position'
+        : 'none on ' + (FORM_FACTORS[RADIOS.find((r) => r.id === node.radioId)?.formFactor]?.label || 'this form factor') + ' — survey it, or use 📶 Locate by signal'}</span></div>
       <div class="row"><label>Radio</label><select data-f="radioId">${RADIOS.map((r) => `<option value="${r.id}" ${r.id === node.radioId ? 'selected' : ''}>${r.name}</option>`).join('')}</select></div>
       <div class="row"><label>Band</label><select data-f="bandId">${radio.bands.map((b) => `<option value="${b}" ${b === node.bandId ? 'selected' : ''}>${BANDS[b].label}</option>`).join('')}</select></div>
       <div class="row"><label>Freq (MHz)</label><input type="number" data-f="freqMhz" value="${node.freqMhz}" min="${BANDS[node.bandId].lo}" max="${BANDS[node.bandId].hi}"/></div>
@@ -1795,6 +1799,187 @@ function drawRouteChart(res, targetCanvas = canvas, fixedSize = null) {
   ctx.fillStyle = '#74c0fc'; ctx.fillText('— Mbps', w - R + 2, T + 9);
 }
 
+// ---------- Locate a GPS-less radio from signal strength ----------
+// Nano and Mini units have no GPS. Their position can still be recovered from the
+// levels they exchange with radios whose positions are known (OEM/Wearable units
+// carry GPS; masts can be surveyed). The answer is a confidence region, never a point.
+
+const locPanel = document.getElementById('loc-panel');
+const $loc = (id) => document.getElementById(id);
+let locState = { targetId: null, rssi: {}, model: 'fspl', uncertaintyDb: 6, fix: null, targetGain: 3 };
+let locFixMarker = null;
+
+function ensureLocLayers() {
+  if (!map.getSource('loc-rings')) {
+    map.addSource('loc-rings', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
+    map.addLayer({ id: 'loc-bands', type: 'fill', source: 'loc-rings',
+      filter: ['==', ['get', 'kind'], 'band'],
+      paint: { 'fill-color': '#be4bdb', 'fill-opacity': 0.12 } });
+    map.addLayer({ id: 'loc-ring-lines', type: 'line', source: 'loc-rings',
+      filter: ['==', ['get', 'kind'], 'ring'],
+      paint: { 'line-color': '#be4bdb', 'line-width': 1.6, 'line-dasharray': [3, 2] } });
+    map.addLayer({ id: 'loc-conf', type: 'fill', source: 'loc-rings',
+      filter: ['==', ['get', 'kind'], 'conf'],
+      paint: { 'fill-color': '#f783ac', 'fill-opacity': 0.28 } });
+  }
+}
+
+function clearLocOverlay() {
+  if (map.getSource('loc-rings')) map.getSource('loc-rings').setData({ type: 'FeatureCollection', features: [] });
+  if (locFixMarker) { locFixMarker.remove(); locFixMarker = null; }
+}
+
+function renderLocPanel() {
+  const target = nodes.find((n) => n.id === locState.targetId);
+  // default the target to a radio that has no GPS, since those are the ones that need this
+  if (!target && nodes.length) {
+    const gpsless = nodes.find((n) => !hasGps(n.radioId));
+    locState.targetId = (gpsless || nodes[0]).id;
+  }
+  $loc('loc-target').innerHTML = nodes.map((n) => {
+    const g = hasGps(n.radioId);
+    return `<option value="${n.id}" ${n.id === locState.targetId ? 'selected' : ''}>${n.label} — ${g ? 'has GPS' : 'no GPS'}</option>`;
+  }).join('') || '<option value="">— place radios first —</option>';
+
+  const t = nodes.find((n) => n.id === locState.targetId);
+  if (t) locState.targetGain = locState.targetGain ?? t.antennaGain;
+  $loc('loc-target-gain').value = locState.targetGain;
+
+  $loc('loc-anchors').innerHTML = nodes.filter((n) => n.id !== locState.targetId).map((n) => {
+    const g = hasGps(n.radioId);
+    const v = locState.rssi[n.id] ?? '';
+    return `<div class="loc-anchor">
+      <span class="loc-gps ${g ? 'yes' : 'no'}">${g ? 'GPS' : 'no GPS'}</span>
+      <label title="${n.label}">${n.label}</label>
+      <input type="number" data-loc-rssi="${n.id}" value="${v}" placeholder="dBm" step="1"/>
+    </div>`;
+  }).join('') || '<div class="cov-readout">Need at least one other radio on the map.</div>';
+  $loc('loc-anchors').querySelectorAll('[data-loc-rssi]').forEach((el) => {
+    el.addEventListener('change', () => {
+      const id = parseInt(el.dataset.locRssi);
+      const val = parseFloat(el.value);
+      if (Number.isFinite(val)) locState.rssi[id] = val; else delete locState.rssi[id];
+    });
+  });
+
+  $loc('loc-model').innerHTML = Object.entries(MODELS)
+    .map(([k, m]) => `<option value="${k}" ${k === locState.model ? 'selected' : ''}>${m.label}</option>`).join('');
+  $loc('loc-unc').value = locState.uncertaintyDb;
+  const n = MODELS[locState.model]?.n ?? 2;
+  const f = 10 ** (locState.uncertaintyDb / (10 * n));
+  $loc('loc-unc-note').textContent =
+    `±${locState.uncertaintyDb} dB of doubt = ×${f.toFixed(2)} / ÷${f.toFixed(2)} on every distance. `
+    + (MODELS[locState.model]?.note || '');
+}
+
+function computeLocate() {
+  const target = nodes.find((n) => n.id === locState.targetId);
+  const status = $loc('loc-status');
+  if (!target) { status.textContent = 'Pick a radio to locate.'; return; }
+  const entries = Object.entries(locState.rssi)
+    .map(([id, rssi]) => ({ node: nodes.find((n) => n.id === parseInt(id)), rssiDbm: rssi }))
+    .filter((e) => e.node);
+  if (!entries.length) { status.textContent = 'Enter at least one measured level.'; return; }
+
+  const radioT = RADIOS.find((r) => r.id === target.radioId);
+  const anchors = entries.map((e) => {
+    const p = e.node.marker.getLngLat();
+    // the anchor reports the level it receives from the target
+    const r = impliedRangeM({
+      rssiDbm: e.rssiDbm,
+      txDbm: target.powerDbm,
+      txGainDbi: locState.targetGain,
+      rxGainDbi: e.node.antennaGain,
+      cableLossDb: (target.cableLoss || 0) + (e.node.cableLoss || 0),
+      bdaGainDb: (target.bdaGain || 0) + (e.node.bdaGain || 0),
+      freqMhz: e.node.freqMhz,
+      model: locState.model,
+      uncertaintyDb: locState.uncertaintyDb,
+    });
+    return { lng: p.lng, lat: p.lat, label: e.node.label, rssiDbm: e.rssiDbm, rangeM: r.m, loM: r.loM, hiM: r.hiM, plDb: r.plDb };
+  });
+
+  const fix = locateWithUncertainty(anchors, {
+    uncertaintyDb: locState.uncertaintyDb,
+    n: MODELS[locState.model]?.n ?? 2,
+  });
+  locState.fix = { fix, anchors, targetId: target.id };
+
+  // draw rings, uncertainty bands and the confidence region
+  ensureLocLayers();
+  const features = [];
+  for (const a of anchors) {
+    features.push({ type: 'Feature', properties: { kind: 'band' },
+      geometry: { type: 'Polygon', coordinates: annulusCoords(a, a.loM, a.hiM) } });
+    features.push({ type: 'Feature', properties: { kind: 'ring' },
+      geometry: { type: 'LineString', coordinates: ringCoords(a, a.rangeM) } });
+  }
+  if (fix && fix.r68M > 0) {
+    features.push({ type: 'Feature', properties: { kind: 'conf' },
+      geometry: { type: 'Polygon', coordinates: [ringCoords(fix.best, fix.r68M)] } });
+  }
+  map.getSource('loc-rings').setData({ type: 'FeatureCollection', features });
+
+  if (fix) {
+    if (locFixMarker) locFixMarker.remove();
+    const el = document.createElement('div');
+    el.className = 'loc-fix-marker';
+    el.title = 'Signal-derived position estimate';
+    locFixMarker = new maplibregl.Marker({ element: el }).setLngLat([fix.best.lng, fix.best.lat]).addTo(map);
+  }
+
+  const km = (m) => (m >= 1000 ? (m / 1000).toFixed(2) + ' km' : Math.round(m) + ' m');
+  const rows = anchors.map((a) => {
+    const actual = haversineM(a, fix.best);
+    const off = actual - a.rangeM;
+    return `<div class="rt-stat"><span>${a.label} @ ${a.rssiDbm} dBm</span><b>${km(a.rangeM)} <span style="color:#91a7c0">(${km(a.loM)}–${km(a.hiM)})</span></b></div>`
+      + `<div class="rt-stat" style="color:#6c7a8c"><span>&nbsp;&nbsp;fit residual</span><b>${off >= 0 ? '+' : ''}${Math.round(off)} m</b></div>`;
+  }).join('');
+
+  $loc('loc-result').innerHTML = `
+    <div class="cov-label">Estimated position</div>
+    <div class="rt-stat"><span>Latitude, longitude</span><b>${fix.best.lat.toFixed(5)}, ${fix.best.lng.toFixed(5)}</b></div>
+    <div class="rt-stat ${fix.r68M > 2000 ? 'rt-bad' : 'rt-good'}"><span>68% confidence radius</span><b>${km(fix.r68M)}</b></div>
+    <div class="rt-stat"><span>95% confidence radius</span><b>${km(fix.r95M)}</b></div>
+    <div class="rt-stat"><span>Reference radios used</span><b>${fix.anchorsUsed}</b></div>
+    ${fix.ambiguous ? `<div class="cov-hint" style="padding:4px 0">Fewer than three references: the geometry is ambiguous. `
+      + (fix.candidates.length === 2 ? 'Two mirror solutions exist — the marker shows the least-squares point; add a third radio to resolve it.' : 'Add more references.') + '</div>' : ''}
+    ${fix.residualDb > locState.uncertaintyDb ? `<div class="cov-hint" style="padding:4px 0">The rings disagree by more than the stated ${locState.uncertaintyDb} dB budget — a level, gain or cable figure is probably wrong, or one path is obstructed.</div>` : ''}
+    <div class="cov-label" style="margin-top:6px">Implied ranges</div>
+    ${rows}
+    <button class="tool-btn" id="loc-apply" style="width:100%;margin-top:7px">Move “${esc2(target.label)}” here</button>`;
+
+  $loc('loc-apply').addEventListener('click', () => {
+    target.marker.setLngLat([fix.best.lng, fix.best.lat]);
+    updateGroundElev(target);
+    refreshBeams(); recomputeAllLinks(); persistState();
+    status.textContent = `${target.label} moved to the signal-derived position.`;
+  });
+  status.textContent = '';
+}
+
+document.getElementById('btn-locate').addEventListener('click', () => {
+  if (!nodes.length) { alert('Place the radios whose positions you know first.'); return; }
+  locPanel.classList.remove('hidden');
+  renderLocPanel();
+});
+$loc('loc-close').addEventListener('click', () => { locPanel.classList.add('hidden'); clearLocOverlay(); });
+$loc('loc-run').addEventListener('click', computeLocate);
+$loc('loc-target').addEventListener('change', () => {
+  locState.targetId = parseInt($loc('loc-target').value);
+  const t = nodes.find((n) => n.id === locState.targetId);
+  if (t) locState.targetGain = t.antennaGain;
+  locState.rssi = {};
+  renderLocPanel();
+});
+$loc('loc-target-gain').addEventListener('change', () => { locState.targetGain = parseFloat($loc('loc-target-gain').value) || 3; });
+$loc('loc-model').addEventListener('change', () => { locState.model = $loc('loc-model').value; renderLocPanel(); });
+$loc('loc-unc').addEventListener('change', () => {
+  locState.uncertaintyDb = Math.max(1, Math.min(20, parseFloat($loc('loc-unc').value) || 6));
+  renderLocPanel();
+});
+
+
 // Dev/test hook
 window.__app = {
   map, RADIOS,
@@ -1813,6 +1998,9 @@ window.__app = {
   simulateCoverage,
   openCovPanel,
   get route() { return route; },
+  get locState() { return locState; },
+  computeLocate,
+  renderLocPanel,
   addWaypoint,
   analyseRoute,
   clearRoute,

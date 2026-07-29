@@ -267,3 +267,26 @@ html, body, #app { height: 100%; font-family: 'Segoe UI', system-ui, sans-serif;
 .fade-ctl { display: flex; align-items: center; gap: 5px; font-size: 12px; color: #ced4da; white-space: nowrap; }
 .fade-ctl input { width: 46px; background: #0d1117; color: #e9ecef; border: 1px solid #2b3648; border-radius: 4px; padding: 3px 4px; font-size: 12px; }
 #fade-note { color: #74c0fc; font-size: 10.5px; max-width: 150px; }
+
+#loc-panel {
+  position: absolute; top: 10px; right: 306px; z-index: 6; width: 290px;
+  background: rgba(16,20,24,.94); color: #dee2e6; border-radius: 10px;
+  box-shadow: 0 6px 24px rgba(0,0,0,.45); font-size: 12px;
+  max-height: calc(100% - 44px); overflow-y: auto;
+}
+#loc-panel.hidden { display: none; }
+#loc-head { display: flex; align-items: center; padding: 9px 11px; border-bottom: 1px solid #2b3648; }
+#loc-head button { margin-left: auto; background: none; border: none; color: #adb5bd; cursor: pointer; font-size: 14px; }
+#loc-panel select { width: 100%; background: #0d1117; color: #e9ecef; border: 1px solid #2b3648; border-radius: 4px; padding: 3px 5px; font-size: 12px; }
+#loc-panel .cov-row input[type=number] { background: #0d1117; color: #e9ecef; border: 1px solid #2b3648; }
+#loc-result { padding: 0 11px 8px; }
+.loc-anchor { display: flex; align-items: center; gap: 5px; padding: 2px 0; }
+.loc-anchor label { flex: 1; color: #ced4da; font-size: 11.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.loc-anchor input[type=number] { width: 58px; background: #0d1117; color: #e9ecef; border: 1px solid #2b3648; border-radius: 4px; padding: 2px 4px; font-size: 11.5px; }
+.loc-gps { font-size: 10px; padding: 0 4px; border-radius: 3px; }
+.loc-gps.yes { background: #14532d; color: #8ce99a; }
+.loc-gps.no { background: #5c2c2c; color: #ffc9c9; }
+.gps-badge { font-size: 10px; padding: 1px 6px; border-radius: 9px; margin-left: auto; }
+.gps-badge.yes { background: #e7f5ec; color: #2b8a3e; }
+.gps-badge.no { background: #fff0f0; color: #c92a2a; }
+.loc-fix-marker { width: 22px; height: 22px; border-radius: 50%; background: #be4bdb; border: 3px solid #fff; box-shadow: 0 2px 8px rgba(0,0,0,.5); }

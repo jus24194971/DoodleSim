@@ -19,6 +19,7 @@
         <button id="btn-load" class="tool-btn" title="Load a layout .json file">📂 Load</button>
         <button id="btn-mesh-coverage" class="tool-btn" title="Coverage simulation: terrain-following (UGV) or flight level (UAS), single node or whole mesh">▩ Coverage sim</button>
         <button id="btn-route" class="tool-btn" title="Mission route: waypoints by click or coordinates, analysed against every radio on the map">🛣 Mission route</button>
+        <button id="btn-locate" class="tool-btn" title="Locate a GPS-less radio (Nano/Mini) from its signal strength to radios whose positions are known">📶 Locate by signal</button>
         <button id="btn-report" class="tool-btn" title="Export a customer-ready design summary">📄 Report</button>
         <input type="file" id="file-load" accept=".json" style="display:none" />
         <span id="mode-hint"></span>
@@ -147,6 +148,31 @@
       <div class="cov-foot">Each waypoint leg is sampled and tested against every radio on the map that shares the vehicle's band. Terrain from ~30 m data; buildings and vegetation are not modelled.</div>
     </div>
 
+    <div id="loc-panel" class="hidden">
+      <div id="loc-head"><b>📶 Locate by signal</b><button id="loc-close" title="Close">✕</button></div>
+      <div class="cov-section">
+        <div class="cov-foot" style="border:none;padding:0 0 6px">Nano and Mini radios carry no GPS. Give the levels
+          they exchange with radios whose positions you <i>do</i> know (OEM/Wearable units have GPS, or survey a mast)
+          and the geometry can be recovered from the link budget.</div>
+        <div class="cov-row"><label>Radio to locate</label><select id="loc-target"></select></div>
+        <div class="cov-row"><label>Its antenna gain</label><input type="number" id="loc-target-gain" value="3" step="0.5"/><span class="cov-unit">dBi</span></div>
+      </div>
+      <div class="cov-section">
+        <div class="cov-label">Known-position radios &amp; measured level</div>
+        <div id="loc-anchors"></div>
+      </div>
+      <div class="cov-section">
+        <div class="cov-row"><label>Propagation</label><select id="loc-model"></select></div>
+        <div class="cov-row"><label>Budget uncertainty</label><input type="number" id="loc-unc" value="6" min="1" max="20" step="1"/><span class="cov-unit">dB</span></div>
+        <div class="cov-readout" id="loc-unc-note"></div>
+      </div>
+      <button id="loc-run" class="tool-btn cov-run">Compute position</button>
+      <div id="loc-status" class="cov-status"></div>
+      <div id="loc-result"></div>
+      <div class="cov-foot">Distance from signal is only as good as the assumed gains and cable losses: every dB of
+        doubt is a multiplicative distance error, which is why the answer is a region, not a point.</div>
+    </div>
+
     <div id="profile-panel" class="hidden">
       <div id="profile-header">
         <span id="profile-title"></span>
@@ -238,6 +264,13 @@
           <p><b>🛣 Mission route</b> analyses a path rather than an area. Add waypoints by clicking the map, or paste coordinates (decimal degrees, or DMS like <code>40°01'30"N 105°16'12"W</code>, one per line — the parser skips anything it can't read and tells you). Waypoints are draggable, and the analysis re-runs when you move one.</p>
           <p>Configure the <b>vehicle radio</b> separately from the fixed infrastructure: platform, radio, band, channel width, its own antenna from the catalog, and either a height above ground (terrain-following) or a flight level. Every position along the route is then tested against <i>every radio on the map that shares the vehicle's band</i> — radios on other bands are excluded and counted, because they cannot serve it.</p>
           <p>You get the achievable <b>bandwidth along the route</b>, the percentage of the route that meets your required data rate, the <b>longest continuous dropout in metres</b>, the number of handovers, and the <b>serving structure</b> — which radio carries which share of the route. The chart shows bandwidth over terrain with the vehicle's path, dropouts shaded red, handover ticks, and a colour strip identifying the serving radio at every point. It all goes into the exported report.</p>
+        </section>
+
+        <section>
+          <h2>📶 Radios without GPS — locating by signal</h2>
+          <p><b>Nano and Mini radios carry no GPS</b> — which is precisely the form factor that flies. OEM and Wearable units do have it, so in a mixed mesh those become your position references. Each node card states which case it is.</p>
+          <p><b>📶 Locate by signal</b> turns that into geometry. Pick the radio with no GPS, enter the level each known-position radio reports for it, and the tool inverts the link budget into a range per reference, intersects them, and places the radio — then tells you how much to trust it. Range rings and their uncertainty bands are drawn on the map with a shaded confidence region at the intersection.</p>
+          <p>Be honest with the <b>budget uncertainty</b> figure: every dB of doubt about antenna gain, cable loss or TX calibration becomes a <i>multiplicative</i> distance error. ±6 dB is a factor of two in free space, which the panel states in plain numbers. Three or more references resolve the geometry; two leave a mirror ambiguity, and the tool says so rather than pretending. If the rings disagree by more than your stated budget, a gain figure is wrong or one path is obstructed — worth more than the position itself.</p>
         </section>
 
         <section>

@@ -28,21 +28,37 @@ export const BANDS = {
   uhf432:   { label: 'UHF (432–478)', lo: 432, hi: 478, def: 455 },
 };
 
+// GPS availability follows the form factor, not the band: the small units that
+// actually fly - Nano and Mini - carry no GPS receiver, while OEM and Wearable
+// units do. In a mixed mesh that makes the OEM/Wearable nodes your position
+// anchors and the Nano/Mini nodes the ones that have to be located by signal.
+export const FORM_FACTORS = {
+  nano:     { label: 'Nano / Nano²', hasGps: false },
+  mini:     { label: 'Mini (mini-OEM)', hasGps: false },
+  oem:      { label: 'OEM', hasGps: true },
+  wearable: { label: 'Wearable', hasGps: true },
+};
+
+export function hasGps(radioId) {
+  const r = RADIOS.find((x) => x.id === radioId);
+  return r ? !!FORM_FACTORS[r.formFactor]?.hasGps : false;
+}
+
 export const RADIOS = [
-  { id: 'miniOEM_v4', name: 'miniOEM v4', power: V4_POWER, maxConfig: 32, chains: 2, bands: ['ism900', 'ism2400', 'hex', 'sband'] },
-  { id: 'nanoOEM_v4', name: 'nanoOEM v4', power: V4_POWER, maxConfig: 32, chains: 1, bands: ['ism900', 'ism2400', 'hex', 'sband'] },
-  { id: 'OEM_v4', name: 'OEM v4', power: V4_POWER, maxConfig: 32, chains: 2, bands: ['ism900', 'ism2400', 'hex', 'sband'] },
-  { id: 'wearable_v4', name: 'Wearable v4', power: V4_POWER, maxConfig: 32, chains: 2, bands: ['ism900', 'ism2400', 'hex', 'sband'] },
-  { id: 'miniOEM_v3', name: 'miniOEM v3', power: V3_POWER, maxConfig: 30, chains: 2, bands: ['ism900', 'ism2400', 'hex', 'sband'] },
-  { id: 'nanoOEM_v3', name: 'nanoOEM v3', power: V3_POWER, maxConfig: 30, chains: 1, bands: ['ism900', 'ism2400', 'hex', 'sband'] },
-  { id: 'OEM_v3', name: 'OEM v3', power: V3_POWER, maxConfig: 30, chains: 2, bands: ['ism900', 'ism2400', 'hex', 'sband'] },
-  { id: 'wearable_v3', name: 'Wearable v3', power: V3_POWER, maxConfig: 30, chains: 2, bands: ['ism900', 'ism2400', 'hex', 'sband'] },
-  { id: 'RM5200_44', name: 'RM-5200 (4.4–4.8 GHz)', power: [26, 24, 24, 24, 22, 20, 18, 16], maxConfig: 30, chains: 2, bands: ['natoC'] },
-  { id: 'RM5200_51', name: 'RM-5200 (5.1–5.8 GHz)', power: [27, 25, 25, 25, 23, 21, 19, 17], maxConfig: 30, chains: 2, bands: ['pubsafe', 'unii', 'ism5800'] },
-  { id: 'RM1300_245', name: 'RM-1300 Quad (VHF 245–265)', power: [24, 21, 21, 21, 20, 19, 18, 16], maxConfig: 27, chains: 2, bands: ['vhf245'] },
-  { id: 'RM1300_2200', name: 'RM-1300 Quad (2245–2450)', power: [27, 24, 24, 24, 23, 22, 21, 19], maxConfig: 30, chains: 2, bands: ['sband'] },
-  { id: 'RM1400_432', name: 'RM-1400 Quad (UHF 432–478)', power: [24, 21, 21, 21, 20, 19, 18, 16], maxConfig: 27, chains: 2, bands: ['uhf432'] },
-  { id: 'RM1400_2200', name: 'RM-1400 Quad (2245–2450)', power: [27, 24, 24, 24, 23, 22, 21, 19], maxConfig: 30, chains: 2, bands: ['sband'] },
+  { id: 'miniOEM_v4', formFactor: 'mini', name: 'miniOEM v4', power: V4_POWER, maxConfig: 32, chains: 2, bands: ['ism900', 'ism2400', 'hex', 'sband'] },
+  { id: 'nanoOEM_v4', formFactor: 'nano', name: 'nanoOEM v4', power: V4_POWER, maxConfig: 32, chains: 1, bands: ['ism900', 'ism2400', 'hex', 'sband'] },
+  { id: 'OEM_v4', formFactor: 'oem', name: 'OEM v4', power: V4_POWER, maxConfig: 32, chains: 2, bands: ['ism900', 'ism2400', 'hex', 'sband'] },
+  { id: 'wearable_v4', formFactor: 'wearable', name: 'Wearable v4', power: V4_POWER, maxConfig: 32, chains: 2, bands: ['ism900', 'ism2400', 'hex', 'sband'] },
+  { id: 'miniOEM_v3', formFactor: 'mini', name: 'miniOEM v3', power: V3_POWER, maxConfig: 30, chains: 2, bands: ['ism900', 'ism2400', 'hex', 'sband'] },
+  { id: 'nanoOEM_v3', formFactor: 'nano', name: 'nanoOEM v3', power: V3_POWER, maxConfig: 30, chains: 1, bands: ['ism900', 'ism2400', 'hex', 'sband'] },
+  { id: 'OEM_v3', formFactor: 'oem', name: 'OEM v3', power: V3_POWER, maxConfig: 30, chains: 2, bands: ['ism900', 'ism2400', 'hex', 'sband'] },
+  { id: 'wearable_v3', formFactor: 'wearable', name: 'Wearable v3', power: V3_POWER, maxConfig: 30, chains: 2, bands: ['ism900', 'ism2400', 'hex', 'sband'] },
+  { id: 'RM5200_44', formFactor: 'oem', name: 'RM-5200 (4.4–4.8 GHz)', power: [26, 24, 24, 24, 22, 20, 18, 16], maxConfig: 30, chains: 2, bands: ['natoC'] },
+  { id: 'RM5200_51', formFactor: 'oem', name: 'RM-5200 (5.1–5.8 GHz)', power: [27, 25, 25, 25, 23, 21, 19, 17], maxConfig: 30, chains: 2, bands: ['pubsafe', 'unii', 'ism5800'] },
+  { id: 'RM1300_245', formFactor: 'oem', name: 'RM-1300 Quad (VHF 245–265)', power: [24, 21, 21, 21, 20, 19, 18, 16], maxConfig: 27, chains: 2, bands: ['vhf245'] },
+  { id: 'RM1300_2200', formFactor: 'oem', name: 'RM-1300 Quad (2245–2450)', power: [27, 24, 24, 24, 23, 22, 21, 19], maxConfig: 30, chains: 2, bands: ['sband'] },
+  { id: 'RM1400_432', formFactor: 'oem', name: 'RM-1400 Quad (UHF 432–478)', power: [24, 21, 21, 21, 20, 19, 18, 16], maxConfig: 27, chains: 2, bands: ['uhf432'] },
+  { id: 'RM1400_2200', formFactor: 'oem', name: 'RM-1400 Quad (2245–2450)', power: [27, 24, 24, 24, 23, 22, 21, 19], maxConfig: 30, chains: 2, bands: ['sband'] },
 ];
 
 export const CHANNEL_WIDTHS = [3, 5, 10, 15, 20, 26, 40];
