@@ -2,3 +2,10 @@ node_modules/
 dist/
 .wrangler/
 *.local
+__pycache__/
+
+# Customer log bundles and CRM pulls stay local: they carry customer names,
+# ticket text and site telemetry that must not land in the repo.
+data/hubspot_bundles/
+data/tickets.json
+data/hubspot_manifest.json
