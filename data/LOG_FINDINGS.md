@@ -29,13 +29,13 @@ files — see *Placing this on the map* below.
 The GCS radio's two receive chains sit at **−73 and −63 dBm** (median imbalance 10 dB, peaks to 21 dB).
 The air unit's chains are balanced (−72 / −71, 2 dB).
 
-Corroboration from an independent direction — a reciprocity check. Path loss must be identical both ways:
-
-* GCS transmits 32 dBm, air unit receives −67 dBm → implied path loss **99 dB**
-* Air unit transmits 30 dBm, GCS receives −62 dBm → implied path loss **92 dB**
-
-A **7 dB reciprocity error** on a channel that must be reciprocal means the difference is in the equipment,
-not the propagation, and it lands on the same side as the chain imbalance.
+> **Correction (issued after the timing audit below).** This finding originally cited a 7 dB reciprocity
+> error between the two directions as independent corroboration. **That corroboration is withdrawn.** The two
+> Flight 7 logs were captured **32 minutes apart, not simultaneously**, and the aircraft was moving throughout
+> (its implied range swings between 130 m and 26 km inside one log). Comparing a median from one half-hour
+> against a median from a different half-hour does not measure reciprocity — it measures two different
+> geometries. The chain-imbalance finding itself **stands unchanged**, because both chains are sampled at the
+> same instant within a single log, so their 10 dB difference cannot be a timing artefact.
 
 Consequence: **neither end ever exceeded MCS 6**, so the second spatial stream was never usable — exactly
 what one degraded chain produces on a 2×2 radio. Measured impact: packet-loss ratio median **80–84%**,
@@ -139,3 +139,61 @@ Enable position logging before the next flight and these bundles become directly
 
 With that, the same analysis can plot the track, colour it by measured MCS/RSSI, and compare it
 position-by-position against the simulator's terrain-aware prediction.
+
+---
+
+## Can the radios be positioned from these logs? No — and the data says why
+
+Asked whether the transmitters could be located from signal strength alone. The tooling
+(`tools/solve_mesh_geometry.py`) reconstructs relative geometry from pairwise ranges by stress
+majorisation, and it **refused to solve** on this dataset. Three independent reasons, each fatal on its own:
+
+**1. No pair was captured at the same time.** Positioning needs simultaneous measurements.
+
+| System | Radio A window (UTC) | Radio B window (UTC) | Overlap |
+|---|---|---|---|
+| Flight 7 | 2025-09-30 18:31–18:59 | 2025-09-30 19:31–19:59 | **none, 32 min apart** |
+| Kratos | 2022-05-06 02:14–12:54 | 2022-05-05 13:26–18:51 | **none, different day** |
+| Bench pair | 2022-05-05 13:58–14:06 | 2022-05-05 14:21–14:29 | **none, 15 min apart** |
+
+**2. The Kratos ranges are geometrically impossible together.** The GCS measures peer 21:07 at 15 m and the
+Relay at 55 m, while the Relay measures that same peer at 3.7 km. Two nodes 55 m apart cannot disagree by
+3.6 km about a third. The triangle inequality is violated by **3593 m** on that triple and 251 m on another —
+arithmetic proof that the samples describe different moments, not one layout.
+
+**3. Each pair yields only one range anyway.** One range is a circle, not a point. A position needs
+**three or more mutual ranges**, or one known position plus a known bearing.
+
+### What *is* defensible: the static links
+
+Where a link's implied range is stable and its apparent closing rate is ~0, the distance is real. Filtering
+the placeholder samples (some records report 0 dBm, which no receiver does) and measuring the implied
+closing rate between consecutive samples separates the static links from the moving ones:
+
+| Link | Implied separation | Apparent motion | Verdict |
+|---|---|---|---|
+| Bench pair, both directions | **20 m and 25 m** | 0% of steps implausible | Static, ~20–25 m apart |
+| Kratos 23:1b ↔ 21:13 | **18 m** | 0% | Static |
+| Kratos 20:fb ↔ 2d:81 | **18 m** | 0% | Static |
+| Kratos 23:1b ↔ 22:ff | **23 m** | 0.3% | Static |
+| Flight 7, both directions | median 2.9 km / 2.1 km | **63–66%** | Airborne — a median is meaningless |
+| Kratos 23:1b ↔ 20:fb | median 52–58 m | 17–23% | Partly moving |
+
+"Implausible" means the level changed faster than a platform could physically move (>60 m/s). On the Flight 7
+link the 95th-percentile apparent closing rate is **1200 m/s**, so on that link **RSSI is being driven by
+fading, not by distance** — which is exactly why sample-level RSSI-to-range does not work there.
+
+### What does work without GPS: range versus time
+
+`tools/range_vs_time.py` emits a per-link CSV of implied range against time
+(`data/range_profiles/`). For a UAS that is the flight profile in one dimension, recovered from the radio
+alone: how far out it went, when it was closest, how fast the geometry changed. It cannot say *where*, but it
+says *how far, over time* — and it labels the fraction of each trace that is fading rather than distance.
+
+### To make the next capture positionable
+
+* **Pull the logs from every radio over the same clock window.** Every sample already carries a UTC
+  timestamp, so time-aligned solving works the moment the windows overlap.
+* **Three or more radios that all hear each other**, or two radios whose positions are known.
+* **Enable `meshmap.main.enabled=1` on the OEM and Wearable units** — those have GPS. Once they report
+  position they become survey anchors, and the Nano/Mini ranges resolve into a real fix rather than a ring.

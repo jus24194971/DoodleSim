@@ -1,0 +1,324 @@
+{
+ "b1": {
+  "label": "Air Flight 7",
+  "tx_dbm": 30.0,
+  "peers": [
+   {
+    "peer": "00:30:1a:3b:f1:65",
+    "samples": 481,
+    "duration_min": 28,
+    "implied_range_m": {
+     "min": 130,
+     "median": 2915,
+     "max": 25981
+    },
+    "rssi_dbm": {
+     "min": -86,
+     "median": -67,
+     "max": -40
+    },
+    "closing_rate_m_per_s": {
+     "median": 126.3,
+     "p95": 1201.2
+    },
+    "samples_implying_impossible_motion": 305,
+    "implausible_pct": 63.5,
+    "csv": "Air_Flight_7__00301a3bf165.csv"
+   }
+  ]
+ },
+ "b2": {
+  "label": "GCS Flight 7",
+  "tx_dbm": 32.0,
+  "peers": [
+   {
+    "peer": "00:30:1a:50:77:63",
+    "samples": 480,
+    "duration_min": 28,
+    "implied_range_m": {
+     "min": 65,
+     "median": 2064,
+     "max": 23156
+    },
+    "rssi_dbm": {
+     "min": -83,
+     "median": -62,
+     "max": -32
+    },
+    "closing_rate_m_per_s": {
+     "median": 113.0,
+     "p95": 1134.0
+    },
+    "samples_implying_impossible_motion": 316,
+    "implausible_pct": 66.0,
+    "csv": "GCS_Flight_7__00301a507763.csv"
+   }
+  ]
+ },
+ "b3": {
+  "label": "GCS Kratos DD 6.9.26",
+  "tx_dbm": 32.0,
+  "peers": [
+   {
+    "peer": "00:30:1a:3d:21:07",
+    "samples": 8485,
+    "duration_min": 628,
+    "implied_range_m": {
+     "min": 2,
+     "median": 15,
+     "max": 8198
+    },
+    "rssi_dbm": {
+     "min": -79,
+     "median": -24,
+     "max": -7
+    },
+    "closing_rate_m_per_s": {
+     "median": 0.5,
+     "p95": 20.0
+    },
+    "samples_implying_impossible_motion": 306,
+    "implausible_pct": 3.6,
+    "csv": "GCS_Kratos_DD_6.9.26__00301a3d2107.csv"
+   },
+   {
+    "peer": "00:30:1a:3d:23:13",
+    "samples": 11987,
+    "duration_min": 572,
+    "implied_range_m": {
+     "min": 4,
+     "median": 21,
+     "max": 11580
+    },
+    "rssi_dbm": {
+     "min": -82,
+     "median": -27,
+     "max": -12
+    },
+    "closing_rate_m_per_s": {
+     "median": 1.0,
+     "p95": 16.0
+    },
+    "samples_implying_impossible_motion": 189,
+    "implausible_pct": 1.6,
+    "csv": "GCS_Kratos_DD_6.9.26__00301a3d2313.csv"
+   },
+   {
+    "peer": "00:30:1a:3d:20:fb",
+    "samples": 7692,
+    "duration_min": 375,
+    "implied_range_m": {
+     "min": 7,
+     "median": 58,
+     "max": 10321
+    },
+    "rssi_dbm": {
+     "min": -81,
+     "median": -36,
+     "max": -17
+    },
+    "closing_rate_m_per_s": {
+     "median": 2.0,
+     "p95": 336.0
+    },
+    "samples_implying_impossible_motion": 1324,
+    "implausible_pct": 17.2,
+    "csv": "GCS_Kratos_DD_6.9.26__00301a3d20fb.csv"
+   },
+   {
+    "peer": "00:30:1a:3d:21:13",
+    "samples": 831,
+    "duration_min": 56,
+    "implied_range_m": {
+     "min": 6,
+     "median": 18,
+     "max": 46
+    },
+    "rssi_dbm": {
+     "min": -34,
+     "median": -26,
+     "max": -16
+    },
+    "closing_rate_m_per_s": {
+     "median": 0.0,
+     "p95": 4.0
+    },
+    "samples_implying_impossible_motion": 0,
+    "implausible_pct": 0.0,
+    "csv": "GCS_Kratos_DD_6.9.26__00301a3d2113.csv"
+   },
+   {
+    "peer": "00:30:1a:3d:22:ff",
+    "samples": 1176,
+    "duration_min": 40,
+    "implied_range_m": {
+     "min": 9,
+     "median": 23,
+     "max": 9198
+    },
+    "rssi_dbm": {
+     "min": -80,
+     "median": -28,
+     "max": -20
+    },
+    "closing_rate_m_per_s": {
+     "median": 0.0,
+     "p95": 1.5
+    },
+    "samples_implying_impossible_motion": 4,
+    "implausible_pct": 0.3,
+    "csv": "GCS_Kratos_DD_6.9.26__00301a3d22ff.csv"
+   }
+  ]
+ },
+ "b4": {
+  "label": "Relay Kratos DD 6.9.26",
+  "tx_dbm": 32.0,
+  "peers": [
+   {
+    "peer": "00:30:1a:3c:2d:81",
+    "samples": 82,
+    "duration_min": 3,
+    "implied_range_m": {
+     "min": 13,
+     "median": 18,
+     "max": 37
+    },
+    "rssi_dbm": {
+     "min": -32,
+     "median": -26,
+     "max": -23
+    },
+    "closing_rate_m_per_s": {
+     "median": 1.5,
+     "p95": 4.0
+    },
+    "samples_implying_impossible_motion": 0,
+    "implausible_pct": 0.0,
+    "csv": "Relay_Kratos_DD_6.9.26__00301a3c2d81.csv"
+   },
+   {
+    "peer": "00:30:1a:3d:23:1b",
+    "samples": 6343,
+    "duration_min": 267,
+    "implied_range_m": {
+     "min": 8,
+     "median": 52,
+     "max": 12993
+    },
+    "rssi_dbm": {
+     "min": -83,
+     "median": -35,
+     "max": -19
+    },
+    "closing_rate_m_per_s": {
+     "median": 4.0,
+     "p95": 476.5
+    },
+    "samples_implying_impossible_motion": 1458,
+    "implausible_pct": 23.0,
+    "csv": "Relay_Kratos_DD_6.9.26__00301a3d231b.csv"
+   },
+   {
+    "peer": "00:30:1a:3d:23:13",
+    "samples": 3201,
+    "duration_min": 155,
+    "implied_range_m": {
+     "min": 5,
+     "median": 326,
+     "max": 10321
+    },
+    "rssi_dbm": {
+     "min": -81,
+     "median": -51,
+     "max": -15
+    },
+    "closing_rate_m_per_s": {
+     "median": 2.0,
+     "p95": 552.0
+    },
+    "samples_implying_impossible_motion": 739,
+    "implausible_pct": 23.1,
+    "csv": "Relay_Kratos_DD_6.9.26__00301a3d2313.csv"
+   },
+   {
+    "peer": "00:30:1a:3d:21:07",
+    "samples": 1929,
+    "duration_min": 65,
+    "implied_range_m": {
+     "min": 6,
+     "median": 3662,
+     "max": 14579
+    },
+    "rssi_dbm": {
+     "min": -84,
+     "median": -72,
+     "max": -16
+    },
+    "closing_rate_m_per_s": {
+     "median": 1.0,
+     "p95": 843.0
+    },
+    "samples_implying_impossible_motion": 626,
+    "implausible_pct": 32.5,
+    "csv": "Relay_Kratos_DD_6.9.26__00301a3d2107.csv"
+   }
+  ]
+ },
+ "b5": {
+  "label": "longtermmon smartradio-301a3af4e9",
+  "tx_dbm": 30.0,
+  "peers": [
+   {
+    "peer": "00:30:1a:50:81:4f",
+    "samples": 143,
+    "duration_min": 8,
+    "implied_range_m": {
+     "min": 14,
+     "median": 20,
+     "max": 40
+    },
+    "rssi_dbm": {
+     "min": -35,
+     "median": -29,
+     "max": -26
+    },
+    "closing_rate_m_per_s": {
+     "median": 0.8,
+     "p95": 5.0
+    },
+    "samples_implying_impossible_motion": 0,
+    "implausible_pct": 0.0,
+    "csv": "longtermmon_smartradio-301a3af4e9__00301a50814f.csv"
+   }
+  ]
+ },
+ "b6": {
+  "label": "longtermmon smartradio-301a50814f",
+  "tx_dbm": 30.0,
+  "peers": [
+   {
+    "peer": "00:30:1a:3a:f4:e9",
+    "samples": 141,
+    "duration_min": 8,
+    "implied_range_m": {
+     "min": 20,
+     "median": 25,
+     "max": 64
+    },
+    "rssi_dbm": {
+     "min": -39,
+     "median": -31,
+     "max": -29
+    },
+    "closing_rate_m_per_s": {
+     "median": 0.8,
+     "p95": 9.3
+    },
+    "samples_implying_impossible_motion": 0,
+    "implausible_pct": 0.0,
+    "csv": "longtermmon_smartradio-301a50814f__00301a3af4e9.csv"
+   }
+  ]
+ }
+}

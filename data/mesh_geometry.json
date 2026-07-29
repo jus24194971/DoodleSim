@@ -1,0 +1,223 @@
+{
+ "selftest": {
+  "worst_edge_residual_m": 0,
+  "edges_reproduced": true,
+  "unconstrained_vertex_moved_m": 2223.1,
+  "note": "D has only two ranges, so it may mirror across BC. Edge residual near zero with a displaced D is the expected, correct outcome."
+ },
+ "simultaneity": [
+  {
+   "a": "b1",
+   "b": "b2",
+   "overlap_s": -1895,
+   "verdict": "no overlap, gap 32 min"
+  },
+  {
+   "a": "b1",
+   "b": "b3",
+   "overlap_s": -107415411,
+   "verdict": "no overlap, gap 1790257 min"
+  },
+  {
+   "a": "b1",
+   "b": "b4",
+   "overlap_s": -107480369,
+   "verdict": "no overlap, gap 1791339 min"
+  },
+  {
+   "a": "b1",
+   "b": "b5",
+   "overlap_s": -107497489,
+   "verdict": "no overlap, gap 1791625 min"
+  },
+  {
+   "a": "b1",
+   "b": "b6",
+   "overlap_s": -107496105,
+   "verdict": "no overlap, gap 1791602 min"
+  },
+  {
+   "a": "b2",
+   "b": "b3",
+   "overlap_s": -107418995,
+   "verdict": "no overlap, gap 1790317 min"
+  },
+  {
+   "a": "b2",
+   "b": "b4",
+   "overlap_s": -107483953,
+   "verdict": "no overlap, gap 1791399 min"
+  },
+  {
+   "a": "b2",
+   "b": "b5",
+   "overlap_s": -107501073,
+   "verdict": "no overlap, gap 1791685 min"
+  },
+  {
+   "a": "b2",
+   "b": "b6",
+   "overlap_s": -107499689,
+   "verdict": "no overlap, gap 1791661 min"
+  },
+  {
+   "a": "b3",
+   "b": "b4",
+   "overlap_s": -26543,
+   "verdict": "no overlap, gap 442 min"
+  },
+  {
+   "a": "b3",
+   "b": "b5",
+   "overlap_s": -43663,
+   "verdict": "no overlap, gap 728 min"
+  },
+  {
+   "a": "b3",
+   "b": "b6",
+   "overlap_s": -42279,
+   "verdict": "no overlap, gap 705 min"
+  },
+  {
+   "a": "b4",
+   "b": "b5",
+   "overlap_s": 497,
+   "verdict": "overlapping"
+  },
+  {
+   "a": "b4",
+   "b": "b6",
+   "overlap_s": 503,
+   "verdict": "overlapping"
+  },
+  {
+   "a": "b5",
+   "b": "b6",
+   "overlap_s": -881,
+   "verdict": "no overlap, gap 15 min"
+  }
+ ],
+ "any_logs_overlap_in_time": true,
+ "triangle_inequality_violations": [
+  {
+   "triple": [
+    "20:fb",
+    "21:07",
+    "23:1b"
+   ],
+   "shortfall_m": 3593
+  },
+  {
+   "triple": [
+    "20:fb",
+    "23:13",
+    "23:1b"
+   ],
+   "shortfall_m": 251
+  }
+ ],
+ "solvable": false,
+ "gate": "Triangle inequality violated - the ranges describe different moments, so no static solve is attempted.",
+ "assumptions": {
+  "combined_antenna_gain_dbi": 6.0,
+  "cable_loss_db": 2.0,
+  "model": "free space",
+  "note": "Scale rides on these assumptions: a common gain error scales the whole layout, a per-radio error distorts its shape. Shape is more trustworthy than scale."
+ },
+ "components": [
+  {
+   "radios": [
+    {
+     "mac": "00:30:1a:3b:f1:65",
+     "label": "GCS Flight 7",
+     "ranges": 1,
+     "positionable": false
+    },
+    {
+     "mac": "00:30:1a:50:77:63",
+     "label": "Air Flight 7",
+     "ranges": 1,
+     "positionable": false
+    }
+   ],
+   "edge_count": 1,
+   "positionable_count": 0,
+   "relative_xy_m": null,
+   "why": "Triangle inequality violated - the ranges describe different moments, so no static solve is attempted.",
+   "separation_m": 2489,
+   "two_way_averaged": true
+  },
+  {
+   "radios": [
+    {
+     "mac": "00:30:1a:3d:23:1b",
+     "label": "GCS Kratos DD 6.9.26",
+     "ranges": 5,
+     "positionable": true
+    },
+    {
+     "mac": "00:30:1a:3d:20:fb",
+     "label": "Relay Kratos DD 6.9.26",
+     "ranges": 4,
+     "positionable": true
+    },
+    {
+     "mac": "00:30:1a:3d:21:07",
+     "label": "peer 21:07",
+     "ranges": 2,
+     "positionable": true
+    },
+    {
+     "mac": "00:30:1a:3d:23:13",
+     "label": "peer 23:13",
+     "ranges": 2,
+     "positionable": true
+    },
+    {
+     "mac": "00:30:1a:3d:21:13",
+     "label": "peer 21:13",
+     "ranges": 1,
+     "positionable": false
+    },
+    {
+     "mac": "00:30:1a:3d:22:ff",
+     "label": "peer 22:ff",
+     "ranges": 1,
+     "positionable": false
+    },
+    {
+     "mac": "00:30:1a:3c:2d:81",
+     "label": "peer 2d:81",
+     "ranges": 1,
+     "positionable": false
+    }
+   ],
+   "edge_count": 8,
+   "positionable_count": 4,
+   "relative_xy_m": null,
+   "why": "Triangle inequality violated - the ranges describe different moments, so no static solve is attempted."
+  },
+  {
+   "radios": [
+    {
+     "mac": "00:30:1a:3a:f4:e9",
+     "label": "longtermmon smartradio-301a3af4e9",
+     "ranges": 1,
+     "positionable": false
+    },
+    {
+     "mac": "00:30:1a:50:81:4f",
+     "label": "longtermmon smartradio-301a50814f",
+     "ranges": 1,
+     "positionable": false
+    }
+   ],
+   "edge_count": 1,
+   "positionable_count": 0,
+   "relative_xy_m": null,
+   "why": "Triangle inequality violated - the ranges describe different moments, so no static solve is attempted.",
+   "separation_m": 23,
+   "two_way_averaged": true
+  }
+ ]
+}
