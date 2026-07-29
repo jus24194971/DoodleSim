@@ -120,6 +120,43 @@ html, body, #app { height: 100%; font-family: 'Segoe UI', system-ui, sans-serif;
 .cov-foot { padding: 7px 11px; border-top: 1px solid #1c2532; color: #6c7a8c; font-size: 10.5px; line-height: 1.4; }
 .cov-hint { color: #ffd43b; font-size: 10.5px; padding: 0 11px 8px; }
 
+#route-panel {
+  position: absolute; top: 10px; right: 10px; z-index: 6; width: 288px;
+  background: rgba(16,20,24,.94); color: #dee2e6; border-radius: 10px;
+  box-shadow: 0 6px 24px rgba(0,0,0,.45); font-size: 12px;
+  max-height: calc(100% - 44px); overflow-y: auto;
+}
+#route-panel.hidden { display: none; }
+#route-head { display: flex; align-items: center; padding: 9px 11px; border-bottom: 1px solid #2b3648; }
+#route-head button { margin-left: auto; background: none; border: none; color: #adb5bd; cursor: pointer; font-size: 14px; }
+#route-panel select, #route-panel textarea {
+  width: 100%; background: #0d1117; color: #e9ecef; border: 1px solid #2b3648;
+  border-radius: 4px; padding: 3px 5px; font-size: 12px; font-family: inherit;
+}
+#route-panel .cov-row input[type=number] { background: #0d1117; color: #e9ecef; border: 1px solid #2b3648; }
+.route-mode-btn { flex: 1; background: #1a2230; color: #ced4da; border: 1px solid #2b3648; border-radius: 6px; padding: 6px 4px; font-size: 11.5px; cursor: pointer; }
+.route-mode-btn.active { background: #1c7ed6; border-color: #1c7ed6; color: #fff; font-weight: 600; }
+.route-wp-list { max-height: 130px; overflow-y: auto; margin: 6px 0; }
+.route-wp { display: flex; align-items: center; gap: 5px; padding: 2px 0; font-variant-numeric: tabular-nums; }
+.route-wp .idx { width: 18px; height: 18px; border-radius: 50%; background: #1c7ed6; color: #fff; font-size: 10px; display: flex; align-items: center; justify-content: center; flex: 0 0 auto; }
+.route-wp span.ll { flex: 1; color: #ced4da; font-size: 11px; }
+.route-wp button { background: none; border: none; color: #6c7a8c; cursor: pointer; font-size: 12px; }
+.route-wp button:hover { color: #e03131; }
+.route-paste summary { cursor: pointer; color: #91a7c0; font-size: 11px; padding: 4px 0; }
+.route-paste textarea { margin-bottom: 5px; }
+#route-results { padding: 0 11px 8px; }
+.rt-stat { display: flex; justify-content: space-between; gap: 8px; padding: 2px 0; font-size: 11.5px; }
+.rt-stat b { color: #fff; font-variant-numeric: tabular-nums; }
+.rt-bad b { color: #ff8787; }
+.rt-good b { color: #8ce99a; }
+.rt-share { display: flex; align-items: center; gap: 6px; font-size: 11px; padding: 1px 0; }
+.rt-share .sw { width: 10px; height: 10px; border-radius: 2px; flex: 0 0 auto; }
+.route-wp-marker {
+  width: 20px; height: 20px; border-radius: 50%; background: #f59f00; color: #1a1a1a;
+  border: 2px solid #fff; box-shadow: 0 1px 4px rgba(0,0,0,.5);
+  display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; cursor: grab;
+}
+
 #coverage-legend {
   position: absolute; bottom: 28px; left: 10px; z-index: 5;
   background: rgba(16,20,24,.88); color: #dee2e6; border-radius: 8px;

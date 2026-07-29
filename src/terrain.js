@@ -47,6 +47,47 @@ export async function elevationAt(lon, lat) {
   return r * 256 + g + b / 256 - 32768;
 }
 
+/**
+ * Elevation from an already-loaded tile, with no awaiting. Returns NaN when the
+ * covering tile is not in the cache yet — call prewarmArea() first. This lets
+ * route analysis run synchronously (and therefore instantly while dragging).
+ */
+export function elevationAtSync(lng, lat) {
+  const { x, y } = lonLatToTile(lng, lat, TILE_ZOOM);
+  const tx = Math.floor(x), ty = Math.floor(y);
+  const data = tileCache.get(`${TILE_ZOOM}/${tx}/${ty}`);
+  if (!data || typeof data.then === 'function') return NaN;
+  const px = Math.min(255, Math.floor((x - tx) * 256));
+  const py = Math.min(255, Math.floor((y - ty) * 256));
+  const i = (py * 256 + px) * 4;
+  return data.data[i] * 256 + data.data[i + 1] + data.data[i + 2] / 256 - 32768;
+}
+
+/** Load every terrain tile covering the bounding box of `points` (plus padding). */
+export async function prewarmArea(points, padM = 2000, maxTiles = 80) {
+  if (!points.length) return 0;
+  let minLng = Infinity, maxLng = -Infinity, minLat = Infinity, maxLat = -Infinity;
+  for (const p of points) {
+    minLng = Math.min(minLng, p.lng); maxLng = Math.max(maxLng, p.lng);
+    minLat = Math.min(minLat, p.lat); maxLat = Math.max(maxLat, p.lat);
+  }
+  const dLat = padM / 111320;
+  const dLng = padM / (111320 * Math.cos((((minLat + maxLat) / 2) * Math.PI) / 180));
+  const a = lonLatToTile(minLng - dLng, maxLat + dLat, TILE_ZOOM);
+  const b = lonLatToTile(maxLng + dLng, minLat - dLat, TILE_ZOOM);
+  const x0 = Math.floor(a.x), x1 = Math.floor(b.x);
+  const y0 = Math.floor(a.y), y1 = Math.floor(b.y);
+  const jobs = [];
+  for (let tx = x0; tx <= x1; tx++) {
+    for (let ty = y0; ty <= y1; ty++) {
+      if (jobs.length >= maxTiles) break;
+      jobs.push(getTileData(TILE_ZOOM, tx, ty).catch(() => null));
+    }
+  }
+  await Promise.all(jobs);
+  return jobs.length;
+}
+
 const R_EARTH = 6371008.8;
 
 export function bearingDeg(a, b) {

@@ -2,7 +2,7 @@ import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import './style.css';
 import { RADIOS, BANDS, CHANNEL_WIDTHS, PLATFORMS, CABLES, cableLossDb } from './radios.js';
-import { terrainProfile, haversineM, bearingDeg, destination, elevationAt } from './terrain.js';
+import { terrainProfile, haversineM, bearingDeg, destination, elevationAt, elevationAtSync, prewarmArea } from './terrain.js';
 import { analyzePath, evaluateLink, fsplDb, throughputMbps, patternLossDb, elevationAngleDeg, angDiff } from './engine.js';
 import {
   computeCoverage, computeMeshCoverage, computeMinAltitude, computeMeshMinAltitude,
@@ -11,6 +11,7 @@ import {
   METRICS, QUALITY,
 } from './coverage.js';
 import { SCENARIOS, recommend, adviseExtension, REMOTE_PLATFORMS } from './advisor.js';
+import { analyzeRoute, parseCoordinates, colorForMbps, nodeColor } from './route.js';
 import { buildReportHtml } from './report.js';
 import { startTour } from './tour.js';
 
@@ -188,7 +189,8 @@ window.addEventListener('keydown', (e) => {
 });
 
 map.on('click', (e) => {
-  if (mode === 'add') { addNode(e.lngLat); setMode(null); }
+  if (mode === 'add') { addNode(e.lngLat); setMode(null); return; }
+  if (route.addMode) addWaypoint(e.lngLat);
 });
 
 // ---------- Save / Load ----------
@@ -270,7 +272,12 @@ document.getElementById('btn-report').addEventListener('click', async () => {
   let mapImagePng = null;
   try { mapImagePng = map.getCanvas().toDataURL('image/png'); } catch { /* map WebGL context may block capture */ }
   const html = buildReportHtml({ nodes, links, renderProfilePng, mapImagePng, missionNote, meshStats: coverage.meshStats, meshRemote: { h: coverage.remoteHeightM, g: coverage.remoteGainDbi },
-    covRun: coverage.lastRun });
+    covRun: coverage.lastRun,
+    routeResult: route.result ? { stats: route.result.stats, chartPng: (() => {
+      const rc = document.createElement('canvas');
+      drawRouteChart(route.result, rc, { w: 860, h: 260 });
+      return rc.toDataURL('image/png');
+    })() } : null });
   const blob = new Blob([html], { type: 'text/html' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
@@ -1207,15 +1214,17 @@ function openShareDialog(node) {
 }
 
 // ---------- Profile chart ----------
+let panelMode = 'link';
 const panel = document.getElementById('profile-panel');
 const canvas = document.getElementById('profile-canvas');
 document.getElementById('profile-close').addEventListener('click', hideProfile);
 
-function hideProfile() { panel.classList.add('hidden'); selectedLink = null; }
+function hideProfile() { panel.classList.add('hidden'); selectedLink = null; panelMode = 'link'; }
 
 function showProfile(link) {
   if (!link.profile) return;
   selectedLink = link;
+  panelMode = 'link';
   panel.classList.remove('hidden');
   document.getElementById('profile-title').textContent = `${link.a.label} ⟷ ${link.b.label}`;
   const best = link.result?.best;
@@ -1326,7 +1335,439 @@ function drawProfile(link, targetCanvas = canvas, fixedSize = null) {
   ctx.fillText(`${(D / 1000).toFixed(1)} km`, w - 54, h - 8);
 }
 
-window.addEventListener('resize', () => selectedLink && drawProfile(selectedLink));
+window.addEventListener('resize', () => {
+  if (panelMode === 'route' && route.result) drawRouteChart(route.result);
+  else if (selectedLink) drawProfile(selectedLink);
+});
+
+// ---------- Mission route ----------
+let route = {
+  waypoints: [],          // [{lng, lat, marker}]
+  addMode: false,
+  result: null,
+  vehicle: {
+    platform: 'vehicle', radioId: 'miniOEM_v4', bandId: 'ism2400', bwMhz: 20,
+    antennaId: null, antennaGain: 3, heightM: 2, mode: 'agl', altM: 1000,
+    cableLoss: 1, bdaGain: 0, tracking: true,
+  },
+  targetMbps: 5,
+};
+
+const routePanel = document.getElementById('route-panel');
+const $rt = (id) => document.getElementById(id);
+
+function routeVehiclePattern() {
+  const a = route.vehicle.antennaId ? antennaCatalog.find((x) => x.id === route.vehicle.antennaId) : null;
+  if (a) {
+    const omni = a.pattern === 'omni';
+    return {
+      hpbwAz: omni ? 360 : (a.hpbw_az_deg && a.hpbw_az_deg < 360 ? a.hpbw_az_deg : 60),
+      hpbwEl: a.hpbw_el_deg || (omni ? 25 : 25),
+      directional: !omni,
+    };
+  }
+  return { hpbwAz: 360, hpbwEl: 360, directional: false };
+}
+
+function ensureRouteLayers() {
+  if (!map.getSource('route-line')) {
+    map.addSource('route-line', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
+    map.addLayer({
+      id: 'route-line', type: 'line', source: 'route-line',
+      paint: { 'line-width': 5, 'line-color': ['get', 'color'], 'line-opacity': 0.95 },
+    });
+  }
+  if (!map.getSource('route-plan')) {
+    map.addSource('route-plan', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
+    map.addLayer({
+      id: 'route-plan', type: 'line', source: 'route-plan',
+      paint: { 'line-width': 2, 'line-color': '#f59f00', 'line-dasharray': [2, 2], 'line-opacity': 0.85 },
+    }, 'route-line');
+  }
+}
+
+function refreshRouteGeometry() {
+  ensureRouteLayers();
+  const coords = route.waypoints.map((w) => w.marker.getLngLat().toArray());
+  map.getSource('route-plan').setData(coords.length > 1
+    ? { type: 'Feature', geometry: { type: 'LineString', coordinates: coords }, properties: {} }
+    : { type: 'FeatureCollection', features: [] });
+  if (!route.result) map.getSource('route-line').setData({ type: 'FeatureCollection', features: [] });
+}
+
+function paintRouteResult(res) {
+  ensureRouteLayers();
+  map.getSource('route-line').setData({
+    type: 'FeatureCollection',
+    features: res.segments.filter((s) => s.coords.length > 1).map((s) => ({
+      type: 'Feature',
+      geometry: { type: 'LineString', coordinates: s.coords },
+      properties: { color: s.color, mbps: s.mbps },
+    })),
+  });
+}
+
+function addWaypoint(lngLat) {
+  const el = document.createElement('div');
+  el.className = 'route-wp-marker';
+  el.textContent = route.waypoints.length + 1;
+  const marker = new maplibregl.Marker({ element: el, draggable: true }).setLngLat(lngLat).addTo(map);
+  marker.on('drag', () => refreshRouteGeometry());
+  marker.on('dragend', () => { refreshRouteGeometry(); renderRoutePanel(); if (route.result) analyseRoute(); });
+  route.waypoints.push({ marker });
+  refreshRouteGeometry();
+  renderRoutePanel();
+}
+
+function removeWaypoint(i) {
+  route.waypoints[i].marker.remove();
+  route.waypoints.splice(i, 1);
+  route.waypoints.forEach((w, k) => { w.marker.getElement().textContent = k + 1; });
+  route.result = null;
+  refreshRouteGeometry(); renderRoutePanel();
+}
+
+function clearRoute() {
+  route.waypoints.forEach((w) => w.marker.remove());
+  route.waypoints = [];
+  route.result = null;
+  refreshRouteGeometry();
+  if (map.getSource('route-line')) map.getSource('route-line').setData({ type: 'FeatureCollection', features: [] });
+  $rt('route-results').innerHTML = '';
+  hideProfile();
+  renderRoutePanel();
+}
+
+function renderRoutePanel() {
+  const v = route.vehicle;
+  $rt('route-add-mode').classList.toggle('active', route.addMode);
+  $rt('route-wp-list').innerHTML = route.waypoints.length
+    ? route.waypoints.map((w, i) => {
+        const { lng, lat } = w.marker.getLngLat();
+        return `<div class="route-wp"><span class="idx">${i + 1}</span>
+          <span class="ll">${lat.toFixed(5)}, ${lng.toFixed(5)}</span>
+          <button data-del-wp="${i}" title="Remove">✕</button></div>`;
+      }).join('')
+    : '<div class="cov-readout">No waypoints yet — click “📍 Click to add” or paste coordinates.</div>';
+  $rt('route-wp-list').querySelectorAll('[data-del-wp]').forEach((b) =>
+    b.addEventListener('click', () => removeWaypoint(parseInt(b.dataset.delWp))));
+
+  $rt('route-platform').innerHTML = PLATFORMS.map((p) => `<option value="${p.id}" ${p.id === v.platform ? 'selected' : ''}>${p.label}</option>`).join('');
+  $rt('route-radio').innerHTML = RADIOS.map((r) => `<option value="${r.id}" ${r.id === v.radioId ? 'selected' : ''}>${r.name}</option>`).join('');
+  const radio = RADIOS.find((r) => r.id === v.radioId);
+  $rt('route-band').innerHTML = radio.bands.map((b) => `<option value="${b}" ${b === v.bandId ? 'selected' : ''}>${BANDS[b].label}</option>`).join('');
+  $rt('route-bw').innerHTML = CHANNEL_WIDTHS.map((w) => `<option value="${w}" ${w === v.bwMhz ? 'selected' : ''}>${w} MHz</option>`).join('');
+  const freq = BANDS[v.bandId].def;
+  const ants = antennaCatalog.filter((a) => {
+    const bands = a.bands_mhz || [a.band_mhz];
+    return bands.some(([lo, hi]) => lo <= freq && hi >= freq);
+  }).sort((x, y) => (y.doodle_recommended ? 1 : 0) - (x.doodle_recommended ? 1 : 0) || y.gain_dbi - x.gain_dbi);
+  $rt('route-antenna').innerHTML = '<option value="">Custom gain…</option>'
+    + ants.map((a) => `<option value="${a.id}" ${a.id === v.antennaId ? 'selected' : ''}>${a.doodle_recommended ? '★ ' : a.community ? '☁ ' : ''}${(a.manufacturer || '').split(' ')[0]} ${a.model} (${a.gain_dbi} dBi ${a.pattern})</option>`).join('');
+  $rt('route-gain').value = v.antennaGain;
+  $rt('route-gain').disabled = !!v.antennaId;
+  const pat = routeVehiclePattern();
+  $rt('route-tracking-row').style.display = pat.directional ? 'flex' : 'none';
+  $rt('route-tracking').checked = v.tracking;
+  document.querySelectorAll('.route-mode-btn').forEach((b) => b.classList.toggle('active', b.dataset.mode === v.mode));
+  $rt('route-alt-label').textContent = v.mode === 'asl' ? 'Flight level' : 'Height';
+  $rt('route-alt-unit').textContent = v.mode === 'asl' ? 'm ASL' : 'm AGL';
+  $rt('route-alt').value = v.mode === 'asl' ? v.altM : v.heightM;
+  $rt('route-target').value = route.targetMbps;
+}
+
+async function analyseRoute() {
+  if (route.waypoints.length < 2) { $rt('route-status').textContent = 'Add at least two waypoints.'; return; }
+  if (!nodes.length) { $rt('route-status').textContent = 'Place at least one radio on the map first.'; return; }
+  const status = $rt('route-status');
+  status.textContent = 'Loading terrain…';
+  const v = route.vehicle;
+  const wps = route.waypoints.map((w) => {
+    const { lng, lat } = w.marker.getLngLat();
+    return { lng, lat };
+  });
+  try {
+    // one terrain load covering the route and every radio, then all maths is synchronous
+    const pts = [...wps, ...nodes.map((n) => { const p = n.marker.getLngLat(); return { lng: p.lng, lat: p.lat }; })];
+    await prewarmArea(pts, 2500);
+    status.textContent = 'Analysing…';
+    const infra = nodes.map((n) => ({ node: n, radio: RADIOS.find((r) => r.id === n.radioId), pattern: getPattern(n) }));
+    const t0 = performance.now();
+    const res = analyzeRoute({
+      waypoints: wps,
+      vehicle: {
+        radio: RADIOS.find((r) => r.id === v.radioId), bandId: v.bandId,
+        freqMhz: BANDS[v.bandId].def, bwMhz: v.bwMhz,
+        powerDbm: RADIOS.find((r) => r.id === v.radioId).maxConfig,
+        antennaGain: v.antennaGain, heightM: v.heightM, cableLoss: v.cableLoss,
+        bdaGain: v.bdaGain, mode: v.mode, altM: v.altM,
+        pattern: routeVehiclePattern(), tracking: v.tracking,
+      },
+      infra,
+      fadeMarginDb: FADE_MARGIN,
+      targetMbps: route.targetMbps,
+    });
+    const ms = Math.round(performance.now() - t0);
+    route.result = res;
+    paintRouteResult(res);
+    renderRouteResults(res, ms);
+    showRouteChart(res);
+    status.textContent = '';
+  } catch (err) {
+    console.error('route analysis failed', err);
+    status.textContent = 'Route analysis failed — see console';
+  }
+}
+
+function renderRouteResults(res, ms) {
+  const s = res.stats;
+  const km = (m) => (m / 1000).toFixed(2);
+  const nodeIdx = new Map(nodes.map((n, i) => [n.id, i]));
+  const gapLine = s.worstGapM > 0
+    ? `<div class="rt-stat rt-bad"><span>Longest dropout</span><b>${Math.round(s.worstGapM)} m${s.worstGapStartM != null ? ` @ ${km(s.worstGapStartM)} km` : ''}</b></div>`
+    : `<div class="rt-stat rt-good"><span>Longest dropout</span><b>none</b></div>`;
+  $rt('route-results').innerHTML = `
+    <div class="cov-label">Result</div>
+    <div class="rt-stat"><span>Route length</span><b>${km(s.totalM)} km</b></div>
+    <div class="rt-stat ${s.coveragePct > 99 ? 'rt-good' : s.coveragePct < 90 ? 'rt-bad' : ''}"><span>Route with a link</span><b>${s.coveragePct.toFixed(1)}%</b></div>
+    <div class="rt-stat ${s.aboveTargetPct < 90 ? 'rt-bad' : 'rt-good'}"><span>At or above ${s.targetMbps} Mbps</span><b>${s.aboveTargetPct.toFixed(1)}%</b></div>
+    ${gapLine}
+    <div class="rt-stat"><span>Bandwidth min / mean / max</span><b>${s.minMbps.toFixed(1)} / ${s.meanMbps.toFixed(1)} / ${s.maxMbps.toFixed(1)} Mbps</b></div>
+    <div class="rt-stat"><span>Handovers between radios</span><b>${s.handoverCount}</b></div>
+    ${s.belowTerrainM > 0 ? `<div class="rt-stat rt-bad"><span>Route below terrain</span><b>${Math.round(s.belowTerrainM)} m</b></div>` : ''}
+    <div class="cov-label" style="margin-top:7px">Serving structure</div>
+    ${s.servingNodes.length ? s.servingNodes.map((n) => {
+      const c = nodeColor(nodeIdx.get(n.nodeId) ?? 0);
+      return `<div class="rt-share"><span class="sw" style="background:rgb(${c.join(',')})"></span>${n.label} — ${n.pct.toFixed(0)}% (${km(n.metres)} km)</div>`;
+    }).join('') : '<div class="cov-readout">No radio serves this route.</div>'}
+    ${s.skippedNodeCount > 0 ? `<div class="cov-readout" style="margin-top:5px">${s.skippedNodeCount} radio${s.skippedNodeCount > 1 ? 's' : ''} on the map ${s.skippedNodeCount > 1 ? 'are' : 'is'} on a different band and cannot serve this vehicle.</div>` : ''}
+    <div class="cov-readout" style="margin-top:5px">${s.sampleCount} samples every ${Math.round(s.spacingM)} m · ${ms} ms</div>`;
+}
+
+// Entry points and controls
+$rt('route-close').addEventListener('click', () => { routePanel.classList.add('hidden'); route.addMode = false; map.getCanvas().style.cursor = ''; });
+document.getElementById('btn-route').addEventListener('click', () => {
+  routePanel.classList.remove('hidden');
+  if (!route.waypoints.length) { route.addMode = true; hint.textContent = 'Click the map to add waypoints'; map.getCanvas().style.cursor = 'crosshair'; }
+  renderRoutePanel();
+});
+$rt('route-add-mode').addEventListener('click', () => {
+  route.addMode = !route.addMode;
+  hint.textContent = route.addMode ? 'Click the map to add waypoints' : '';
+  map.getCanvas().style.cursor = route.addMode ? 'crosshair' : '';
+  renderRoutePanel();
+});
+$rt('route-clear').addEventListener('click', clearRoute);
+$rt('route-run').addEventListener('click', analyseRoute);
+$rt('route-target').addEventListener('change', () => {
+  route.targetMbps = parseFloat($rt('route-target').value) || 5;
+  if (route.result) analyseRoute();
+});
+document.querySelectorAll('.route-mode-btn').forEach((b) => b.addEventListener('click', () => {
+  route.vehicle.mode = b.dataset.mode;
+  if (b.dataset.mode === 'asl' && route.waypoints.length) {
+    const p = route.waypoints[0].marker.getLngLat();
+    const g = elevationAtSync(p.lng, p.lat);
+    if (Number.isFinite(g)) route.vehicle.altM = Math.round((g + 120) / 10) * 10;
+  }
+  renderRoutePanel();
+  if (route.result) analyseRoute();
+}));
+$rt('route-alt').addEventListener('change', () => {
+  const val = parseFloat($rt('route-alt').value) || 0;
+  if (route.vehicle.mode === 'asl') route.vehicle.altM = val; else route.vehicle.heightM = val;
+  if (route.result) analyseRoute();
+});
+$rt('route-platform').addEventListener('change', () => {
+  route.vehicle.platform = $rt('route-platform').value;
+  const p = PLATFORMS.find((x) => x.id === route.vehicle.platform);
+  if (p) {
+    if (route.vehicle.platform === 'uav') {
+      route.vehicle.mode = 'asl';
+      const w = route.waypoints[0];
+      const g = w ? elevationAtSync(w.marker.getLngLat().lng, w.marker.getLngLat().lat) : NaN;
+      route.vehicle.altM = Math.round(((Number.isFinite(g) ? g : 0) + p.defaultHeight) / 10) * 10;
+    } else {
+      route.vehicle.mode = 'agl';
+      route.vehicle.heightM = p.defaultHeight;
+    }
+  }
+  renderRoutePanel();
+  if (route.result) analyseRoute();
+});
+['route-radio', 'route-band', 'route-bw', 'route-antenna'].forEach((id) =>
+  $rt(id).addEventListener('change', () => {
+    const v = route.vehicle;
+    if (id === 'route-radio') {
+      v.radioId = $rt(id).value;
+      const r = RADIOS.find((x) => x.id === v.radioId);
+      if (!r.bands.includes(v.bandId)) v.bandId = r.bands[0];
+    }
+    if (id === 'route-band') v.bandId = $rt(id).value;
+    if (id === 'route-bw') v.bwMhz = parseFloat($rt(id).value);
+    if (id === 'route-antenna') {
+      v.antennaId = $rt(id).value || null;
+      const a = v.antennaId ? antennaCatalog.find((x) => x.id === v.antennaId) : null;
+      if (a) v.antennaGain = a.gain_dbi;
+    }
+    renderRoutePanel();
+    if (route.result) analyseRoute();
+  }));
+$rt('route-gain').addEventListener('change', () => {
+  route.vehicle.antennaGain = parseFloat($rt('route-gain').value) || 3;
+  if (route.result) analyseRoute();
+});
+$rt('route-tracking').addEventListener('change', () => {
+  route.vehicle.tracking = $rt('route-tracking').checked;
+  if (route.result) analyseRoute();
+});
+$rt('route-parse').addEventListener('click', () => applyPastedCoords(false));
+$rt('route-replace').addEventListener('click', () => applyPastedCoords(true));
+
+function applyPastedCoords(replace) {
+  const { waypoints, errors } = parseCoordinates($rt('route-coords').value, $rt('route-lonfirst').checked);
+  const msg = $rt('route-parse-msg');
+  if (!waypoints.length) { msg.textContent = 'No coordinates recognised.'; return; }
+  if (replace) clearRoute();
+  waypoints.forEach((w) => addWaypoint(w));
+  msg.textContent = `Added ${waypoints.length} waypoint${waypoints.length > 1 ? 's' : ''}`
+    + (errors.length ? ` · ${errors.length} line${errors.length > 1 ? 's' : ''} skipped` : '');
+  const coords = route.waypoints.map((w) => w.marker.getLngLat().toArray());
+  if (coords.length > 1) {
+    const lngs = coords.map((c) => c[0]), lats = coords.map((c) => c[1]);
+    map.fitBounds([[Math.min(...lngs), Math.min(...lats)], [Math.max(...lngs), Math.max(...lats)]], { padding: 70 });
+  }
+  if (route.result) analyseRoute();
+}
+
+// ---------- Route chart: terrain, altitude, bandwidth and serving structure ----------
+function showRouteChart(res) {
+  panelMode = 'route';
+  selectedLink = null;
+  panel.classList.remove('hidden');
+  const s = res.stats;
+  document.getElementById('profile-title').textContent = 'Mission route';
+  document.getElementById('profile-stats').textContent =
+    `${(s.totalM / 1000).toFixed(2)} km · ${s.coveragePct.toFixed(0)}% linked · ${s.aboveTargetPct.toFixed(0)}% at ≥${s.targetMbps} Mbps `
+    + `· mean ${s.meanMbps.toFixed(1)} Mbps · ${s.handoverCount} handover${s.handoverCount === 1 ? '' : 's'}`
+    + (s.worstGapM > 0 ? ` · longest dropout ${Math.round(s.worstGapM)} m` : '');
+  requestAnimationFrame(() => drawRouteChart(res));
+}
+
+function drawRouteChart(res, targetCanvas = canvas, fixedSize = null) {
+  const dpr = fixedSize ? 1 : (window.devicePixelRatio || 1);
+  const w = fixedSize ? fixedSize.w : targetCanvas.clientWidth;
+  const h = fixedSize ? fixedSize.h : targetCanvas.clientHeight;
+  targetCanvas.width = w * dpr; targetCanvas.height = h * dpr;
+  const ctx = targetCanvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  ctx.clearRect(0, 0, w, h);
+  if (fixedSize) { ctx.fillStyle = '#101418'; ctx.fillRect(0, 0, w, h); }
+
+  const samples = res.samples;
+  if (samples.length < 2) return;
+  const D = res.stats.totalM;
+  const L = 52, R = 46, T = 12, B = 30;      // margins
+  const stripH = 9;                           // serving-node strip
+  const split = T + (h - T - B) * 0.52;       // bandwidth above, terrain below
+
+  const X = (d) => L + (d / D) * (w - L - R);
+
+  // ---- bandwidth (upper band)
+  const maxMbps = Math.max(1, ...samples.map((s) => (s.best ? s.best.mbps : 0)));
+  const YB = (m) => split - (m / maxMbps) * (split - T);
+  ctx.beginPath();
+  ctx.moveTo(X(0), split);
+  for (const s of samples) ctx.lineTo(X(s.distM), YB(s.best ? s.best.mbps : 0));
+  ctx.lineTo(X(D), split);
+  ctx.closePath();
+  ctx.fillStyle = 'rgba(116,192,252,.30)';
+  ctx.fill();
+  ctx.beginPath();
+  samples.forEach((s, i) => {
+    const x = X(s.distM), y = YB(s.best ? s.best.mbps : 0);
+    i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+  });
+  ctx.strokeStyle = '#74c0fc'; ctx.lineWidth = 1.6; ctx.stroke();
+
+  // required-bandwidth threshold
+  if (res.stats.targetMbps > 0 && res.stats.targetMbps <= maxMbps) {
+    ctx.beginPath();
+    ctx.moveTo(L, YB(res.stats.targetMbps)); ctx.lineTo(w - R, YB(res.stats.targetMbps));
+    ctx.strokeStyle = 'rgba(255,212,59,.75)'; ctx.setLineDash([5, 4]); ctx.lineWidth = 1; ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#ffd43b'; ctx.font = '10px system-ui';
+    ctx.fillText(`${res.stats.targetMbps} Mbps required`, L + 4, YB(res.stats.targetMbps) - 3);
+  }
+
+  // ---- dropout shading across the whole plot
+  let gapStart = null;
+  for (let i = 0; i <= samples.length; i++) {
+    const noLink = i < samples.length && !samples[i].best;
+    if (noLink && gapStart === null) gapStart = samples[i].distM;
+    if (!noLink && gapStart !== null) {
+      const x0 = X(gapStart), x1 = X(i < samples.length ? samples[i].distM : D);
+      ctx.fillStyle = 'rgba(224,64,39,.22)';
+      ctx.fillRect(x0, T, Math.max(x1 - x0, 1), (h - B) - T);
+      gapStart = null;
+    }
+  }
+
+  // ---- terrain and the vehicle's path (lower band)
+  let lo = Infinity, hi = -Infinity;
+  for (const s of samples) {
+    lo = Math.min(lo, s.groundElevM);
+    hi = Math.max(hi, s.groundElevM, s.vehicleElevAsl);
+  }
+  const pad = Math.max((hi - lo) * 0.15, 10);
+  lo -= pad; hi += pad;
+  const YT = (e) => (h - B - stripH) - ((e - lo) / (hi - lo)) * ((h - B - stripH) - split - 6);
+
+  ctx.beginPath();
+  ctx.moveTo(X(0), h - B - stripH);
+  for (const s of samples) ctx.lineTo(X(s.distM), YT(s.groundElevM));
+  ctx.lineTo(X(D), h - B - stripH);
+  ctx.closePath();
+  const g = ctx.createLinearGradient(0, split, 0, h - B);
+  g.addColorStop(0, '#4a5d43'); g.addColorStop(1, '#2b3a28');
+  ctx.fillStyle = g; ctx.fill();
+  ctx.strokeStyle = '#8ba888'; ctx.lineWidth = 1; ctx.stroke();
+
+  ctx.beginPath();
+  samples.forEach((s, i) => {
+    const x = X(s.distM), y = YT(s.vehicleElevAsl);
+    i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+  });
+  ctx.strokeStyle = '#f59f00'; ctx.lineWidth = 1.8; ctx.stroke();
+
+  // ---- serving-node strip (the structure)
+  const nodeIdx = new Map(nodes.map((n, i) => [n.id, i]));
+  for (let i = 0; i < samples.length - 1; i++) {
+    const s = samples[i];
+    const x0 = X(s.distM), x1 = X(samples[i + 1].distM);
+    ctx.fillStyle = s.best ? `rgb(${nodeColor(nodeIdx.get(s.best.nodeId) ?? 0).join(',')})` : 'rgba(224,64,39,.85)';
+    ctx.fillRect(x0, h - B - stripH + 1, Math.max(x1 - x0, 1), stripH - 2);
+  }
+
+  // ---- handover ticks
+  ctx.strokeStyle = 'rgba(255,255,255,.55)'; ctx.lineWidth = 1;
+  for (const ho of res.handovers) {
+    if (ho.from === null || ho.to === null) continue;
+    const x = X(ho.distM);
+    ctx.beginPath(); ctx.moveTo(x, T); ctx.lineTo(x, h - B - stripH); ctx.stroke();
+  }
+
+  // ---- axes
+  ctx.fillStyle = '#91a7c0'; ctx.font = '10px system-ui';
+  ctx.fillText(`${maxMbps.toFixed(0)} Mbps`, 4, T + 9);
+  ctx.fillText('0', 4, split - 2);
+  ctx.fillText(`${Math.round(hi - pad)} m`, 4, split + 12);
+  ctx.fillText(`${Math.round(lo + pad)} m`, 4, h - B - stripH - 2);
+  ctx.fillText('0 km', L, h - 8);
+  ctx.fillText(`${(D / 1000).toFixed(2)} km`, w - R - 24, h - 8);
+  ctx.fillStyle = '#f59f00'; ctx.fillText('— vehicle path', w - R + 2, split + 12);
+  ctx.fillStyle = '#74c0fc'; ctx.fillText('— Mbps', w - R + 2, T + 9);
+}
 
 // Dev/test hook
 window.__app = {
@@ -1345,6 +1786,11 @@ window.__app = {
   clearCoverage,
   simulateCoverage,
   openCovPanel,
+  get route() { return route; },
+  addWaypoint,
+  analyseRoute,
+  clearRoute,
+  drawRouteChart,
   QUALITY,
   get coverage() { return coverage; },
 };

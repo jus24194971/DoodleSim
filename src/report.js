@@ -21,7 +21,7 @@ export function minClearHeight(link, whichEnd) {
 
 const esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;');
 
-export function buildReportHtml({ nodes, links, renderProfilePng, mapImagePng, missionNote, meshStats, meshRemote, covRun }) {
+export function buildReportHtml({ nodes, links, renderProfilePng, mapImagePng, missionNote, meshStats, meshRemote, covRun, routeResult }) {
   const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 
   const nodeRows = nodes.map((n) => {
@@ -115,6 +115,20 @@ ${covRun?.metric === 'minalt' && covRun.stats ? `<h2>Minimum Altitude to Connect
 <table><tr><th>Result</th><th>Value</th></tr>
 <tr><td>Area reachable at some altitude (up to 900 m AGL)</td><td><b>${covRun.stats.reachablePct.toFixed(0)}%</b></td></tr>
 ${covRun.stats.ceilingBreakPct > 0.5 ? `<tr><td>Area that also drops out again <i>higher up</i></td><td><b>${covRun.stats.ceilingBreakPct.toFixed(0)}%</b> — these locations have an altitude <i>window</i>, not a floor. Caused by the vertical beamwidth of the ground antenna: climbing too high leaves the beam. Plan the altitude band, not just a minimum.</td></tr>` : ''}
+</table>` : ''}
+${routeResult ? `<h2>Mission Route Analysis</h2>
+<p class="sub" style="margin-bottom:6px">A ${(routeResult.stats.totalM / 1000).toFixed(2)} km route sampled every ${Math.round(routeResult.stats.spacingM)} m and tested against every radio sharing the vehicle's band, with the vehicle ${routeResult.stats.vehicleMode === 'asl' ? `holding ${Math.round(routeResult.stats.vehicleAltM)} m ASL` : `at ${routeResult.stats.vehicleAltM} m above ground`}.</p>
+<table class="stats"><tr>
+  <td>Route with a link<br/><b>${routeResult.stats.coveragePct.toFixed(1)}%</b></td>
+  <td>At or above ${routeResult.stats.targetMbps} Mbps<br/><b>${routeResult.stats.aboveTargetPct.toFixed(1)}%</b></td>
+  <td>Bandwidth min / mean / max<br/><b>${routeResult.stats.minMbps.toFixed(1)} / ${routeResult.stats.meanMbps.toFixed(1)} / ${routeResult.stats.maxMbps.toFixed(1)} Mbps</b></td>
+  <td>Longest dropout<br/><b>${routeResult.stats.worstGapM > 0 ? Math.round(routeResult.stats.worstGapM) + ' m' : 'none'}</b></td>
+  <td>Handovers<br/><b>${routeResult.stats.handoverCount}</b></td>
+</tr></table>
+${routeResult.chartPng ? `<img class="profile" src="${routeResult.chartPng}" alt="route analysis chart"/>` : ''}
+<p class="sub" style="margin-top:6px">Serving structure along the route:</p>
+<table><tr><th>Radio</th><th>Share of route</th><th>Distance served</th></tr>
+${routeResult.stats.servingNodes.map((n) => `<tr><td>${esc(n.label)}</td><td><b>${n.pct.toFixed(0)}%</b></td><td>${(n.metres / 1000).toFixed(2)} km</td></tr>`).join('')}
 </table>` : ''}
 <h2>Link Analysis</h2>
 ${linkSections || '<p class="sub">No links defined.</p>'}
