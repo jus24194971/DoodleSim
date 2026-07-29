@@ -22,6 +22,7 @@
         <span id="mode-hint"></span>
       </div>
       <div class="toolbar-right">
+        <button id="btn-help" class="tool-btn" title="How to plan a network with this tool">❓ Help me plan</button>
         <label class="sat-toggle"><input type="checkbox" id="basemap-toggle" /> Satellite</label>
       </div>
     </header>
@@ -39,6 +40,100 @@
         <button id="profile-close">✕</button>
       </div>
       <canvas id="profile-canvas"></canvas>
+    </div>
+  </div>
+  <div id="help-modal" class="hidden">
+    <div id="help-box">
+      <div id="help-head"><b>❓ Help me plan</b><span class="adv-sub">How to design a Mesh Rider network with this tool</span><button id="help-close">✕</button></div>
+      <div id="help-body">
+
+        <section>
+          <h2>🚀 Quick start — two ways to begin</h2>
+          <div class="help-two">
+            <div class="help-path">
+              <h3>I know what I need to accomplish</h3>
+              <ol>
+                <li>Click <b>🎯 Plan Advisor</b></li>
+                <li>Describe the mission: what talks to what, how far, how much data</li>
+                <li>Review the ranked configurations and hit <b>Apply to map</b></li>
+                <li>The design lands on the map, aimed and cabled — verify it over your real deployment terrain</li>
+              </ol>
+            </div>
+            <div class="help-path">
+              <h3>I want to build it myself</h3>
+              <ol>
+                <li><b>+ Add Node</b>, then click the map to place each radio</li>
+                <li>Configure each node in the sidebar (radio, band, antenna, height…)</li>
+                <li><b>⟋ Link Nodes</b>, then click two nodes to analyze the path</li>
+                <li>Click any link (on the map or sidebar) to open its terrain profile</li>
+              </ol>
+            </div>
+          </div>
+        </section>
+
+        <section>
+          <h2>📡 Configuring a node</h2>
+          <p>Each node is a full radio install. The fields that matter most:</p>
+          <ul>
+            <li><b>Platform</b> — sets a realistic default height: mast 10 m, UAV 100 m, UGV 1 m, vessel 4 m, handheld 1.5 m. Height drives the terrain math, so keep it honest.</li>
+            <li><b>Radio & band</b> — all current Mesh Rider models with their real per-MCS transmit power and sensitivity (the same conservative numbers as the official Doodle Labs estimator). Both ends of a link must share a band to talk.</li>
+            <li><b>Antenna</b> — pick from the catalog (★ = Doodle Labs recommended; the rest are datasheet-verified third-party models) or enter a custom gain + beamwidth. Directional antennas get a beam wedge on the map.</li>
+            <li><b>Cable</b> — choose MC400/MC600-class and a length; loss is computed automatically for the operating frequency (and updates if you change bands). Use "Manual" to type a known loss.</li>
+            <li><b>BDA gain</b> — add amplification (e.g. Mesh Rider Boost, Triad) as extra dB in the budget.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>🎯 Aiming directional antennas</h2>
+          <p>Sectors, dishes, yagis and panels show a <b>blue beam wedge</b> covering their real beamwidth. <b>Drag the white handle</b> at the wedge tip to aim — links and heatmaps recompute on release. Off-boresight targets pay a pattern penalty in both azimuth <i>and</i> elevation: a high-gain omni has a narrow vertical beam and will genuinely lose a drone directly overhead, and the <b>Tilt</b> field matters when serving targets far above or below you.</p>
+        </section>
+
+        <section>
+          <h2>🗺 Reading the map</h2>
+          <ul class="help-legend">
+            <li><span class="dot" style="background:#2f9e44"></span><b>Green link</b> — clear line of sight with a healthy margin</li>
+            <li><span class="dot" style="background:#f08c00"></span><b>Amber link</b> — Fresnel-zone intrusion: it may work, expect degradation in rain/multipath</li>
+            <li><span class="dot" style="background:#e8590c"></span><b>Orange link</b> — terrain blocks the direct ray; running on diffraction</li>
+            <li><span class="dot" style="background:#e03131"></span><b>Red link</b> — the budget doesn't close at any data rate</li>
+          </ul>
+          <p>Every link label shows distance, the best usable MCS, and expected throughput. Click a link for the <b>terrain profile</b>: ground elevation with earth curvature, the line-of-sight ray, the Fresnel ellipse, and the worst obstruction marked.</p>
+        </section>
+
+        <section>
+          <h2>▦ Coverage heatmaps</h2>
+          <p>On any node card, set the <b>remote end's height and gain</b> (what does a 2 m handheld see? a 100 m drone?) and click <b>Coverage heatmap</b>. The map colors everywhere that node can serve, by achievable MCS/throughput — computed over real terrain in every direction, honoring the antenna's beam shape. Recompute after aiming or config changes; run it per-scenario by changing the remote height.</p>
+        </section>
+
+        <section>
+          <h2>🧭 Extending existing infrastructure</h2>
+          <p>Already have sites deployed (or saved)? In the Plan Advisor choose <b>Extend existing infrastructure</b>: pick your anchor node, pick the target on the map, and say what platform needs service. The advisor evaluates the true terrain path using your node's <i>actual</i> configuration — including how it's currently aimed — and recommends the least-change fix: a remote kit alone if it works, a re-aim, a taller mast, amplification, or a <b>relay site</b> it locates along the profile (with coordinates and mast height) when a single hop can't close. Every option includes a full install spec: boresight bearing, heights, cable class and length.</p>
+        </section>
+
+        <section>
+          <h2>📄 Deliverables</h2>
+          <ul>
+            <li><b>💾 Save / 📂 Load</b> — layouts save as portable .json files (one per customer engagement); the browser also auto-saves as you work.</li>
+            <li><b>📄 Report</b> — exports a customer-ready design document: objective, deployment map, equipment & placement table, per-link terrain analysis with profile charts, and minimum UAV altitudes for Fresnel clearance. Opens anywhere, prints to PDF.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>🔬 The math (and its honesty)</h2>
+          <p>Link budgets use the official Doodle Labs methodology — conservative per-MCS sensitivities and transmit powers matching the Doodle Labs Range Estimation Tool exactly, with a 10 dB fade margin. On top of that, this tool adds what a distance-only calculator can't: real elevation profiles (30 m SRTM data), 4/3-earth curvature, the 60% first-Fresnel-zone clearance criterion, ITU-R P.526 knife-edge diffraction, antenna radiation patterns, and frequency-dependent cable loss. Predictions are planning-grade: field-verify critical links, and remember interference, vegetation, and installation quality are not modeled.</p>
+        </section>
+
+        <section class="help-tips">
+          <h2>💡 Tips</h2>
+          <ul>
+            <li>Rename nodes (click the name) before exporting — customers see those labels.</li>
+            <li>Keyboard: <b>N</b> = add node, <b>L</b> = link mode.</li>
+            <li>Drag nodes to explore placement — everything recomputes live.</li>
+            <li>Narrower channels (3/5 MHz) buy several dB of sensitivity: when range beats throughput, narrow the channel.</li>
+            <li>For vessels and UGVs, small height changes matter enormously — the first few meters clear the worst of the Fresnel zone.</li>
+          </ul>
+        </section>
+
+      </div>
     </div>
   </div>
   <div id="advisor-modal" class="hidden">
