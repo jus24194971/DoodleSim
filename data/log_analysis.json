@@ -1,0 +1,1120 @@
+{
+ "bundles": {
+  "b1": {
+   "bundle": "b1",
+   "label": "Air Flight 7",
+   "model": "RM-915-2KM-XO",
+   "date": "Tue Sep 30 18:59:29 UTC 2025",
+   "uptime": "2135.01 1455.75",
+   "firmware": "firmware-2025-06.5",
+   "own_mac": "00:30:1a:50:77:63",
+   "mesh_txpower_dbm": 30.0,
+   "hotspot_txpower_dbm": 15.0,
+   "cfg_txpower_dbm": 30,
+   "regdomain": "GV",
+   "log_files": 1,
+   "samples": 481,
+   "issues": [
+    {
+     "sev": "high",
+     "title": "Rate far below what the signal supports (peer 00:30:1a:3b:f1:65)",
+     "detail": "median RSSI -67 dBm at 10 MHz should carry about MCS 12 (10 dB fade margin) but the radio ran at median MCS 0. Signal strength is not the limit here \u2014 look at interference, retries or multipath."
+    },
+    {
+     "sev": "high",
+     "title": "2.69 retries per transmitted frame (peer 00:30:1a:3b:f1:65)",
+     "detail": "Frames are being retransmitted heavily, which burns airtime and adds latency even when RSSI looks healthy. Above 1.0 the radio is spending more airtime on retries than on first attempts."
+    },
+    {
+     "sev": "medium",
+     "title": "Frames abandoned: 69.63% tx_failed (peer 00:30:1a:3b:f1:65)"
+    },
+    {
+     "sev": "medium",
+     "title": "Mesh link quality low: TQ 55.0/255 (peer 00:30:1a:3b:f1:65)",
+     "detail": "BATMAN transmit quality below 150 means the routing layer already sees this hop as poor."
+    },
+    {
+     "sev": "medium",
+     "title": "Packet-loss ratio median 80.5% (peer 00:30:1a:3b:f1:65)"
+    },
+    {
+     "sev": "high",
+     "title": "Never used both spatial streams (peer 00:30:1a:3b:f1:65)",
+     "detail": "MCS never exceeded 6 on a 2x2 radio, so the second stream was never usable. Combined with the chain imbalance above, this points at one antenna/cable path rather than propagation."
+    }
+   ],
+   "peers": {
+    "00:30:1a:3b:f1:65": {
+     "samples": 481,
+     "rssi_dbm": {
+      "min": -86,
+      "median": -67,
+      "max": -40
+     },
+     "chain_imbalance_db": {
+      "median": 2,
+      "max": 25
+     },
+     "ant_median_dbm": [
+      -72,
+      -71
+     ],
+     "mcs": {
+      "min": 0,
+      "median": 0,
+      "max": 6
+     },
+     "retries_per_frame": 2.69,
+     "tx_failed_pct": 69.63,
+     "pl_ratio_pct": {
+      "median": 80.5,
+      "max": 86.9
+     },
+     "batman_tq": {
+      "min": 10,
+      "median": 55.0,
+      "max": 205
+     },
+     "hop_status": [
+      "direct"
+     ],
+     "mcs_expected_at_median_rssi": 12,
+     "mcs_shortfall": 12,
+     "mcs_max_observed": 6,
+     "single_stream": true,
+     "implied_separation_m": 3670,
+     "implied_assumes": "30 dBm TX, 6 dBi combined antenna gain, free space"
+    }
+   },
+   "window_utc": [
+    1759257077,
+    1759258766
+   ],
+   "duration_s": 1689,
+   "freq_mhz": [
+    918
+   ],
+   "chan_width_mhz": [
+    "10"
+   ],
+   "noise_dbm": {
+    "min": -105.1,
+    "median": -93.7,
+    "max": -75.3
+   },
+   "activity_pct": {
+    "median": 70,
+    "max": 90
+   },
+   "connected_pct": 100.0
+  },
+  "b2": {
+   "bundle": "b2",
+   "label": "GCS Flight 7",
+   "model": "RM-915v4-2KM-XO",
+   "date": "Tue Sep 30 19:59:11 UTC 2025",
+   "uptime": "2183.51 1487.76",
+   "firmware": "firmware-2025-06.5",
+   "own_mac": "00:30:1a:3b:f1:65",
+   "mesh_txpower_dbm": 32.0,
+   "hotspot_txpower_dbm": 15.0,
+   "cfg_txpower_dbm": 32,
+   "regdomain": "GV",
+   "log_files": 1,
+   "samples": 480,
+   "issues": [
+    {
+     "sev": "high",
+     "title": "Rate far below what the signal supports (peer 00:30:1a:50:77:63)",
+     "detail": "median RSSI -62 dBm at 10 MHz should carry about MCS 13 (10 dB fade margin) but the radio ran at median MCS 0. Signal strength is not the limit here \u2014 look at interference, retries or multipath."
+    },
+    {
+     "sev": "high",
+     "title": "Antenna chain imbalance 10.0 dB (peer 00:30:1a:50:77:63)",
+     "detail": "chain medians [-73.0, -63.0] dBm. A persistent difference of 5 dB or more points at one antenna, cable or connector \u2014 not at propagation."
+    },
+    {
+     "sev": "high",
+     "title": "5.08 retries per transmitted frame (peer 00:30:1a:50:77:63)",
+     "detail": "Frames are being retransmitted heavily, which burns airtime and adds latency even when RSSI looks healthy. Above 1.0 the radio is spending more airtime on retries than on first attempts."
+    },
+    {
+     "sev": "medium",
+     "title": "Frames abandoned: 100.0% tx_failed (peer 00:30:1a:50:77:63)"
+    },
+    {
+     "sev": "medium",
+     "title": "Mesh link quality low: TQ 36/255 (peer 00:30:1a:50:77:63)",
+     "detail": "BATMAN transmit quality below 150 means the routing layer already sees this hop as poor."
+    },
+    {
+     "sev": "medium",
+     "title": "Packet-loss ratio median 84.0% (peer 00:30:1a:50:77:63)"
+    },
+    {
+     "sev": "high",
+     "title": "Never used both spatial streams (peer 00:30:1a:50:77:63)",
+     "detail": "MCS never exceeded 6 on a 2x2 radio, so the second stream was never usable. Combined with the chain imbalance above, this points at one antenna/cable path rather than propagation."
+    }
+   ],
+   "peers": {
+    "00:30:1a:50:77:63": {
+     "samples": 480,
+     "rssi_dbm": {
+      "min": -83,
+      "median": -62.0,
+      "max": -32
+     },
+     "chain_imbalance_db": {
+      "median": 10.0,
+      "max": 21
+     },
+     "ant_median_dbm": [
+      -73.0,
+      -63.0
+     ],
+     "mcs": {
+      "min": 0,
+      "median": 0.0,
+      "max": 6
+     },
+     "retries_per_frame": 5.08,
+     "tx_failed_pct": 100.0,
+     "pl_ratio_pct": {
+      "median": 84.0,
+      "max": 90.3
+     },
+     "batman_tq": {
+      "min": 7,
+      "median": 36,
+      "max": 223
+     },
+     "hop_status": [
+      "direct"
+     ],
+     "mcs_expected_at_median_rssi": 13,
+     "mcs_shortfall": 13.0,
+     "mcs_max_observed": 6,
+     "single_stream": true,
+     "implied_separation_m": 2064,
+     "implied_assumes": "30 dBm TX, 6 dBi combined antenna gain, free space"
+    }
+   },
+   "window_utc": [
+    1759260661,
+    1759262348
+   ],
+   "duration_s": 1687,
+   "freq_mhz": [
+    918
+   ],
+   "chan_width_mhz": [
+    "10"
+   ],
+   "noise_dbm": {
+    "min": -98.5,
+    "median": -87.5,
+    "max": -71.9
+   },
+   "activity_pct": {
+    "median": 42.0,
+    "max": 84
+   },
+   "connected_pct": 100.0
+  },
+  "b3": {
+   "bundle": "b3",
+   "label": "GCS Kratos DD 6.9.26",
+   "model": "RM-1675v4-2L-X",
+   "date": "22-05-06_12-54-28",
+   "uptime": "228",
+   "firmware": "firmware-2026-03.1",
+   "own_mac": "00:30:1a:3d:23:1b",
+   "mesh_txpower_dbm": 32.0,
+   "hotspot_txpower_dbm": null,
+   "cfg_txpower_dbm": null,
+   "regdomain": "GV",
+   "log_files": 50,
+   "samples": 18718,
+   "issues": [
+    {
+     "sev": "high",
+     "title": "Rate far below what the signal supports (peer 00:30:1a:3d:21:07)",
+     "detail": "median RSSI -24 dBm at 20 MHz should carry about MCS 15 (10 dB fade margin) but the radio ran at median MCS 2. Signal strength is not the limit here \u2014 look at interference, retries or multipath."
+    },
+    {
+     "sev": "high",
+     "title": "Antenna chain imbalance 5.0 dB (peer 00:30:1a:3d:21:07)",
+     "detail": "chain medians [-31.0, -25.0] dBm. A persistent difference of 5 dB or more points at one antenna, cable or connector \u2014 not at propagation."
+    },
+    {
+     "sev": "high",
+     "title": "1.61 retries per transmitted frame (peer 00:30:1a:3d:21:07)",
+     "detail": "Frames are being retransmitted heavily, which burns airtime and adds latency even when RSSI looks healthy. Above 1.0 the radio is spending more airtime on retries than on first attempts."
+    },
+    {
+     "sev": "medium",
+     "title": "Frames abandoned: 18.96% tx_failed (peer 00:30:1a:3d:21:07)"
+    },
+    {
+     "sev": "medium",
+     "title": "Very hot receive level -24 dBm (peer 00:30:1a:3d:21:07)",
+     "detail": "That is roughly 15 m of free-space path. At this level the receive front end can be near compression, which produces exactly these symptoms (retries and low rates despite a huge signal). If this was a bench or ramp test, add attenuators or separate the radios before drawing conclusions."
+    },
+    {
+     "sev": "high",
+     "title": "Rate far below what the signal supports (peer 00:30:1a:3d:23:13)",
+     "detail": "median RSSI -27 dBm at 20 MHz should carry about MCS 15 (10 dB fade margin) but the radio ran at median MCS 7. Signal strength is not the limit here \u2014 look at interference, retries or multipath."
+    },
+    {
+     "sev": "high",
+     "title": "Antenna chain imbalance 6 dB (peer 00:30:1a:3d:23:13)",
+     "detail": "chain medians [-35, -29] dBm. A persistent difference of 5 dB or more points at one antenna, cable or connector \u2014 not at propagation."
+    },
+    {
+     "sev": "high",
+     "title": "1.79 retries per transmitted frame (peer 00:30:1a:3d:23:13)",
+     "detail": "Frames are being retransmitted heavily, which burns airtime and adds latency even when RSSI looks healthy. Above 1.0 the radio is spending more airtime on retries than on first attempts."
+    },
+    {
+     "sev": "medium",
+     "title": "Frames abandoned: 22.43% tx_failed (peer 00:30:1a:3d:23:13)"
+    },
+    {
+     "sev": "medium",
+     "title": "Very hot receive level -27 dBm (peer 00:30:1a:3d:23:13)",
+     "detail": "That is roughly 21 m of free-space path. At this level the receive front end can be near compression, which produces exactly these symptoms (retries and low rates despite a huge signal). If this was a bench or ramp test, add attenuators or separate the radios before drawing conclusions."
+    },
+    {
+     "sev": "high",
+     "title": "Rate far below what the signal supports (peer 00:30:1a:3d:20:fb)",
+     "detail": "median RSSI -36 dBm at 20 MHz should carry about MCS 15 (10 dB fade margin) but the radio ran at median MCS 10. Signal strength is not the limit here \u2014 look at interference, retries or multipath."
+    },
+    {
+     "sev": "high",
+     "title": "Antenna chain imbalance 7.0 dB (peer 00:30:1a:3d:20:fb)",
+     "detail": "chain medians [-44.0, -37.0] dBm. A persistent difference of 5 dB or more points at one antenna, cable or connector \u2014 not at propagation."
+    },
+    {
+     "sev": "high",
+     "title": "1.19 retries per transmitted frame (peer 00:30:1a:3d:20:fb)",
+     "detail": "Frames are being retransmitted heavily, which burns airtime and adds latency even when RSSI looks healthy. Above 1.0 the radio is spending more airtime on retries than on first attempts."
+    },
+    {
+     "sev": "medium",
+     "title": "Frames abandoned: 14.93% tx_failed (peer 00:30:1a:3d:20:fb)"
+    },
+    {
+     "sev": "medium",
+     "title": "Very hot receive level -36 dBm (peer 00:30:1a:3d:20:fb)",
+     "detail": "That is roughly 58 m of free-space path. At this level the receive front end can be near compression, which produces exactly these symptoms (retries and low rates despite a huge signal). If this was a bench or ramp test, add attenuators or separate the radios before drawing conclusions."
+    },
+    {
+     "sev": "high",
+     "title": "Rate far below what the signal supports (peer 00:30:1a:3d:21:13)",
+     "detail": "median RSSI -26 dBm at 20 MHz should carry about MCS 15 (10 dB fade margin) but the radio ran at median MCS 0. Signal strength is not the limit here \u2014 look at interference, retries or multipath."
+    },
+    {
+     "sev": "high",
+     "title": "Antenna chain imbalance 5 dB (peer 00:30:1a:3d:21:13)",
+     "detail": "chain medians [-32, -27] dBm. A persistent difference of 5 dB or more points at one antenna, cable or connector \u2014 not at propagation."
+    },
+    {
+     "sev": "high",
+     "title": "1.64 retries per transmitted frame (peer 00:30:1a:3d:21:13)",
+     "detail": "Frames are being retransmitted heavily, which burns airtime and adds latency even when RSSI looks healthy. Above 1.0 the radio is spending more airtime on retries than on first attempts."
+    },
+    {
+     "sev": "medium",
+     "title": "Frames abandoned: 8.7% tx_failed (peer 00:30:1a:3d:21:13)"
+    },
+    {
+     "sev": "medium",
+     "title": "Very hot receive level -26 dBm (peer 00:30:1a:3d:21:13)",
+     "detail": "That is roughly 18 m of free-space path. At this level the receive front end can be near compression, which produces exactly these symptoms (retries and low rates despite a huge signal). If this was a bench or ramp test, add attenuators or separate the radios before drawing conclusions."
+    },
+    {
+     "sev": "high",
+     "title": "Rate far below what the signal supports (peer 00:30:1a:3d:22:ff)",
+     "detail": "median RSSI -28 dBm at 20 MHz should carry about MCS 15 (10 dB fade margin) but the radio ran at median MCS 0. Signal strength is not the limit here \u2014 look at interference, retries or multipath."
+    },
+    {
+     "sev": "high",
+     "title": "1.25 retries per transmitted frame (peer 00:30:1a:3d:22:ff)",
+     "detail": "Frames are being retransmitted heavily, which burns airtime and adds latency even when RSSI looks healthy. Above 1.0 the radio is spending more airtime on retries than on first attempts."
+    },
+    {
+     "sev": "medium",
+     "title": "Frames abandoned: 15.6% tx_failed (peer 00:30:1a:3d:22:ff)"
+    },
+    {
+     "sev": "medium",
+     "title": "Very hot receive level -28 dBm (peer 00:30:1a:3d:22:ff)",
+     "detail": "That is roughly 23 m of free-space path. At this level the receive front end can be near compression, which produces exactly these symptoms (retries and low rates despite a huge signal). If this was a bench or ramp test, add attenuators or separate the radios before drawing conclusions."
+    }
+   ],
+   "peers": {
+    "00:30:1a:3d:21:07": {
+     "samples": 8486,
+     "rssi_dbm": {
+      "min": -79,
+      "median": -24.0,
+      "max": 0
+     },
+     "chain_imbalance_db": {
+      "median": 5.0,
+      "max": 27
+     },
+     "ant_median_dbm": [
+      -31.0,
+      -25.0
+     ],
+     "mcs": {
+      "min": 0,
+      "median": 2.0,
+      "max": 15
+     },
+     "retries_per_frame": 1.61,
+     "tx_failed_pct": 18.96,
+     "pl_ratio_pct": {
+      "median": 13.3,
+      "max": 100
+     },
+     "batman_tq": {
+      "min": 6,
+      "median": 153,
+      "max": 255
+     },
+     "hop_status": [
+      "direct",
+      "hop"
+     ],
+     "mcs_expected_at_median_rssi": 15,
+     "mcs_shortfall": 13.0,
+     "mcs_max_observed": 15,
+     "single_stream": false,
+     "implied_separation_m": 15,
+     "implied_assumes": "30 dBm TX, 6 dBi combined antenna gain, free space"
+    },
+    "00:30:1a:3d:23:13": {
+     "samples": 11989,
+     "rssi_dbm": {
+      "min": -82,
+      "median": -27,
+      "max": 0
+     },
+     "chain_imbalance_db": {
+      "median": 6,
+      "max": 25
+     },
+     "ant_median_dbm": [
+      -35,
+      -29
+     ],
+     "mcs": {
+      "min": 0,
+      "median": 7,
+      "max": 15
+     },
+     "retries_per_frame": 1.79,
+     "tx_failed_pct": 22.43,
+     "pl_ratio_pct": {
+      "median": 11.1,
+      "max": 100
+     },
+     "batman_tq": {
+      "min": 10,
+      "median": 218,
+      "max": 255
+     },
+     "hop_status": [
+      "direct",
+      "hop"
+     ],
+     "mcs_expected_at_median_rssi": 15,
+     "mcs_shortfall": 8,
+     "mcs_max_observed": 15,
+     "single_stream": false,
+     "implied_separation_m": 21,
+     "implied_assumes": "30 dBm TX, 6 dBi combined antenna gain, free space"
+    },
+    "00:30:1a:3d:20:fb": {
+     "samples": 7692,
+     "rssi_dbm": {
+      "min": -81,
+      "median": -36.0,
+      "max": -17
+     },
+     "chain_imbalance_db": {
+      "median": 7.0,
+      "max": 25
+     },
+     "ant_median_dbm": [
+      -44.0,
+      -37.0
+     ],
+     "mcs": {
+      "min": 0,
+      "median": 10.0,
+      "max": 15
+     },
+     "retries_per_frame": 1.19,
+     "tx_failed_pct": 14.93,
+     "pl_ratio_pct": {
+      "median": 13.8,
+      "max": 96.2
+     },
+     "batman_tq": {
+      "min": 7,
+      "median": 233,
+      "max": 255
+     },
+     "hop_status": [
+      "direct",
+      "hop"
+     ],
+     "mcs_expected_at_median_rssi": 15,
+     "mcs_shortfall": 5.0,
+     "mcs_max_observed": 15,
+     "single_stream": false,
+     "implied_separation_m": 58,
+     "implied_assumes": "30 dBm TX, 6 dBi combined antenna gain, free space"
+    },
+    "00:30:1a:3d:21:13": {
+     "samples": 831,
+     "rssi_dbm": {
+      "min": -34,
+      "median": -26,
+      "max": -16
+     },
+     "chain_imbalance_db": {
+      "median": 5,
+      "max": 17
+     },
+     "ant_median_dbm": [
+      -32,
+      -27
+     ],
+     "mcs": {
+      "min": 0,
+      "median": 0,
+      "max": 15
+     },
+     "retries_per_frame": 1.64,
+     "tx_failed_pct": 8.7,
+     "pl_ratio_pct": {
+      "median": 0,
+      "max": 100
+     },
+     "batman_tq": {
+      "min": 12,
+      "median": 246,
+      "max": 255
+     },
+     "hop_status": [
+      "direct"
+     ],
+     "mcs_expected_at_median_rssi": 15,
+     "mcs_shortfall": 15,
+     "mcs_max_observed": 15,
+     "single_stream": false,
+     "implied_separation_m": 18,
+     "implied_assumes": "30 dBm TX, 6 dBi combined antenna gain, free space"
+    },
+    "00:30:1a:3d:22:ff": {
+     "samples": 1176,
+     "rssi_dbm": {
+      "min": -80,
+      "median": -28.0,
+      "max": -20
+     },
+     "chain_imbalance_db": {
+      "median": 2.0,
+      "max": 16
+     },
+     "ant_median_dbm": [
+      -32.0,
+      -30.0
+     ],
+     "mcs": {
+      "min": 0,
+      "median": 0.0,
+      "max": 15
+     },
+     "retries_per_frame": 1.25,
+     "tx_failed_pct": 15.6,
+     "pl_ratio_pct": {
+      "median": 0.0,
+      "max": 100
+     },
+     "batman_tq": {
+      "min": 31,
+      "median": 196.0,
+      "max": 255
+     },
+     "hop_status": [
+      "direct"
+     ],
+     "mcs_expected_at_median_rssi": 15,
+     "mcs_shortfall": 15.0,
+     "mcs_max_observed": 15,
+     "single_stream": false,
+     "implied_separation_m": 23,
+     "implied_assumes": "30 dBm TX, 6 dBi combined antenna gain, free space"
+    }
+   },
+   "window_utc": [
+    1651803251,
+    1651841666
+   ],
+   "duration_s": 38415,
+   "freq_mhz": [
+    1636
+   ],
+   "chan_width_mhz": [
+    "20"
+   ],
+   "noise_dbm": {
+    "min": -93.6,
+    "median": -89.4,
+    "max": -43.9
+   },
+   "activity_pct": {
+    "median": 65.0,
+    "max": 89
+   },
+   "connected_pct": 98.2
+  },
+  "b4": {
+   "bundle": "b4",
+   "label": "Relay Kratos DD 6.9.26",
+   "model": "RM-1675v4-2L-X",
+   "date": "22-05-05_18-51-50",
+   "uptime": "234",
+   "firmware": "firmware-2026-03.1",
+   "own_mac": "00:30:1a:3d:20:fb",
+   "mesh_txpower_dbm": 32.0,
+   "hotspot_txpower_dbm": null,
+   "cfg_txpower_dbm": null,
+   "regdomain": "GV",
+   "log_files": 31,
+   "samples": 9318,
+   "issues": [
+    {
+     "sev": "high",
+     "title": "Link present only 69.6% of the time",
+     "detail": "2831 of 9318 samples had no associated peer \u2014 the link dropped repeatedly."
+    },
+    {
+     "sev": "high",
+     "title": "Rate far below what the signal supports (peer 00:30:1a:3d:23:1b)",
+     "detail": "median RSSI -35 dBm at 20 MHz should carry about MCS 15 (10 dB fade margin) but the radio ran at median MCS 6. Signal strength is not the limit here \u2014 look at interference, retries or multipath."
+    },
+    {
+     "sev": "high",
+     "title": "Antenna chain imbalance 7 dB (peer 00:30:1a:3d:23:1b)",
+     "detail": "chain medians [-45, -36] dBm. A persistent difference of 5 dB or more points at one antenna, cable or connector \u2014 not at propagation."
+    },
+    {
+     "sev": "high",
+     "title": "1.45 retries per transmitted frame (peer 00:30:1a:3d:23:1b)",
+     "detail": "Frames are being retransmitted heavily, which burns airtime and adds latency even when RSSI looks healthy. Above 1.0 the radio is spending more airtime on retries than on first attempts."
+    },
+    {
+     "sev": "medium",
+     "title": "Frames abandoned: 18.35% tx_failed (peer 00:30:1a:3d:23:1b)"
+    },
+    {
+     "sev": "high",
+     "title": "Never used both spatial streams (peer 00:30:1a:3d:23:1b)",
+     "detail": "MCS never exceeded 6 on a 2x2 radio, so the second stream was never usable. Combined with the chain imbalance above, this points at one antenna/cable path rather than propagation."
+    },
+    {
+     "sev": "medium",
+     "title": "Very hot receive level -35 dBm (peer 00:30:1a:3d:23:1b)",
+     "detail": "That is roughly 52 m of free-space path. At this level the receive front end can be near compression, which produces exactly these symptoms (retries and low rates despite a huge signal). If this was a bench or ramp test, add attenuators or separate the radios before drawing conclusions."
+    },
+    {
+     "sev": "high",
+     "title": "Rate far below what the signal supports (peer 00:30:1a:3d:23:13)",
+     "detail": "median RSSI -51 dBm at 20 MHz should carry about MCS 15 (10 dB fade margin) but the radio ran at median MCS 2. Signal strength is not the limit here \u2014 look at interference, retries or multipath."
+    },
+    {
+     "sev": "high",
+     "title": "Antenna chain imbalance 6 dB (peer 00:30:1a:3d:23:13)",
+     "detail": "chain medians [-59, -52] dBm. A persistent difference of 5 dB or more points at one antenna, cable or connector \u2014 not at propagation."
+    },
+    {
+     "sev": "high",
+     "title": "1.59 retries per transmitted frame (peer 00:30:1a:3d:23:13)",
+     "detail": "Frames are being retransmitted heavily, which burns airtime and adds latency even when RSSI looks healthy. Above 1.0 the radio is spending more airtime on retries than on first attempts."
+    },
+    {
+     "sev": "high",
+     "title": "Never used both spatial streams (peer 00:30:1a:3d:23:13)",
+     "detail": "MCS never exceeded 6 on a 2x2 radio, so the second stream was never usable. Combined with the chain imbalance above, this points at one antenna/cable path rather than propagation."
+    },
+    {
+     "sev": "high",
+     "title": "Rate far below what the signal supports (peer 00:30:1a:3d:21:07)",
+     "detail": "median RSSI -72 dBm at 20 MHz should carry about MCS 9 (10 dB fade margin) but the radio ran at median MCS 0. Signal strength is not the limit here \u2014 look at interference, retries or multipath."
+    },
+    {
+     "sev": "medium",
+     "title": "0.39 retries per transmitted frame (peer 00:30:1a:3d:21:07)",
+     "detail": "Frames are being retransmitted heavily, which burns airtime and adds latency even when RSSI looks healthy. Above 1.0 the radio is spending more airtime on retries than on first attempts."
+    },
+    {
+     "sev": "medium",
+     "title": "Mesh link quality low: TQ 27/255 (peer 00:30:1a:3d:21:07)",
+     "detail": "BATMAN transmit quality below 150 means the routing layer already sees this hop as poor."
+    },
+    {
+     "sev": "high",
+     "title": "Never used both spatial streams (peer 00:30:1a:3d:21:07)",
+     "detail": "MCS never exceeded 6 on a 2x2 radio, so the second stream was never usable. Combined with the chain imbalance above, this points at one antenna/cable path rather than propagation."
+    },
+    {
+     "sev": "high",
+     "title": "Rate far below what the signal supports (peer 00:30:1a:3c:2d:81)",
+     "detail": "median RSSI -26 dBm at 20 MHz should carry about MCS 15 (10 dB fade margin) but the radio ran at median MCS 2. Signal strength is not the limit here \u2014 look at interference, retries or multipath."
+    },
+    {
+     "sev": "high",
+     "title": "Antenna chain imbalance 6.0 dB (peer 00:30:1a:3c:2d:81)",
+     "detail": "chain medians [-27.0, -33.0] dBm. A persistent difference of 5 dB or more points at one antenna, cable or connector \u2014 not at propagation."
+    },
+    {
+     "sev": "high",
+     "title": "Never used both spatial streams (peer 00:30:1a:3c:2d:81)",
+     "detail": "MCS never exceeded 4 on a 2x2 radio, so the second stream was never usable. Combined with the chain imbalance above, this points at one antenna/cable path rather than propagation."
+    },
+    {
+     "sev": "medium",
+     "title": "Very hot receive level -26 dBm (peer 00:30:1a:3c:2d:81)",
+     "detail": "That is roughly 18 m of free-space path. At this level the receive front end can be near compression, which produces exactly these symptoms (retries and low rates despite a huge signal). If this was a bench or ramp test, add attenuators or separate the radios before drawing conclusions."
+    }
+   ],
+   "peers": {
+    "00:30:1a:3d:23:1b": {
+     "samples": 6343,
+     "rssi_dbm": {
+      "min": -83,
+      "median": -35,
+      "max": -19
+     },
+     "chain_imbalance_db": {
+      "median": 7,
+      "max": 23
+     },
+     "ant_median_dbm": [
+      -45,
+      -36
+     ],
+     "mcs": {
+      "min": 0,
+      "median": 6,
+      "max": 6
+     },
+     "retries_per_frame": 1.45,
+     "tx_failed_pct": 18.35,
+     "pl_ratio_pct": {
+      "median": 15.3,
+      "max": 91.7
+     },
+     "batman_tq": {
+      "min": 9,
+      "median": 223.0,
+      "max": 255
+     },
+     "hop_status": [
+      "direct",
+      "hop"
+     ],
+     "mcs_expected_at_median_rssi": 15,
+     "mcs_shortfall": 9,
+     "mcs_max_observed": 6,
+     "single_stream": true,
+     "implied_separation_m": 52,
+     "implied_assumes": "30 dBm TX, 6 dBi combined antenna gain, free space"
+    },
+    "00:30:1a:3d:23:13": {
+     "samples": 3201,
+     "rssi_dbm": {
+      "min": -81,
+      "median": -51,
+      "max": -15
+     },
+     "chain_imbalance_db": {
+      "median": 6,
+      "max": 18
+     },
+     "ant_median_dbm": [
+      -59,
+      -52
+     ],
+     "mcs": {
+      "min": 0,
+      "median": 2,
+      "max": 6
+     },
+     "retries_per_frame": 1.59,
+     "tx_failed_pct": 0.9,
+     "pl_ratio_pct": {
+      "median": 0,
+      "max": 88.9
+     },
+     "batman_tq": {
+      "min": 10,
+      "median": 166,
+      "max": 255
+     },
+     "hop_status": [
+      "direct",
+      "hop"
+     ],
+     "mcs_expected_at_median_rssi": 15,
+     "mcs_shortfall": 13,
+     "mcs_max_observed": 6,
+     "single_stream": true,
+     "implied_separation_m": 326,
+     "implied_assumes": "30 dBm TX, 6 dBi combined antenna gain, free space"
+    },
+    "00:30:1a:3d:21:07": {
+     "samples": 1929,
+     "rssi_dbm": {
+      "min": -84,
+      "median": -72,
+      "max": -16
+     },
+     "chain_imbalance_db": {
+      "median": 4,
+      "max": 12
+     },
+     "ant_median_dbm": [
+      -77,
+      -73
+     ],
+     "mcs": {
+      "min": 0,
+      "median": 0,
+      "max": 6
+     },
+     "retries_per_frame": 0.39,
+     "tx_failed_pct": 1.12,
+     "pl_ratio_pct": {
+      "median": 0,
+      "max": 92.3
+     },
+     "batman_tq": {
+      "min": 9,
+      "median": 27,
+      "max": 254
+     },
+     "hop_status": [
+      "direct",
+      "hop"
+     ],
+     "mcs_expected_at_median_rssi": 9,
+     "mcs_shortfall": 9,
+     "mcs_max_observed": 6,
+     "single_stream": true,
+     "implied_separation_m": 3662,
+     "implied_assumes": "30 dBm TX, 6 dBi combined antenna gain, free space"
+    },
+    "00:30:1a:3c:2d:81": {
+     "samples": 82,
+     "rssi_dbm": {
+      "min": -32,
+      "median": -26.0,
+      "max": -23
+     },
+     "chain_imbalance_db": {
+      "median": 6.0,
+      "max": 10
+     },
+     "ant_median_dbm": [
+      -27.0,
+      -33.0
+     ],
+     "mcs": {
+      "min": 0,
+      "median": 2.0,
+      "max": 4
+     },
+     "retries_per_frame": 0.16,
+     "tx_failed_pct": 0.16,
+     "pl_ratio_pct": {
+      "median": 0.0,
+      "max": 50
+     },
+     "batman_tq": {
+      "min": 97,
+      "median": 153.0,
+      "max": 202
+     },
+     "hop_status": [
+      "direct"
+     ],
+     "mcs_expected_at_median_rssi": 15,
+     "mcs_shortfall": 13.0,
+     "mcs_max_observed": 4,
+     "single_stream": true,
+     "implied_separation_m": 18,
+     "implied_assumes": "30 dBm TX, 6 dBi combined antenna gain, free space"
+    }
+   },
+   "window_utc": [
+    1651757218,
+    1651776708
+   ],
+   "duration_s": 19490,
+   "freq_mhz": [
+    1636,
+    1675,
+    1715
+   ],
+   "chan_width_mhz": [
+    "20",
+    "26"
+   ],
+   "noise_dbm": {
+    "min": -96.8,
+    "median": -90.1,
+    "max": 0.0
+   },
+   "activity_pct": {
+    "median": 41.0,
+    "max": 92
+   },
+   "connected_pct": 69.6
+  },
+  "b5": {
+   "bundle": "b5",
+   "label": "longtermmon smartradio-301a3af4e9",
+   "model": "RM-1675-2KM-XW",
+   "date": "Thu May  5 14:06:28 UTC 2022",
+   "uptime": "741.39 451.23",
+   "firmware": "firmware-2024-10.1",
+   "own_mac": "00:30:1a:3a:f4:e9",
+   "mesh_txpower_dbm": 30.0,
+   "hotspot_txpower_dbm": null,
+   "cfg_txpower_dbm": null,
+   "regdomain": "?",
+   "log_files": 1,
+   "samples": 143,
+   "issues": [
+    {
+     "sev": "high",
+     "title": "Antenna chain imbalance 5 dB (peer 00:30:1a:50:81:4f)",
+     "detail": "chain medians [-35, -31] dBm. A persistent difference of 5 dB or more points at one antenna, cable or connector \u2014 not at propagation."
+    },
+    {
+     "sev": "medium",
+     "title": "Very hot receive level -29 dBm (peer 00:30:1a:50:81:4f)",
+     "detail": "That is roughly 25 m of free-space path. At this level the receive front end can be near compression, which produces exactly these symptoms (retries and low rates despite a huge signal). If this was a bench or ramp test, add attenuators or separate the radios before drawing conclusions."
+    }
+   ],
+   "peers": {
+    "00:30:1a:50:81:4f": {
+     "samples": 143,
+     "rssi_dbm": {
+      "min": -35,
+      "median": -29,
+      "max": -26
+     },
+     "chain_imbalance_db": {
+      "median": 5,
+      "max": 8
+     },
+     "ant_median_dbm": [
+      -35,
+      -31
+     ],
+     "mcs": {
+      "min": 13,
+      "median": 15,
+      "max": 15
+     },
+     "pl_ratio_pct": {
+      "median": 0.0,
+      "max": 0.4
+     },
+     "batman_tq": {
+      "min": 247,
+      "median": 255,
+      "max": 255
+     },
+     "hop_status": [
+      "direct"
+     ],
+     "mcs_expected_at_median_rssi": 15,
+     "mcs_shortfall": 0,
+     "mcs_max_observed": 15,
+     "single_stream": false,
+     "implied_separation_m": 25,
+     "implied_assumes": "30 dBm TX, 6 dBi combined antenna gain, free space"
+    }
+   },
+   "window_utc": [
+    1651759091,
+    1651759588
+   ],
+   "duration_s": 497,
+   "freq_mhz": [
+    1675
+   ],
+   "chan_width_mhz": [
+    "10"
+   ],
+   "noise_dbm": {
+    "min": -101.2,
+    "median": -98.8,
+    "max": -90.0
+   },
+   "activity_pct": {
+    "median": 9,
+    "max": 53
+   },
+   "connected_pct": 100.0
+  },
+  "b6": {
+   "bundle": "b6",
+   "label": "longtermmon smartradio-301a50814f",
+   "model": "RM-1675-2KM-XO",
+   "date": "Thu May  5 14:29:33 UTC 2022",
+   "uptime": "3000.93 1863.88",
+   "firmware": "firmware-2024-10.1",
+   "own_mac": "00:30:1a:50:81:4f",
+   "mesh_txpower_dbm": 30.0,
+   "hotspot_txpower_dbm": null,
+   "cfg_txpower_dbm": null,
+   "regdomain": "?",
+   "log_files": 1,
+   "samples": 141,
+   "issues": [
+    {
+     "sev": "medium",
+     "title": "Very hot receive level -31 dBm (peer 00:30:1a:3a:f4:e9)",
+     "detail": "That is roughly 32 m of free-space path. At this level the receive front end can be near compression, which produces exactly these symptoms (retries and low rates despite a huge signal). If this was a bench or ramp test, add attenuators or separate the radios before drawing conclusions."
+    }
+   ],
+   "peers": {
+    "00:30:1a:3a:f4:e9": {
+     "samples": 141,
+     "rssi_dbm": {
+      "min": -39,
+      "median": -31,
+      "max": -29
+     },
+     "chain_imbalance_db": {
+      "median": 1,
+      "max": 4
+     },
+     "ant_median_dbm": [
+      -35,
+      -33
+     ],
+     "mcs": {
+      "min": 12,
+      "median": 14,
+      "max": 15
+     },
+     "pl_ratio_pct": {
+      "median": 0.0,
+      "max": 0.1
+     },
+     "batman_tq": {
+      "min": 239,
+      "median": 251,
+      "max": 255
+     },
+     "hop_status": [
+      "direct"
+     ],
+     "mcs_expected_at_median_rssi": 15,
+     "mcs_shortfall": 1,
+     "mcs_max_observed": 15,
+     "single_stream": false,
+     "implied_separation_m": 32,
+     "implied_assumes": "30 dBm TX, 6 dBi combined antenna gain, free space"
+    }
+   },
+   "window_utc": [
+    1651760469,
+    1651760972
+   ],
+   "duration_s": 503,
+   "freq_mhz": [
+    1675
+   ],
+   "chan_width_mhz": [
+    "10"
+   ],
+   "noise_dbm": {
+    "min": -94.3,
+    "median": -91.9,
+    "max": -87.1
+   },
+   "activity_pct": {
+    "median": 10,
+    "max": 14
+   },
+   "connected_pct": 100.0
+  }
+ },
+ "pairs": [
+  {
+   "a": "b1",
+   "b": "b2",
+   "a_label": "Air Flight 7",
+   "b_label": "GCS Flight 7",
+   "rssi_a_sees_b": -67,
+   "rssi_b_sees_a": -62.0,
+   "asymmetry_db": -5.0,
+   "tx_a_dbm": 30.0,
+   "tx_b_dbm": 32.0,
+   "implied_pathloss_b_to_a_db": 99.0,
+   "implied_pathloss_a_to_b_db": 92.0,
+   "reciprocity_error_db": 7.0
+  },
+  {
+   "a": "b3",
+   "b": "b4",
+   "a_label": "GCS Kratos DD 6.9.26",
+   "b_label": "Relay Kratos DD 6.9.26",
+   "rssi_a_sees_b": -36.0,
+   "rssi_b_sees_a": -35,
+   "asymmetry_db": -1.0,
+   "tx_a_dbm": 32.0,
+   "tx_b_dbm": 32.0,
+   "implied_pathloss_b_to_a_db": 68.0,
+   "implied_pathloss_a_to_b_db": 67.0,
+   "reciprocity_error_db": 1.0
+  },
+  {
+   "a": "b5",
+   "b": "b6",
+   "a_label": "longtermmon smartradio-301a3af4e9",
+   "b_label": "longtermmon smartradio-301a50814f",
+   "rssi_a_sees_b": -29,
+   "rssi_b_sees_a": -31,
+   "asymmetry_db": 2,
+   "tx_a_dbm": 30.0,
+   "tx_b_dbm": 30.0,
+   "implied_pathloss_b_to_a_db": 59.0,
+   "implied_pathloss_a_to_b_db": 61.0,
+   "reciprocity_error_db": -2.0
+  }
+ ],
+ "own_macs": {
+  "b1": "00:30:1a:50:77:63",
+  "b2": "00:30:1a:3b:f1:65",
+  "b3": "00:30:1a:3d:23:1b",
+  "b4": "00:30:1a:3d:20:fb",
+  "b5": "00:30:1a:3a:f4:e9",
+  "b6": "00:30:1a:50:81:4f"
+ },
+ "unmatched": []
+}

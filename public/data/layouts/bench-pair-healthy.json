@@ -1,0 +1,83 @@
+{
+ "version": 1,
+ "savedAt": "2026-07-29T00:00:00.000Z",
+ "_source": "Generated from Mesh Rider longtermlog bundles by DoodleSim log analysis",
+ "_warning": "SYNTHETIC POSITIONS. No bundle contained GPS data. Separations are implied by the measured receive level and reported TX power assuming 3 dBi omnis and free space; bearings are arbitrary. Drag the nodes onto the real site before drawing conclusions.",
+ "_headline": "Healthy control: both ends MCS 15, TQ 255/255, zero packet loss at ~25-30 m",
+ "view": {
+  "center": [
+   -104.8,
+   39.7392
+  ],
+  "zoom": 13
+ },
+ "coverage": {
+  "remoteMode": "agl",
+  "remoteHeightM": 2,
+  "aslAltM": null,
+  "remoteGainDbi": 3,
+  "metric": "mcs",
+  "nearGround": false,
+  "scope": "mesh"
+ },
+ "nodes": [
+  {
+   "id": 1,
+   "label": "smartradio-...50814f (rx -31 dBm, MCS 15, TQ 255)",
+   "lng": -104.8,
+   "lat": 39.7392,
+   "radioId": "miniOEM_v3",
+   "bandId": "hex",
+   "freqMhz": 1675,
+   "bwMhz": 10,
+   "powerDbm": 30,
+   "antennaId": null,
+   "antennaGain": 3,
+   "heightM": 2,
+   "cableLoss": 1,
+   "bdaGain": 0,
+   "platform": "mast",
+   "azimuthDeg": 0,
+   "tiltDeg": 0,
+   "customHpbwAz": 360,
+   "customHpbwEl": 360,
+   "customName": "healthy reference: chains balanced, 0% loss",
+   "customType": "omni",
+   "dishDiaM": null,
+   "cableType": "manual",
+   "cableLenM": 0
+  },
+  {
+   "id": 2,
+   "label": "smartradio-...3af4e9 (rx -29 dBm, MCS 15, 5 dB chain imbalance)",
+   "lng": -104.8,
+   "lat": 39.739488,
+   "radioId": "miniOEM_v3",
+   "bandId": "hex",
+   "freqMhz": 1675,
+   "bwMhz": 10,
+   "powerDbm": 30,
+   "antennaId": null,
+   "antennaGain": 3,
+   "heightM": 2,
+   "cableLoss": 1,
+   "bdaGain": 0,
+   "platform": "mast",
+   "azimuthDeg": 0,
+   "tiltDeg": 0,
+   "customHpbwAz": 360,
+   "customHpbwEl": 360,
+   "customName": "healthy but 5 dB chain imbalance worth checking",
+   "customType": "omni",
+   "dishDiaM": null,
+   "cableType": "manual",
+   "cableLenM": 0
+  }
+ ],
+ "links": [
+  [
+   2,
+   1
+  ]
+ ]
+}
