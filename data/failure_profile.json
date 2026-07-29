@@ -1,0 +1,547 @@
+{
+ "links_analysed": 13,
+ "bundles": 6,
+ "tickets_linked": 6,
+ "cause_frequency": [
+  {
+   "cause": "rf_congestion_or_interference",
+   "label": "RF congestion or interference",
+   "links": 11,
+   "pct_of_links": 84.6
+  },
+  {
+   "cause": "antenna_or_feed_fault",
+   "label": "Antenna, cable or connector fault",
+   "links": 9,
+   "pct_of_links": 69.2
+  },
+  {
+   "cause": "bench_test_artefact",
+   "label": "Bench-test artefact (too close)",
+   "links": 9,
+   "pct_of_links": 69.2
+  },
+  {
+   "cause": "configuration_or_channel_churn",
+   "label": "Configuration / channel churn",
+   "links": 4,
+   "pct_of_links": 30.8
+  },
+  {
+   "cause": "link_instability",
+   "label": "Link instability (repeated dropouts)",
+   "links": 4,
+   "pct_of_links": 30.8
+  },
+  {
+   "cause": "rate_below_signal_unexplained",
+   "label": "Rate below signal, cause unexplained",
+   "links": 3,
+   "pct_of_links": 23.1
+  }
+ ],
+ "primary_cause_frequency": [
+  {
+   "cause": "rf_congestion_or_interference",
+   "label": "RF congestion or interference",
+   "links": 6,
+   "pct": 46.2
+  },
+  {
+   "cause": "antenna_or_feed_fault",
+   "label": "Antenna, cable or connector fault",
+   "links": 5,
+   "pct": 38.5
+  },
+  {
+   "cause": "link_instability",
+   "label": "Link instability (repeated dropouts)",
+   "links": 1,
+   "pct": 7.7
+  },
+  {
+   "cause": "bench_test_artefact",
+   "label": "Bench-test artefact (too close)",
+   "links": 1,
+   "pct": 7.7
+  }
+ ],
+ "by_model": {
+  "RM-915-2KM-XO": 1,
+  "RM-915v4-2KM-XO": 1,
+  "RM-1675v4-2L-X": 9,
+  "RM-1675-2KM-XW": 1,
+  "RM-1675-2KM-XO": 1
+ },
+ "by_band_mhz": {
+  "918": 2,
+  "1636": 9,
+  "1675": 2
+ },
+ "by_firmware": {
+  "firmware-2025-06.5": 2,
+  "firmware-2026-03.1": 9,
+  "firmware-2024-10.1": 2
+ },
+ "resolution_alignment": {
+  "closed_no_action_despite_finding": 1,
+  "fix_matches_telemetry": 2,
+  "no_ticket_linked": 7,
+  "fix_unrelated_to_telemetry": 3
+ },
+ "links": [
+  {
+   "bundle": "b1",
+   "label": "Air Flight 7",
+   "peer": "00:30:1a:3b:f1:65",
+   "model": "RM-915-2KM-XO",
+   "firmware": "firmware-2025-06.5",
+   "band_mhz": 918,
+   "causes": [
+    {
+     "cause": "rf_congestion_or_interference",
+     "confidence": 0.89,
+     "evidence": "channel busy 70% of the time, with heavy retransmission despite adequate signal"
+    },
+    {
+     "cause": "rate_below_signal_unexplained",
+     "confidence": 0.5,
+     "evidence": "ran 12 MCS steps below what the level supports with no chain imbalance"
+    }
+   ],
+   "primary_cause": "rf_congestion_or_interference",
+   "primary_confidence": 0.89,
+   "ticket": {
+    "id": "T-1041",
+    "company": "Client A",
+    "created": "2025-09-30",
+    "subject": "Air unit drops link",
+    "stage": "Closed",
+    "resolution": "No fault found on the air unit, closed without action."
+   },
+   "recorded_fixes": [
+    "no_action_or_user_error"
+   ],
+   "alignment": "closed_no_action_despite_finding"
+  },
+  {
+   "bundle": "b2",
+   "label": "GCS Flight 7",
+   "peer": "00:30:1a:50:77:63",
+   "model": "RM-915v4-2KM-XO",
+   "firmware": "firmware-2025-06.5",
+   "band_mhz": 918,
+   "causes": [
+    {
+     "cause": "antenna_or_feed_fault",
+     "confidence": 0.95,
+     "evidence": "per-chain imbalance 10 dB; MCS never exceeded 6 on a 2x2 radio"
+    },
+    {
+     "cause": "rf_congestion_or_interference",
+     "confidence": 0.67,
+     "evidence": "channel busy 42% of the time, noise floor -87.5 dBm, with heavy retransmission despite adequate signal"
+    }
+   ],
+   "primary_cause": "antenna_or_feed_fault",
+   "primary_confidence": 0.95,
+   "ticket": {
+    "id": "T-1041",
+    "company": "Client A",
+    "created": "2025-09-30",
+    "subject": "GCS loses video past 2 km",
+    "stage": "Closed",
+    "resolution": "Replaced the GCS antenna and pigtail; chains balanced afterwards."
+   },
+   "recorded_fixes": [
+    "replaced_antenna_or_cable"
+   ],
+   "alignment": "fix_matches_telemetry"
+  },
+  {
+   "bundle": "b3",
+   "label": "GCS Kratos DD 6.9.26",
+   "peer": "00:30:1a:3d:21:07",
+   "model": "RM-1675v4-2L-X",
+   "firmware": "firmware-2026-03.1",
+   "band_mhz": 1636,
+   "causes": [
+    {
+     "cause": "antenna_or_feed_fault",
+     "confidence": 0.6,
+     "evidence": "per-chain imbalance 5 dB"
+    },
+    {
+     "cause": "rf_congestion_or_interference",
+     "confidence": 0.85,
+     "evidence": "channel busy 65% of the time, with heavy retransmission despite adequate signal"
+    },
+    {
+     "cause": "bench_test_artefact",
+     "confidence": 0.5,
+     "evidence": "median receive level -24 dBm implies a very short path; front end may be near compression, which mimics interference"
+    }
+   ],
+   "primary_cause": "rf_congestion_or_interference",
+   "primary_confidence": 0.85,
+   "ticket": {},
+   "recorded_fixes": [],
+   "alignment": "no_ticket_linked"
+  },
+  {
+   "bundle": "b3",
+   "label": "GCS Kratos DD 6.9.26",
+   "peer": "00:30:1a:3d:23:13",
+   "model": "RM-1675v4-2L-X",
+   "firmware": "firmware-2026-03.1",
+   "band_mhz": 1636,
+   "causes": [
+    {
+     "cause": "antenna_or_feed_fault",
+     "confidence": 0.65,
+     "evidence": "per-chain imbalance 6 dB"
+    },
+    {
+     "cause": "rf_congestion_or_interference",
+     "confidence": 0.85,
+     "evidence": "channel busy 65% of the time, with heavy retransmission despite adequate signal"
+    },
+    {
+     "cause": "bench_test_artefact",
+     "confidence": 0.5,
+     "evidence": "median receive level -27 dBm implies a very short path; front end may be near compression, which mimics interference"
+    }
+   ],
+   "primary_cause": "rf_congestion_or_interference",
+   "primary_confidence": 0.85,
+   "ticket": {},
+   "recorded_fixes": [],
+   "alignment": "no_ticket_linked"
+  },
+  {
+   "bundle": "b3",
+   "label": "GCS Kratos DD 6.9.26",
+   "peer": "00:30:1a:3d:20:fb",
+   "model": "RM-1675v4-2L-X",
+   "firmware": "firmware-2026-03.1",
+   "band_mhz": 1636,
+   "causes": [
+    {
+     "cause": "antenna_or_feed_fault",
+     "confidence": 0.7,
+     "evidence": "per-chain imbalance 7 dB"
+    },
+    {
+     "cause": "rf_congestion_or_interference",
+     "confidence": 0.85,
+     "evidence": "channel busy 65% of the time, with heavy retransmission despite adequate signal"
+    },
+    {
+     "cause": "bench_test_artefact",
+     "confidence": 0.5,
+     "evidence": "median receive level -36 dBm implies a very short path; front end may be near compression, which mimics interference"
+    }
+   ],
+   "primary_cause": "rf_congestion_or_interference",
+   "primary_confidence": 0.85,
+   "ticket": {},
+   "recorded_fixes": [],
+   "alignment": "no_ticket_linked"
+  },
+  {
+   "bundle": "b3",
+   "label": "GCS Kratos DD 6.9.26",
+   "peer": "00:30:1a:3d:21:13",
+   "model": "RM-1675v4-2L-X",
+   "firmware": "firmware-2026-03.1",
+   "band_mhz": 1636,
+   "causes": [
+    {
+     "cause": "antenna_or_feed_fault",
+     "confidence": 0.6,
+     "evidence": "per-chain imbalance 5 dB"
+    },
+    {
+     "cause": "rf_congestion_or_interference",
+     "confidence": 0.85,
+     "evidence": "channel busy 65% of the time, with heavy retransmission despite adequate signal"
+    },
+    {
+     "cause": "bench_test_artefact",
+     "confidence": 0.5,
+     "evidence": "median receive level -26 dBm implies a very short path; front end may be near compression, which mimics interference"
+    }
+   ],
+   "primary_cause": "rf_congestion_or_interference",
+   "primary_confidence": 0.85,
+   "ticket": {},
+   "recorded_fixes": [],
+   "alignment": "no_ticket_linked"
+  },
+  {
+   "bundle": "b3",
+   "label": "GCS Kratos DD 6.9.26",
+   "peer": "00:30:1a:3d:22:ff",
+   "model": "RM-1675v4-2L-X",
+   "firmware": "firmware-2026-03.1",
+   "band_mhz": 1636,
+   "causes": [
+    {
+     "cause": "rf_congestion_or_interference",
+     "confidence": 0.85,
+     "evidence": "channel busy 65% of the time, with heavy retransmission despite adequate signal"
+    },
+    {
+     "cause": "bench_test_artefact",
+     "confidence": 0.5,
+     "evidence": "median receive level -28 dBm implies a very short path; front end may be near compression, which mimics interference"
+    },
+    {
+     "cause": "rate_below_signal_unexplained",
+     "confidence": 0.5,
+     "evidence": "ran 15 MCS steps below what the level supports with no chain imbalance"
+    }
+   ],
+   "primary_cause": "rf_congestion_or_interference",
+   "primary_confidence": 0.85,
+   "ticket": {},
+   "recorded_fixes": [],
+   "alignment": "no_ticket_linked"
+  },
+  {
+   "bundle": "b4",
+   "label": "Relay Kratos DD 6.9.26",
+   "peer": "00:30:1a:3d:23:1b",
+   "model": "RM-1675v4-2L-X",
+   "firmware": "firmware-2026-03.1",
+   "band_mhz": 1636,
+   "causes": [
+    {
+     "cause": "antenna_or_feed_fault",
+     "confidence": 0.9,
+     "evidence": "per-chain imbalance 7 dB; MCS never exceeded 6 on a 2x2 radio"
+    },
+    {
+     "cause": "rf_congestion_or_interference",
+     "confidence": 0.66,
+     "evidence": "channel busy 41% of the time, with heavy retransmission despite adequate signal"
+    },
+    {
+     "cause": "configuration_or_channel_churn",
+     "confidence": 0.55,
+     "evidence": "operated across 1636/1675/1715 MHz and 20/26 MHz channel widths within one capture"
+    },
+    {
+     "cause": "link_instability",
+     "confidence": 0.7,
+     "evidence": "peer associated only 69.6% of samples"
+    },
+    {
+     "cause": "bench_test_artefact",
+     "confidence": 0.5,
+     "evidence": "median receive level -35 dBm implies a very short path; front end may be near compression, which mimics interference"
+    }
+   ],
+   "primary_cause": "antenna_or_feed_fault",
+   "primary_confidence": 0.9,
+   "ticket": {
+    "id": "T-0788",
+    "company": "Client B",
+    "created": "2022-05-05",
+    "subject": "Relay keeps dropping",
+    "stage": "Closed",
+    "resolution": "Firmware upgraded on the relay."
+   },
+   "recorded_fixes": [
+    "firmware_update",
+    "added_relay_or_node"
+   ],
+   "alignment": "fix_unrelated_to_telemetry"
+  },
+  {
+   "bundle": "b4",
+   "label": "Relay Kratos DD 6.9.26",
+   "peer": "00:30:1a:3d:23:13",
+   "model": "RM-1675v4-2L-X",
+   "firmware": "firmware-2026-03.1",
+   "band_mhz": 1636,
+   "causes": [
+    {
+     "cause": "antenna_or_feed_fault",
+     "confidence": 0.85,
+     "evidence": "per-chain imbalance 6 dB; MCS never exceeded 6 on a 2x2 radio"
+    },
+    {
+     "cause": "rf_congestion_or_interference",
+     "confidence": 0.66,
+     "evidence": "channel busy 41% of the time, with heavy retransmission despite adequate signal"
+    },
+    {
+     "cause": "configuration_or_channel_churn",
+     "confidence": 0.55,
+     "evidence": "operated across 1636/1675/1715 MHz and 20/26 MHz channel widths within one capture"
+    },
+    {
+     "cause": "link_instability",
+     "confidence": 0.7,
+     "evidence": "peer associated only 69.6% of samples"
+    }
+   ],
+   "primary_cause": "antenna_or_feed_fault",
+   "primary_confidence": 0.85,
+   "ticket": {
+    "id": "T-0788",
+    "company": "Client B",
+    "created": "2022-05-05",
+    "subject": "Relay keeps dropping",
+    "stage": "Closed",
+    "resolution": "Firmware upgraded on the relay."
+   },
+   "recorded_fixes": [
+    "firmware_update",
+    "added_relay_or_node"
+   ],
+   "alignment": "fix_unrelated_to_telemetry"
+  },
+  {
+   "bundle": "b4",
+   "label": "Relay Kratos DD 6.9.26",
+   "peer": "00:30:1a:3d:21:07",
+   "model": "RM-1675v4-2L-X",
+   "firmware": "firmware-2026-03.1",
+   "band_mhz": 1636,
+   "causes": [
+    {
+     "cause": "rf_congestion_or_interference",
+     "confidence": 0.46,
+     "evidence": "channel busy 41% of the time"
+    },
+    {
+     "cause": "configuration_or_channel_churn",
+     "confidence": 0.55,
+     "evidence": "operated across 1636/1675/1715 MHz and 20/26 MHz channel widths within one capture"
+    },
+    {
+     "cause": "link_instability",
+     "confidence": 0.7,
+     "evidence": "peer associated only 69.6% of samples"
+    },
+    {
+     "cause": "rate_below_signal_unexplained",
+     "confidence": 0.5,
+     "evidence": "ran 9 MCS steps below what the level supports with no chain imbalance"
+    }
+   ],
+   "primary_cause": "link_instability",
+   "primary_confidence": 0.7,
+   "ticket": {
+    "id": "T-0788",
+    "company": "Client B",
+    "created": "2022-05-05",
+    "subject": "Relay keeps dropping",
+    "stage": "Closed",
+    "resolution": "Firmware upgraded on the relay."
+   },
+   "recorded_fixes": [
+    "firmware_update",
+    "added_relay_or_node"
+   ],
+   "alignment": "fix_matches_telemetry"
+  },
+  {
+   "bundle": "b4",
+   "label": "Relay Kratos DD 6.9.26",
+   "peer": "00:30:1a:3c:2d:81",
+   "model": "RM-1675v4-2L-X",
+   "firmware": "firmware-2026-03.1",
+   "band_mhz": 1636,
+   "causes": [
+    {
+     "cause": "antenna_or_feed_fault",
+     "confidence": 0.85,
+     "evidence": "per-chain imbalance 6 dB; MCS never exceeded 4 on a 2x2 radio"
+    },
+    {
+     "cause": "rf_congestion_or_interference",
+     "confidence": 0.46,
+     "evidence": "channel busy 41% of the time"
+    },
+    {
+     "cause": "configuration_or_channel_churn",
+     "confidence": 0.55,
+     "evidence": "operated across 1636/1675/1715 MHz and 20/26 MHz channel widths within one capture"
+    },
+    {
+     "cause": "link_instability",
+     "confidence": 0.7,
+     "evidence": "peer associated only 69.6% of samples"
+    },
+    {
+     "cause": "bench_test_artefact",
+     "confidence": 0.5,
+     "evidence": "median receive level -26 dBm implies a very short path; front end may be near compression, which mimics interference"
+    }
+   ],
+   "primary_cause": "antenna_or_feed_fault",
+   "primary_confidence": 0.85,
+   "ticket": {
+    "id": "T-0788",
+    "company": "Client B",
+    "created": "2022-05-05",
+    "subject": "Relay keeps dropping",
+    "stage": "Closed",
+    "resolution": "Firmware upgraded on the relay."
+   },
+   "recorded_fixes": [
+    "firmware_update",
+    "added_relay_or_node"
+   ],
+   "alignment": "fix_unrelated_to_telemetry"
+  },
+  {
+   "bundle": "b5",
+   "label": "longtermmon smartradio-301a3af4e9",
+   "peer": "00:30:1a:50:81:4f",
+   "model": "RM-1675-2KM-XW",
+   "firmware": "firmware-2024-10.1",
+   "band_mhz": 1675,
+   "causes": [
+    {
+     "cause": "antenna_or_feed_fault",
+     "confidence": 0.6,
+     "evidence": "per-chain imbalance 5 dB"
+    },
+    {
+     "cause": "bench_test_artefact",
+     "confidence": 0.5,
+     "evidence": "median receive level -29 dBm implies a very short path; front end may be near compression, which mimics interference"
+    }
+   ],
+   "primary_cause": "antenna_or_feed_fault",
+   "primary_confidence": 0.6,
+   "ticket": {},
+   "recorded_fixes": [],
+   "alignment": "no_ticket_linked"
+  },
+  {
+   "bundle": "b6",
+   "label": "longtermmon smartradio-301a50814f",
+   "peer": "00:30:1a:3a:f4:e9",
+   "model": "RM-1675-2KM-XO",
+   "firmware": "firmware-2024-10.1",
+   "band_mhz": 1675,
+   "causes": [
+    {
+     "cause": "bench_test_artefact",
+     "confidence": 0.5,
+     "evidence": "median receive level -31 dBm implies a very short path; front end may be near compression, which mimics interference"
+    }
+   ],
+   "primary_cause": "bench_test_artefact",
+   "primary_confidence": 0.5,
+   "ticket": {},
+   "recorded_fixes": [],
+   "alignment": "no_ticket_linked"
+  }
+ ]
+}
