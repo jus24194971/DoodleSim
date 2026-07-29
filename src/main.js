@@ -5,7 +5,8 @@ import { RADIOS, BANDS, CHANNEL_WIDTHS, PLATFORMS, CABLES, cableLossDb } from '.
 import { terrainProfile, haversineM, bearingDeg, destination } from './terrain.js';
 import { analyzePath, evaluateLink, fsplDb, throughputMbps, patternLossDb, elevationAngleDeg, angDiff } from './engine.js';
 import { computeCoverage, colorForMcs } from './coverage.js';
-import { SCENARIOS, recommend } from './advisor.js';
+import { SCENARIOS, recommend, adviseExtension, REMOTE_PLATFORMS } from './advisor.js';
+import { buildReportHtml } from './report.js';
 
 // ---------- State ----------
 let nodes = []; // {id, label, lngLat, marker, radioId, bandId, freqMhz, bwMhz, powerDbm, antennaGain, heightM, cableLoss, bdaGain, platform}
@@ -35,7 +36,7 @@ const OSM_STYLE = {
   ],
 };
 
-const map = new maplibregl.Map({ container: 'map', style: OSM_STYLE, center: [-98.5, 39.8], zoom: 4 });
+const map = new maplibregl.Map({ container: 'map', style: OSM_STYLE, center: [-98.5, 39.8], zoom: 4, preserveDrawingBuffer: true });
 map.addControl(new maplibregl.NavigationControl(), 'top-left');
 map.addControl(new maplibregl.ScaleControl({ unit: 'metric' }));
 
@@ -202,6 +203,32 @@ document.getElementById('btn-save').addEventListener('click', () => {
   URL.revokeObjectURL(a.href);
 });
 document.getElementById('btn-load').addEventListener('click', () => document.getElementById('file-load').click());
+
+document.getElementById('btn-report').addEventListener('click', async () => {
+  if (!nodes.length) { alert('Place nodes and links first — the report summarizes the current design.'); return; }
+  const missionNote = prompt('One-line objective for this design (shown at the top of the report):',
+    'Reliable Mesh Rider connectivity for the planned deployment area') || '';
+  // annotate antenna display names for the report
+  for (const n of nodes) {
+    const a = n.antennaId ? antennaCatalog.find((x) => x.id === n.antennaId) : null;
+    n._antName = a ? `${a.manufacturer} ${a.model} (${a.gain_dbi} dBi ${a.pattern})` : null;
+  }
+  const off = document.createElement('canvas');
+  const renderProfilePng = (link) => {
+    if (!link.profile) return null;
+    drawProfile(link, off, { w: 860, h: 220 });
+    return off.toDataURL('image/png');
+  };
+  let mapImagePng = null;
+  try { mapImagePng = map.getCanvas().toDataURL('image/png'); } catch { /* map WebGL context may block capture */ }
+  const html = buildReportHtml({ nodes, links, renderProfilePng, mapImagePng, missionNote });
+  const blob = new Blob([html], { type: 'text/html' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `doodlesim-design-${new Date().toISOString().slice(0, 10)}.html`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+});
 document.getElementById('file-load').addEventListener('change', async (e) => {
   const file = e.target.files[0];
   if (!file) return;
@@ -213,6 +240,30 @@ document.getElementById('file-load').addEventListener('change', async (e) => {
 // ---------- Plan Advisor ----------
 const advModal = document.getElementById('advisor-modal');
 document.getElementById('adv-scenario').innerHTML = SCENARIOS.map((s) => `<option value="${s.id}">${s.label}</option>`).join('');
+document.getElementById('adv-remote-platform').innerHTML = REMOTE_PLATFORMS.map((p) => `<option value="${p.id}">${p.label}</option>`).join('');
+let advTarget = null;
+document.querySelectorAll('input[name=adv-mode]').forEach((r) => r.addEventListener('change', () => {
+  const extend = document.querySelector('input[name=adv-mode]:checked').value === 'extend';
+  document.querySelectorAll('.adv-new').forEach((e) => e.classList.toggle('hidden', extend));
+  document.querySelectorAll('.adv-extend').forEach((e) => e.classList.toggle('hidden', !extend));
+  if (extend) {
+    document.getElementById('adv-anchor').innerHTML = nodes.length
+      ? nodes.map((n) => `<option value="${n.id}">${n.label} (${RADIOS.find((r2) => r2.id === n.radioId)?.name}, ${n.freqMhz} MHz)</option>`).join('')
+      : '<option value="">— place a node first —</option>';
+  }
+}));
+document.getElementById('adv-pick-target').addEventListener('click', () => {
+  advModal.classList.add('hidden');
+  hint.textContent = 'Click the map to set the advisor target location';
+  map.getCanvas().style.cursor = 'crosshair';
+  map.once('click', (e) => {
+    advTarget = { lng: e.lngLat.lng, lat: e.lngLat.lat };
+    document.getElementById('adv-target-status').textContent = `${advTarget.lat.toFixed(4)}, ${advTarget.lng.toFixed(4)}`;
+    hint.textContent = '';
+    map.getCanvas().style.cursor = '';
+    advModal.classList.remove('hidden');
+  });
+});
 document.getElementById('btn-advisor').addEventListener('click', () => advModal.classList.remove('hidden'));
 document.getElementById('advisor-close').addEventListener('click', () => advModal.classList.add('hidden'));
 advModal.addEventListener('click', (e) => { if (e.target === advModal) advModal.classList.add('hidden'); });
@@ -221,7 +272,107 @@ document.getElementById('adv-preset').addEventListener('change', (e) => {
   e.target.value = '';
 });
 
+const esc2 = (s) => String(s ?? '').replace(/</g, '&lt;');
+
+async function runExtendAdvisor() {
+  const box = document.getElementById('advisor-results');
+  const anchorNode = nodes.find((n) => n.id === parseInt(document.getElementById('adv-anchor').value));
+  if (!anchorNode) { box.innerHTML = '<div class="adv-empty">Place at least one node on the map first — the advisor extends from your existing infrastructure.</div>'; return; }
+  if (!advTarget) { box.innerHTML = '<div class="adv-empty">Set a target location with 📍 Pick on map.</div>'; return; }
+  box.innerHTML = '<div class="adv-empty">Analyzing terrain path from your infrastructure…</div>';
+  const needMbps = parseFloat(document.getElementById('adv-mbps').value) || 5;
+  const out = await adviseExtension({
+    anchor: {
+      lngLat: anchorNode.marker.getLngLat(), label: anchorNode.label,
+      radioId: anchorNode.radioId, freqMhz: anchorNode.freqMhz, bwMhz: anchorNode.bwMhz,
+      powerDbm: anchorNode.powerDbm, antennaGain: anchorNode.antennaGain, cableLoss: anchorNode.cableLoss,
+      bdaGain: anchorNode.bdaGain, azimuthDeg: anchorNode.azimuthDeg, tiltDeg: anchorNode.tiltDeg,
+      heightM: anchorNode.heightM, pattern: getPattern(anchorNode),
+    },
+    targetLngLat: advTarget,
+    remotePlatformId: document.getElementById('adv-remote-platform').value,
+    needMbps,
+    allowBda: document.getElementById('adv-bda').checked,
+    catalog: antennaCatalog,
+  });
+  if (out.error) { box.innerHTML = `<div class="adv-empty">${out.error}</div>`; return; }
+  const distKm = (out.distM / 1000).toFixed(1);
+  let html = `<div class="adv-detail" style="margin-bottom:8px"><b>${anchorNode.label}</b> → target: ${distKm} km, bearing ${Math.round(out.brToTarget)}°${out.misaimed ? ` · ⚠ currently aimed ${Math.round(out.patLossNow)} dB off this direction` : ''}</div>`;
+  if (out.options.length) {
+    html += out.options.map((o, i) => `
+      <div class="adv-card ${i === 0 ? 'best' : ''}">
+        <h4>${i === 0 ? '🏆 ' : ''}${o.nChanges === 0 ? 'Works with your existing setup' : `${o.nChanges} change${o.nChanges > 1 ? 's' : ''} needed`}
+          <span class="adv-tag">+${o.marginDb.toFixed(0)} dB margin</span>
+          ${o.fresnel ? '<span class="adv-tag warn">tight Fresnel</span>' : ''}
+          <button class="tool-btn adv-apply" data-apply-ext="${i}">Apply to map</button></h4>
+        <div class="adv-detail">${o.changes.map((c) => '• ' + c).join('<br/>')}<br/>
+        <span class="adv-install">Install spec — ${esc2(anchorNode.label)}: ${getPattern(anchorNode).directional ? `boresight ${Math.round(out.brToTarget)}°, ` : ''}${o.height} m mast, ${out.freq >= 4400 ? 'MC600' : 'MC400'} ${o.height + 2} m feed${o.bda > anchorNode.bdaGain ? ', BDA inline at antenna' : ''} · Remote: ${out.remote.id === 'uav' ? 'airframe mount' : out.remote.height + ' m mount'}, short 2 m jumper, ${o.ant.pattern === 'directional' ? `aim back at ${Math.round((out.brToTarget + 180) % 360)}°` : 'omni — no aiming'}</span><br/>
+        → MCS ${o.mcs}, ~${o.mbps.toFixed(1)} Mbps usable at target</div>
+      </div>`).join('');
+  } else if (out.relay) {
+    html += `<div class="adv-card best">
+      <h4>🛰 Single hop won't close — add a relay <span class="adv-tag">+${out.relay.minMargin.toFixed(0)} dB min margin</span>
+        <button class="tool-btn adv-apply" data-apply-relay>Apply relay + remote</button></h4>
+      <div class="adv-detail">• Relay site: ${out.relay.distFromAnchorKm.toFixed(1)} km from ${anchorNode.label} (${out.relay.lngLat.lat.toFixed(4)}, ${out.relay.lngLat.lng.toFixed(4)}, elev ${out.relay.elevM.toFixed(0)} m) — ${out.relay.relayH} m mast, 10 dBi omni, same-band Mesh Rider (mesh hop)<br/>
+      ${out.relay.reaim ? `• Re-aim ${anchorNode.label} toward the relay<br/>` : ''}
+      • ${out.remote.label} kit: ${out.remote.formFactor} + ${out.relay.ant.manufacturer} ${out.relay.ant.model} (${out.relay.ant.gain_dbi} dBi)</div>
+    </div>`;
+  } else {
+    html += `<div class="adv-empty">No single change closes this path — terrain blocks it and no relay point along the direct line works either.<br/>Consider a different anchor site, a UAV relay, or routing via a third location.</div>`;
+  }
+  box.innerHTML = html;
+  box.querySelectorAll('[data-apply-ext]').forEach((btn) => btn.addEventListener('click', () => {
+    applyExtension(out, out.options[parseInt(btn.dataset.applyExt)], anchorNode);
+    advModal.classList.add('hidden');
+  }));
+  box.querySelector('[data-apply-relay]')?.addEventListener('click', () => {
+    applyRelay(out, anchorNode);
+    advModal.classList.add('hidden');
+  });
+}
+
+function makeRemoteNode(out, ant, pos, anchorNode) {
+  addNode(pos);
+  const n = nodes[nodes.length - 1];
+  const anchorRadio = RADIOS.find((r) => r.id === anchorNode.radioId) || RADIOS[0];
+  Object.assign(n, {
+    label: out.remote.label.split(' ')[0] + ' (new)', platform: out.remote.id, heightM: out.remote.height,
+    radioId: anchorRadio.id, freqMhz: out.freq, bwMhz: out.bw,
+    powerDbm: anchorRadio.maxConfig,
+    antennaId: antennaCatalog.some((a) => a.id === ant.id) ? ant.id : null,
+    antennaGain: ant.gain_dbi, cableType: 'none', cableLenM: 0, cableLoss: 1,
+  });
+  return n;
+}
+
+function applyExtension(out, opt, anchorNode) {
+  if (opt.aim) anchorNode.azimuthDeg = Math.round(out.brToTarget);
+  if (opt.height !== anchorNode.heightM) anchorNode.heightM = opt.height;
+  if (opt.bda !== anchorNode.bdaGain) anchorNode.bdaGain = opt.bda;
+  const n = makeRemoteNode(out, opt.ant, advTarget, anchorNode);
+  links.push({ id: `${anchorNode.id}-${n.id}`, a: anchorNode, b: n, result: null, pathAnalysis: null, profile: null });
+  refreshBeams(); renderSidebar(); recomputeAllLinks(); persistState();
+}
+
+function applyRelay(out, anchorNode) {
+  addNode(out.relay.lngLat);
+  const relay = nodes[nodes.length - 1];
+  const anchorRadio = RADIOS.find((r) => r.id === anchorNode.radioId);
+  if (out.relay.reaim) anchorNode.azimuthDeg = Math.round(bearingDeg(anchorNode.marker.getLngLat(), out.relay.lngLat));
+  Object.assign(relay, {
+    label: 'Relay (new)', platform: 'mast', heightM: out.relay.relayH, radioId: anchorRadio.id,
+    freqMhz: out.freq, bwMhz: out.bw, powerDbm: anchorRadio.maxConfig, antennaGain: 10, cableType: 'c400', cableLenM: out.relay.relayH + 2,
+  });
+  const auto = cableLossDb(relay.cableType, relay.cableLenM, relay.freqMhz);
+  if (auto !== null) relay.cableLoss = auto;
+  const n = makeRemoteNode(out, out.relay.ant, advTarget, anchorNode);
+  links.push({ id: `${anchorNode.id}-${relay.id}`, a: anchorNode, b: relay, result: null, pathAnalysis: null, profile: null });
+  links.push({ id: `${relay.id}-${n.id}`, a: relay, b: n, result: null, pathAnalysis: null, profile: null });
+  refreshBeams(); renderSidebar(); recomputeAllLinks(); persistState();
+}
+
 document.getElementById('adv-run').addEventListener('click', () => {
+  if (document.querySelector('input[name=adv-mode]:checked').value === 'extend') { runExtendAdvisor(); return; }
   const inputs = {
     scenarioId: document.getElementById('adv-scenario').value,
     rangeKm: parseFloat(document.getElementById('adv-range').value) || 5,
@@ -658,13 +809,15 @@ function showProfile(link) {
   requestAnimationFrame(() => drawProfile(link));
 }
 
-function drawProfile(link) {
-  const dpr = window.devicePixelRatio || 1;
-  const w = canvas.clientWidth, h = canvas.clientHeight;
-  canvas.width = w * dpr; canvas.height = h * dpr;
-  const ctx = canvas.getContext('2d');
+function drawProfile(link, targetCanvas = canvas, fixedSize = null) {
+  const dpr = fixedSize ? 1 : (window.devicePixelRatio || 1);
+  const w = fixedSize ? fixedSize.w : targetCanvas.clientWidth;
+  const h = fixedSize ? fixedSize.h : targetCanvas.clientHeight;
+  targetCanvas.width = w * dpr; targetCanvas.height = h * dpr;
+  const ctx = targetCanvas.getContext('2d');
   ctx.scale(dpr, dpr);
   ctx.clearRect(0, 0, w, h);
+  if (fixedSize) { ctx.fillStyle = '#101418'; ctx.fillRect(0, 0, w, h); }
 
   const prof = link.profile;
   const D = link.distM;
