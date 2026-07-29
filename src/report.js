@@ -33,7 +33,7 @@ export function buildReportHtml({ nodes, links, renderProfilePng, mapImagePng, m
       : `${(+n.cableLoss).toFixed(1)} dB`;
     return `<tr>
       <td><b>${esc(n.label)}</b><br/><span class="dim">${esc(PLATFORMS.find((p) => p.id === n.platform)?.label || n.platform)}</span></td>
-      <td>${lat.toFixed(5)}, ${lng.toFixed(5)}<br/><span class="dim">${n.heightM} m AGL</span></td>
+      <td>${lat.toFixed(5)}, ${lng.toFixed(5)}<br/><span class="dim">${n.groundElevM != null ? `ground ${n.groundElevM.toFixed(0)} m ASL · antenna +${n.heightM} m AGL (${(n.groundElevM + n.heightM).toFixed(0)} m ASL)` : `${n.heightM} m AGL`}</span></td>
       <td>${esc(radio?.name)}<br/><span class="dim">${n.freqMhz} MHz · ${n.bwMhz} MHz ch · ${n.powerDbm} dBm</span></td>
       <td>${esc(ant)}${n.azimuthDeg && n.antennaId !== null ? `<br/><span class="dim">aimed ${n.azimuthDeg}°${n.tiltDeg ? `, tilt ${n.tiltDeg}°` : ''}</span>` : ''}</td>
       <td>${cable}${n.bdaGain ? `<br/><span class="dim">BDA +${n.bdaGain} dB</span>` : ''}</td>

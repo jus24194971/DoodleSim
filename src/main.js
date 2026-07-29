@@ -2,7 +2,7 @@ import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import './style.css';
 import { RADIOS, BANDS, CHANNEL_WIDTHS, PLATFORMS, CABLES, cableLossDb } from './radios.js';
-import { terrainProfile, haversineM, bearingDeg, destination } from './terrain.js';
+import { terrainProfile, haversineM, bearingDeg, destination, elevationAt } from './terrain.js';
 import { analyzePath, evaluateLink, fsplDb, throughputMbps, patternLossDb, elevationAngleDeg, angDiff } from './engine.js';
 import { computeCoverage, colorForMcs } from './coverage.js';
 import { SCENARIOS, recommend, adviseExtension, REMOTE_PLATFORMS } from './advisor.js';
@@ -476,7 +476,8 @@ function addNode(lngLat) {
     cableType: 'none', cableLenM: 0,
   };
   marker.on('drag', () => refreshBeams());
-  marker.on('dragend', () => { refreshBeams(); recomputeAllLinks(); persistState(); });
+  marker.on('dragend', () => { refreshBeams(); recomputeAllLinks(); persistState(); updateGroundElev(node); });
+  updateGroundElev(node);
   el.addEventListener('click', (ev) => {
     ev.stopPropagation();
     if (mode === 'link') handleLinkClick(node, el);
@@ -484,6 +485,15 @@ function addNode(lngLat) {
   nodes.push(node);
   renderSidebar();
   persistState();
+}
+
+async function updateGroundElev(node) {
+  const { lng, lat } = node.marker.getLngLat();
+  try {
+    node.groundElevM = await elevationAt(lng, lat);
+    node.marker.getElement().title = `${node.label} — ground ${node.groundElevM.toFixed(0)} m ASL, antenna +${node.heightM} m AGL`;
+    renderSidebar();
+  } catch { node.groundElevM = null; }
 }
 
 function handleLinkClick(node, el) {
@@ -731,6 +741,7 @@ function renderSidebar() {
       ${getPattern(node).directional ? `<div class="row"><label>Azimuth (°)</label><input type="number" data-f="azimuthDeg" data-node="${node.id}" value="${node.azimuthDeg}" min="0" max="359" title="Boresight bearing — or drag the beam handle on the map"/></div>` : ''}
       ${getPattern(node).hpbwEl < 360 ? `<div class="row"><label>Tilt (°, + up)</label><input type="number" data-f="tiltDeg" value="${node.tiltDeg}" min="-90" max="90" step="1" title="Elevation boresight tilt: positive aims up, negative down"/></div>` : ''}
       <div class="row"><label>Height AGL (m)</label><input type="number" data-f="heightM" value="${node.heightM}" min="0.1" step="0.5"/></div>
+      <div class="row"><label>Elevation</label><span class="pat-info">${node.groundElevM != null ? `ground ${node.groundElevM.toFixed(0)} m ASL + ${node.heightM} m mast = <b>${(node.groundElevM + node.heightM).toFixed(0)} m ASL</b> antenna` : 'fetching terrain…'}</span></div>
       <div class="row"><label>Cable type</label><select data-f="cableType">${Object.entries(CABLES).map(([k, c]) => `<option value="${k}" ${k === node.cableType ? 'selected' : ''}>${c.label}</option>`).join('')}</select></div>
       ${node.cableType !== 'manual' && node.cableType !== 'none' ? `<div class="row"><label>Cable length (m)</label><input type="number" data-f="cableLenM" value="${node.cableLenM}" min="0" step="0.5"/></div>` : ''}
       <div class="row"><label>Cable loss (dB)</label><input type="number" data-f="cableLoss" value="${node.cableLoss.toFixed ? node.cableLoss.toFixed(1) : node.cableLoss}" min="0" step="0.5" ${node.cableType !== 'manual' ? 'disabled' : ''} title="${node.cableType !== 'manual' ? 'Auto-computed from cable type, length, and frequency (incl. 0.5 dB connectors)' : 'Manual cable + connector loss'}"/></div>
