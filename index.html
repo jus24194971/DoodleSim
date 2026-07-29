@@ -17,7 +17,7 @@
         <button id="btn-advisor" class="tool-btn" title="Describe your mission and get recommended configurations">🎯 Plan Advisor</button>
         <button id="btn-save" class="tool-btn" title="Download this layout as a .json file">💾 Save</button>
         <button id="btn-load" class="tool-btn" title="Load a layout .json file">📂 Load</button>
-        <button id="btn-mesh-coverage" class="tool-btn" title="Combined coverage of all nodes with overlap/redundancy zones">▩ Mesh coverage</button>
+        <button id="btn-mesh-coverage" class="tool-btn" title="Coverage simulation: terrain-following (UGV) or flight level (UAS), single node or whole mesh">▩ Coverage sim</button>
         <button id="btn-report" class="tool-btn" title="Export a customer-ready design summary">📄 Report</button>
         <input type="file" id="file-load" accept=".json" style="display:none" />
         <span id="mode-hint"></span>
@@ -34,6 +34,65 @@
         <div id="link-list"></div>
       </aside>
     </div>
+    <div id="cov-panel" class="hidden">
+      <div id="cov-head">
+        <b>▩ Coverage simulation</b>
+        <button id="cov-close" title="Close">✕</button>
+      </div>
+
+      <div class="cov-section">
+        <div class="cov-label">Remote platform mode</div>
+        <div class="cov-seg">
+          <button class="cov-seg-btn active" data-mode="agl" title="Remote hugs the ground at a fixed height — UGV, vehicle, handheld, vessel">🚙 Terrain-following</button>
+          <button class="cov-seg-btn" data-mode="asl" title="Remote holds a constant altitude — UAS / aircraft">🛩 Flight level</button>
+        </div>
+      </div>
+
+      <div class="cov-section" id="cov-agl-row">
+        <div class="cov-row"><label>Height above ground</label>
+          <input type="number" id="cov-agl" value="2" min="0.5" max="50" step="0.5"/><span class="cov-unit">m AGL</span></div>
+        <label class="cov-check"><input type="checkbox" id="cov-nearground"/> Near-ground penalty (empirical, conservative)</label>
+      </div>
+
+      <div class="cov-section hidden" id="cov-asl-row">
+        <div class="cov-row"><label>Flight level</label>
+          <input type="number" id="cov-asl" step="10"/><span class="cov-unit">m ASL</span></div>
+        <input type="range" id="cov-asl-slider" class="cov-slider"/>
+        <div id="cov-alt-readout" class="cov-readout"></div>
+        <button id="cov-find-fl" class="tool-btn" style="width:100%;margin-top:6px;font-size:11px" title="Sweep altitudes and jump to the lowest flight level that still covers the area">⤒ Find lowest workable flight level</button>
+      </div>
+
+      <div class="cov-section">
+        <div class="cov-row"><label>Remote antenna gain</label>
+          <input type="number" id="cov-gain" value="3" step="0.5"/><span class="cov-unit">dBi</span></div>
+      </div>
+
+      <div class="cov-section">
+        <div class="cov-label">Display</div>
+        <select id="cov-metric">
+          <option value="mcs">Data rate (MCS / Mbps)</option>
+          <option value="rssi">Signal level (dBm)</option>
+          <option value="excess">Terrain loss vs free space (dB)</option>
+          <option value="margin">Link margin (dB)</option>
+          <option value="minalt">Minimum altitude to connect</option>
+        </select>
+      </div>
+
+      <div class="cov-section">
+        <div class="cov-label">Scope</div>
+        <div class="cov-seg">
+          <button class="cov-scope-btn active" data-scope="mesh" title="All nodes merged, with overlap/redundancy tiers">▩ Whole mesh</button>
+          <button class="cov-scope-btn" data-scope="node" title="One node only">▦ Single node</button>
+        </div>
+        <select id="cov-node" class="hidden"></select>
+      </div>
+
+      <button id="cov-run" class="tool-btn cov-run">Simulate coverage</button>
+      <div id="cov-status" class="cov-status"></div>
+      <div id="cov-legend-body"></div>
+      <div class="cov-foot">Terrain from ~30 m elevation data; buildings and vegetation are not modelled.</div>
+    </div>
+
     <div id="profile-panel" class="hidden">
       <div id="profile-header">
         <span id="profile-title"></span>
@@ -109,7 +168,14 @@
         <section>
           <h2>▦ Coverage heatmaps</h2>
           <p>On any node card, set the <b>remote end's height and gain</b> (what does a 2 m handheld see? a 100 m drone?) and click <b>Coverage heatmap</b>. The map colors everywhere that node can serve, by achievable MCS/throughput — computed over real terrain in every direction, honoring the antenna's beam shape. Recompute after aiming or config changes; run it per-scenario by changing the remote height.</p>
-          <p><b>▩ Mesh coverage</b> (toolbar) combines every node's footprint into one overlap map: areas served by one radio show the normal rate colors, <b>two same-band radios</b> show deep blue (redundant — survives any single-node outage), and <b>three or more</b> show purple (extreme coverage — maximum mesh resilience). The legend reports km² per tier, and the figures flow into the exported report.</p>
+          <p><b>▩ Coverage sim</b> (toolbar) opens the simulation panel. It combines every node's footprint into one overlap map: areas served by one radio show the normal rate colors, <b>two same-band radios</b> show deep blue (redundant — survives any single-node outage), and <b>three or more</b> show purple (extreme coverage — maximum mesh resilience). The legend reports km² per tier, and the figures flow into the exported report.</p>
+          <p><b>Two remote platform modes</b> — this is the important choice:</p>
+          <ul>
+            <li><b>🚙 Terrain-following</b> — the remote hugs the ground at a fixed height (UGV, vehicle, handheld, vessel). The map answers "where can something driving/walking around here connect?" Turn on the <b>near-ground penalty</b> for ground platforms: it applies Doodle Labs' own conservative near-ground propagation curve on top of the terrain physics, taking the worse of the two.</li>
+            <li><b>🛩 Flight level</b> — the remote holds a constant altitude ASL, like an aircraft flying level. Drag the <b>altitude slider</b> and the coverage repaints live. Grey areas mean the flight level is <i>inside the terrain</i> there — an aircraft can't occupy that airspace, which is different from "no signal". <b>⤒ Find lowest workable flight level</b> sweeps altitudes and jumps to the lowest one that still covers the area.</li>
+          </ul>
+          <p><b>Display metrics</b> let you ask different questions of the same simulation: <i>Data rate</i> (throughput/redundancy tiers), <i>Signal level</i> (dBm), <i>Terrain loss vs free space</i> (the dB the terrain is costing you — the clearest way to see shadows), <i>Link margin</i>, and <i>Minimum altitude to connect</i>.</p>
+          <p><b>Minimum altitude to connect</b> colors every point by the lowest height <i>above the ground beneath it</i> at which a link closes. If part of the area also drops out again higher up, the legend warns you: with a narrow-vertical-beam antenna (a high-gain collinear omni, or a downtilted sector) those locations have an altitude <i>window</i>, not a floor — climbing is not always better.</p>
         </section>
 
         <section>
@@ -184,6 +250,30 @@
           </details>
 
           <details>
+            <summary>🚙 Tutorial 3b: Simulate RF loss across terrain for a UGV</summary>
+            <ol>
+              <li>Place your ground stations and configure their real antennas and mast heights.</li>
+              <li>Open <b>▩ Coverage sim</b> and choose mode <b>🚙 Terrain-following</b>.</li>
+              <li>Set <b>height above ground</b> to the vehicle's antenna height (1–2 m for a UGV) and tick <b>near-ground penalty</b>.</li>
+              <li>Set <b>Display</b> to <b>Terrain loss vs free space (dB)</b>. Now the map shows exactly what the terrain costs you: green is a clear path, deep red is a shadow.</li>
+              <li>Switch <b>Display</b> to <b>Data rate</b> to see the achievable throughput, and to <b>Link margin</b> to find the marginal fringe you should not promise.</li>
+              <li>Drag a station to a candidate hilltop — the shadows redraw, and you can see which placement fills the valley.</li>
+            </ol>
+          </details>
+
+          <details>
+            <summary>🛩 Tutorial 3c: Find the altitude a UAS needs over your network</summary>
+            <ol>
+              <li>Build the ground network (this works with one node or a whole mesh).</li>
+              <li>Open <b>▩ Coverage sim</b>, scope <b>▩ Whole mesh</b>, mode <b>🛩 Flight level</b>.</li>
+              <li>Drag the <b>altitude slider</b>. Watch the grey "inside terrain" zones shrink and the purple redundancy zones grow as you climb — that's the terrain releasing its grip.</li>
+              <li>Click <b>⤒ Find lowest workable flight level</b> to get the lowest altitude that still covers the area, with the terrain range for context.</li>
+              <li>Switch <b>Display</b> to <b>Minimum altitude to connect</b> for the climb-height map — and read the warning if part of the area has an altitude window rather than a floor.</li>
+              <li>Export <b>📄 Report</b>: the coverage section states the mode and altitude, and the per-link section gives each UAV node's minimum altitude for Fresnel clearance.</li>
+            </ol>
+          </details>
+
+          <details>
             <summary>🧭 Tutorial 4: Extend an existing network to a new site</summary>
             <ol>
               <li>Load (📂) or build your current infrastructure on the map.</li>
@@ -247,6 +337,22 @@
           <details>
             <summary>How do I model an amplifier (BDA)?</summary>
             <p>Enter its effective gain in the node's <b>BDA gain</b> field (e.g. Mesh Rider Boost ≈ +13 dB TX in C-band; Triad units vary by band). The advisor will also suggest amplification automatically when a path needs it. Watch antenna power ratings — some antennas (e.g. certain 5 W-rated sectors) can't take a 20 W BDA.</p>
+          </details>
+          <details>
+            <summary>Flight level vs height above ground — which should I use for a drone?</summary>
+            <p>Both, for different questions. A drone flying level over varying terrain holds a constant <b>altitude ASL</b> (what a barometric altimeter reads), so the <b>Flight level</b> mode is the honest model of level flight: over a valley the aircraft is high above ground, over a ridge it is close, and the link changes accordingly. <b>Height above ground</b> (terrain-following) answers the regulatory/practical question — small-UAS ceilings such as 400 ft are AGL-referenced, and the <b>Minimum altitude to connect</b> map is deliberately solved in AGL because "climb to X m above the ground" is an instruction a pilot can follow. Use flight level to plan a level mission, AGL to plan a climb.</p>
+          </details>
+          <details>
+            <summary>Why does part of my coverage map turn grey at low flight levels?</summary>
+            <p>Grey means the flight level you selected is <b>below the ground</b> at that point — the terrain is higher than your altitude, so no aircraft can be there. That is deliberately distinguished from "no signal" (left clear). Raise the altitude and the grey shrinks; the exported report also quotes the below-terrain area in km².</p>
+          </details>
+          <details>
+            <summary>Is flying higher always better for the link?</summary>
+            <p>No, and the tool will tell you when it isn't. Climbing clears terrain, but it also moves the aircraft up through the <i>vertical</i> pattern of the ground antenna. A high-gain collinear omni concentrates its energy near the horizon, so a drone that climbs too high flies out of the beam — the classic "cone of silence" overhead. In our testing, a 12° vertical beamwidth left about 38% of the area with an altitude <i>window</i> instead of a simple floor, and a 6° beamwidth about 82%. When the minimum-altitude map detects this, it warns you, and the report states the affected percentage. Plan the altitude band, not just a minimum.</p>
+          </details>
+          <details>
+            <summary>What is the "near-ground penalty" and when should I turn it on?</summary>
+            <p>At 1–2 m above ground the terrain physics alone is optimistic: 30 m elevation data cannot see the fences, ditches, hedgerows and vehicles that actually block a ground platform, and ground reflection makes the real path worse than a clean knife-edge model. The near-ground penalty applies Doodle Labs' own empirical near-ground curve and takes the <b>worse</b> of it and the terrain physics. Turn it on for UGVs, vehicles and handhelds; leave it off for masts, aircraft and vessels. It roughly halved the predicted ground coverage in our test area — that is the point.</p>
           </details>
           <details>
             <summary>How accurate is the terrain data? Are buildings included?</summary>

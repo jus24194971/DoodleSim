@@ -4,7 +4,12 @@ import './style.css';
 import { RADIOS, BANDS, CHANNEL_WIDTHS, PLATFORMS, CABLES, cableLossDb } from './radios.js';
 import { terrainProfile, haversineM, bearingDeg, destination, elevationAt } from './terrain.js';
 import { analyzePath, evaluateLink, fsplDb, throughputMbps, patternLossDb, elevationAngleDeg, angDiff } from './engine.js';
-import { computeCoverage, computeMeshCoverage, colorForMcs } from './coverage.js';
+import {
+  computeCoverage, computeMeshCoverage, computeMinAltitude, computeMeshMinAltitude,
+  findLowestFlightLevel,
+  colorForMcs, colorForRssi, colorForExcessLoss, colorForMargin, colorForAltitude,
+  METRICS, QUALITY,
+} from './coverage.js';
 import { SCENARIOS, recommend, adviseExtension, REMOTE_PLATFORMS } from './advisor.js';
 import { buildReportHtml } from './report.js';
 import { startTour } from './tour.js';
@@ -17,7 +22,12 @@ let mode = null; // 'add' | 'link'
 let linkFirstNode = null;
 let selectedLink = null;
 let antennaCatalog = [];
-let coverage = { nodeId: null, remoteHeightM: 2, remoteGainDbi: 3, computing: false };
+let coverage = {
+  nodeId: null, computing: false, lastRun: null,
+  remoteMode: 'agl', remoteHeightM: 2, aslAltM: NaN, remoteGainDbi: 3,
+  metric: 'mcs', nearGround: false, scope: 'mesh', targetNodeId: null,
+  terrainMinM: null, terrainMaxM: null, meshStats: null,
+};
 
 const FADE_MARGIN = 10;
 
@@ -187,7 +197,9 @@ function serializeState() {
     version: 1,
     savedAt: new Date().toISOString(),
     view: { center: map.getCenter().toArray(), zoom: map.getZoom() },
-    coverage: { remoteHeightM: coverage.remoteHeightM, remoteGainDbi: coverage.remoteGainDbi },
+    coverage: { remoteMode: coverage.remoteMode, remoteHeightM: coverage.remoteHeightM, aslAltM: coverage.aslAltM,
+                remoteGainDbi: coverage.remoteGainDbi, metric: coverage.metric, nearGround: coverage.nearGround,
+                scope: coverage.scope },
     nodes: nodes.map((n) => {
       const { lng, lat } = n.marker.getLngLat();
       return { id: n.id, label: n.label, lng, lat, radioId: n.radioId, bandId: n.bandId, freqMhz: n.freqMhz, bwMhz: n.bwMhz, powerDbm: n.powerDbm, antennaId: n.antennaId, antennaGain: n.antennaGain, heightM: n.heightM, cableLoss: n.cableLoss, bdaGain: n.bdaGain, platform: n.platform, azimuthDeg: n.azimuthDeg, tiltDeg: n.tiltDeg, customHpbwAz: n.customHpbwAz, customHpbwEl: n.customHpbwEl, customName: n.customName, customType: n.customType, dishDiaM: n.dishDiaM, cableType: n.cableType, cableLenM: n.cableLenM };
@@ -211,7 +223,12 @@ function restoreState(data) {
     const a = nodes.find((n) => n._savedId === ida), b = nodes.find((n) => n._savedId === idb);
     if (a && b) links.push({ id: `${a.id}-${b.id}`, a, b, result: null, pathAnalysis: null, profile: null });
   }
-  if (data.coverage) Object.assign(coverage, { remoteHeightM: data.coverage.remoteHeightM ?? 2, remoteGainDbi: data.coverage.remoteGainDbi ?? 3 });
+  if (data.coverage) Object.assign(coverage, {
+    remoteMode: data.coverage.remoteMode ?? 'agl', remoteHeightM: data.coverage.remoteHeightM ?? 2,
+    aslAltM: data.coverage.aslAltM ?? NaN, remoteGainDbi: data.coverage.remoteGainDbi ?? 3,
+    metric: data.coverage.metric ?? 'mcs', nearGround: data.coverage.nearGround ?? false,
+    scope: data.coverage.scope ?? 'mesh',
+  });
   if (data.view) map.jumpTo({ center: data.view.center, zoom: data.view.zoom });
   refreshBeams(); renderSidebar(); recomputeAllLinks();
 }
@@ -252,7 +269,8 @@ document.getElementById('btn-report').addEventListener('click', async () => {
   };
   let mapImagePng = null;
   try { mapImagePng = map.getCanvas().toDataURL('image/png'); } catch { /* map WebGL context may block capture */ }
-  const html = buildReportHtml({ nodes, links, renderProfilePng, mapImagePng, missionNote, meshStats: coverage.meshStats, meshRemote: { h: coverage.remoteHeightM, g: coverage.remoteGainDbi } });
+  const html = buildReportHtml({ nodes, links, renderProfilePng, mapImagePng, missionNote, meshStats: coverage.meshStats, meshRemote: { h: coverage.remoteHeightM, g: coverage.remoteGainDbi },
+    covRun: coverage.lastRun });
   const blob = new Blob([html], { type: 'text/html' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
@@ -557,7 +575,7 @@ function removeNode(node) {
   refreshLinks(); renderSidebar(); persistState();
 }
 
-// ---------- Coverage heatmap ----------
+// ---------- Coverage simulation: terrain-following (UGV) / flight level (UAS) ----------
 let mapReady = false;
 function styleReady() {
   return new Promise((res) => {
@@ -570,112 +588,314 @@ function styleReady() {
   });
 }
 
+function paintCoverage(canvas, bounds, opacity = 0.75) {
+  if (map.getLayer('coverage')) map.removeLayer('coverage');
+  if (map.getSource('coverage')) map.removeSource('coverage');
+  map.addSource('coverage', { type: 'canvas', canvas, coordinates: bounds, animate: false });
+  map.addLayer({ id: 'coverage', type: 'raster', source: 'coverage', paint: { 'raster-opacity': opacity } }, 'links');
+}
+
 function clearCoverage() {
   if (map.getLayer('coverage')) map.removeLayer('coverage');
   if (map.getSource('coverage')) map.removeSource('coverage');
   coverage.nodeId = null;
   coverage.meshStats = null;
+  coverage.lastRun = null;
   document.getElementById('coverage-legend')?.remove();
+  const body = document.getElementById('cov-legend-body');
+  if (body) body.innerHTML = '';
   renderSidebar();
 }
 
+const covPanel = document.getElementById('cov-panel');
+const $cov = (id) => document.getElementById(id);
+
+function covRefNode() {
+  if (coverage.scope === 'node') return nodes.find((n) => n.id === coverage.targetNodeId) || nodes[0];
+  return nodes.find((n) => n.id === coverage.targetNodeId) || nodes[0];
+}
+
+// Picking a platform implies what kind of simulation the user wants.
+function applyPlatformDefaults(node) {
+  if (!node) return;
+  const ground = node.groundElevM ?? 0;
+  if (node.platform === 'uav') {
+    coverage.remoteMode = 'asl';
+    coverage.aslAltM = Math.round((ground + 120) / 10) * 10;
+    coverage.nearGround = false;
+    coverage.remoteGainDbi = 3;
+  } else {
+    coverage.remoteMode = 'agl';
+    const p = PLATFORMS.find((x) => x.id === node.platform);
+    coverage.remoteHeightM = p ? Math.min(p.defaultHeight, 10) : 2;
+    coverage.nearGround = ['ugv', 'vehicle', 'handheld'].includes(node.platform);
+  }
+}
+
+function altSliderBounds() {
+  const ref = covRefNode();
+  const ground = coverage.terrainMinM ?? ref?.groundElevM ?? 0;
+  const top = (coverage.terrainMaxM ?? ref?.groundElevM ?? 0) + 1500;
+  return { min: Math.floor(ground / 10) * 10, max: Math.ceil(top / 10) * 10 };
+}
+
+function syncCovPanel() {
+  const ref = covRefNode();
+  document.querySelectorAll('.cov-seg-btn').forEach((b) => b.classList.toggle('active', b.dataset.mode === coverage.remoteMode));
+  document.querySelectorAll('.cov-scope-btn').forEach((b) => b.classList.toggle('active', b.dataset.scope === coverage.scope));
+  $cov('cov-agl-row').classList.toggle('hidden', coverage.remoteMode !== 'agl');
+  $cov('cov-asl-row').classList.toggle('hidden', coverage.remoteMode !== 'asl');
+  $cov('cov-agl').value = coverage.remoteHeightM;
+  $cov('cov-nearground').checked = !!coverage.nearGround;
+  $cov('cov-gain').value = coverage.remoteGainDbi;
+  $cov('cov-metric').value = coverage.metric;
+
+  const nodeSel = $cov('cov-node');
+  nodeSel.classList.toggle('hidden', coverage.scope !== 'node');
+  nodeSel.innerHTML = nodes.map((n) => `<option value="${n.id}" ${n.id === coverage.targetNodeId ? 'selected' : ''}>${n.label}</option>`).join('');
+
+  const b = altSliderBounds();
+  const slider = $cov('cov-asl-slider');
+  slider.min = b.min; slider.max = b.max; slider.step = 10;
+  if (!Number.isFinite(coverage.aslAltM)) coverage.aslAltM = Math.round(((ref?.groundElevM ?? 0) + 120) / 10) * 10;
+  coverage.aslAltM = Math.min(Math.max(coverage.aslAltM, b.min), b.max);
+  slider.value = coverage.aslAltM;
+  $cov('cov-asl').value = coverage.aslAltM;
+
+  const ground = ref?.groundElevM;
+  const above = Number.isFinite(ground) ? coverage.aslAltM - ground : null;
+  const ft = Math.round(coverage.aslAltM * 3.28084);
+  $cov('cov-alt-readout').innerHTML = Number.isFinite(above)
+    ? `${coverage.aslAltM} m ASL (${ft} ft) · ${above >= 0 ? '≈' + Math.round(above) + ' m above' : '≈' + Math.round(-above) + ' m BELOW'} ${ref.label}`
+    : `${coverage.aslAltM} m ASL (${ft} ft)`;
+}
+
+function openCovPanel({ scope, nodeId, useDefaults } = {}) {
+  if (!nodes.length) { alert('Place at least one node first.'); return; }
+  if (scope) coverage.scope = scope;
+  if (nodeId != null) coverage.targetNodeId = nodeId;
+  if (coverage.targetNodeId == null) coverage.targetNodeId = nodes[0].id;
+  if (useDefaults) applyPlatformDefaults(covRefNode());
+  covPanel.classList.remove('hidden');
+  syncCovPanel();
+}
+
+function covEntries() {
+  const list = coverage.scope === 'node' ? [covRefNode()].filter(Boolean) : nodes;
+  return list.map((n) => {
+    const radio = RADIOS.find((r) => r.id === n.radioId);
+    const pat = getPattern(n);
+    return {
+      node: n, radio, bandId: n.bandId,
+      txPattern: (pat.directional || pat.hpbwEl < 360)
+        ? { azimuthDeg: n.azimuthDeg, tiltDeg: n.tiltDeg, hpbwAz: pat.hpbwAz, hpbwEl: pat.hpbwEl } : null,
+    };
+  });
+}
+
+let covGen = 0;
+let covTimer = null;
+
+async function simulateCoverage(quality = QUALITY.normal) {
+  if (!nodes.length) return;
+  const gen = ++covGen;
+  coverage.computing = true;
+  const status = $cov('cov-status');
+  const entries = covEntries();
+  if (!entries.length) { coverage.computing = false; return; }
+  const ref = covRefNode();
+  const isMesh = coverage.scope === 'mesh';
+  const common = {
+    remoteGainDbi: coverage.remoteGainDbi,
+    fadeMargin: FADE_MARGIN,
+    remoteMode: coverage.remoteMode,
+    remoteAltM: coverage.remoteMode === 'asl' ? coverage.aslAltM : coverage.remoteHeightM,
+    remoteHeightM: coverage.remoteHeightM,
+    nearGround: coverage.nearGround,
+    metric: coverage.metric,
+    quality,
+  };
+  const prog = (p) => { if (gen === covGen) status.textContent = `Simulating… ${Math.round(p * 100)}%`; };
+
+  try {
+    let result;
+    if (coverage.metric === 'minalt') {
+      const o = { ...common, mode: coverage.remoteMode, minMbps: 0 };
+      result = isMesh
+        ? await computeMeshMinAltitude(entries, o, prog)
+        : await computeMinAltitude(ref, entries[0].radio, o, prog);
+    } else if (isMesh) {
+      result = await computeMeshCoverage(entries, common, prog);
+    } else {
+      result = await computeCoverage(ref, entries[0].radio, { ...common, txPattern: entries[0].txPattern }, prog);
+    }
+    if (gen !== covGen) return; // superseded by a newer run
+    await styleReady();
+    if (gen !== covGen) return;
+    paintCoverage(result.canvas, result.bounds, coverage.metric === 'excess' ? 0.8 : 0.75);
+    coverage.nodeId = isMesh ? 'mesh' : ref.id;
+    coverage.meshStats = isMesh && coverage.metric === 'mcs' ? result.stats : null;
+    coverage.lastRun = { stats: result.stats, metric: coverage.metric, mode: coverage.remoteMode,
+                         altM: common.remoteAltM, scope: coverage.scope, nearGround: coverage.nearGround };
+    if (result.rays) {
+      let lo = Infinity, hi = -Infinity;
+      for (let i = 0; i < result.rays.elevs.length; i++) {
+        const e = result.rays.elevs[i];
+        if (e < lo) lo = e; if (e > hi) hi = e;
+      }
+      coverage.terrainMinM = lo; coverage.terrainMaxM = hi;
+    }
+    renderCovLegend(result);
+    status.textContent = '';
+    document.getElementById('coverage-legend')?.remove();
+    syncCovPanel();
+  } catch (err) {
+    console.error('coverage simulation failed', err);
+    if (gen === covGen) status.textContent = 'Simulation failed — see console';
+  }
+  if (gen === covGen) coverage.computing = false;
+  renderSidebar();
+}
+
+function swatch(rgb) { return `<span class="leg-swatch" style="background:rgb(${rgb.join(',')})"></span>`; }
+
+function renderCovLegend(result) {
+  const ref = covRefNode();
+  const body = $cov('cov-legend-body');
+  const st = result.stats || {};
+  const modeLabel = coverage.remoteMode === 'asl'
+    ? `flight level ${coverage.aslAltM} m ASL`
+    : `${coverage.remoteHeightM} m above ground`;
+  let rows = '';
+
+  if (coverage.metric === 'minalt') {
+    const bands = [[30, '≤ 30 m'], [60, '31–60 m'], [120, '61–120 m'], [200, '121–200 m'], [400, '201–400 m'], [600, '> 400 m']];
+    rows = bands.map(([v, l]) => `<div class="leg-row">${swatch(colorForAltitude(v))}${l}</div>`).join('')
+      + `<div class="leg-row leg-note">Lowest ${coverage.remoteMode === 'asl' ? 'altitude ASL' : 'height above ground'} that closes a link · ${st.reachablePct?.toFixed(0) ?? '?'}% of area reachable</div>`
+      + (st.ceilingBreakPct > 0.5 ? `<div class="cov-hint">⚠ ${st.ceilingBreakPct.toFixed(0)}% of the area also drops out again at higher altitude (vertical pattern null) — climb is not always better.</div>` : '');
+  } else if (coverage.scope === 'mesh' && coverage.metric === 'mcs') {
+    rows = `${swatch([123, 44, 191])}3+ radios · EXTREME (${st.extremeKm2?.toFixed(1)} km²)`.replace(/^/, '<div class="leg-row">') + '</div>'
+      + `<div class="leg-row">${swatch([16, 110, 190])}2 radios · redundant (${st.redundantKm2?.toFixed(1)} km²)</div>`
+      + `<div class="leg-row">${swatch([120, 170, 60])}1 radio · covered (${st.singleKm2?.toFixed(1)} km²)</div>`
+      + (st.belowTerrainKm2 > 0.05 ? `<div class="leg-row">${swatch([70, 70, 78])}below terrain (${st.belowTerrainKm2.toFixed(1)} km²)</div>` : '')
+      + `<div class="leg-row leg-note">Overlap counted between same-band nodes only</div>`;
+  } else if (coverage.metric === 'mcs') {
+    const bands = [[14, 'MCS 14–15'], [12, 'MCS 12–13'], [10, 'MCS 10–11'], [8, 'MCS 8–9'], [4, 'MCS 4–7'], [0, 'MCS 0–3']];
+    rows = bands.map(([m, l]) => `<div class="leg-row">${swatch(colorForMcs(m))}${l} · ≥${throughputMbps(m, ref.bwMhz).toFixed(0)} Mbps</div>`).join('')
+      + (st.servedPct != null ? `<div class="leg-row leg-note">${st.servedKm2.toFixed(1)} km² served (${st.servedPct.toFixed(0)}% of the ${st.totalKm2.toFixed(0)} km² search area)</div>` : '');
+  } else if (coverage.metric === 'rssi') {
+    rows = [[-50, '≥ −55 dBm'], [-60, '−56…−65'], [-70, '−66…−75'], [-80, '−76…−82'], [-85, '−83…−88'], [-92, '−89…−95']]
+      .map(([v, l]) => `<div class="leg-row">${swatch(colorForRssi(v))}${l}</div>`).join('');
+  } else if (coverage.metric === 'excess') {
+    rows = [[0, 'clear path (< 1 dB)'], [3, '1–6 dB'], [9, '6–12 dB'], [16, '12–20 dB'], [25, '20–30 dB'], [40, '> 30 dB (deep shadow)']]
+      .map(([v, l]) => `<div class="leg-row">${swatch(colorForExcessLoss(v))}${l}</div>`).join('')
+      + `<div class="leg-row leg-note">Loss above free space — the price the terrain charges</div>`;
+  } else if (coverage.metric === 'margin') {
+    rows = [[32, '≥ 30 dB'], [24, '20–29'], [17, '15–19'], [12, '10–14'], [7, '5–9'], [2, '0–4 (marginal)']]
+      .map(([v, l]) => `<div class="leg-row">${swatch(colorForMargin(v))}${l}</div>`).join('');
+  }
+
+  body.innerHTML = `<div class="cov-label">${METRICS[coverage.metric]?.label || 'Minimum altitude'}</div>`
+    + rows
+    + `<div class="leg-row leg-note">Remote: ${modeLabel}, ${coverage.remoteGainDbi} dBi${coverage.nearGround ? ' · near-ground penalty on' : ''}</div>`
+    + (coverage.remoteMode === 'asl' && coverage.metric !== 'minalt'
+        ? `<div class="leg-row leg-note">${swatch([70, 70, 78])}grey = this flight level is inside terrain</div>` : '');
+}
+
+// Real-time altitude control
+function scheduleSim(quality, delay = 70) {
+  clearTimeout(covTimer);
+  covTimer = setTimeout(() => simulateCoverage(quality), delay);
+}
+
+document.querySelectorAll('.cov-seg-btn').forEach((b) => b.addEventListener('click', () => {
+  coverage.remoteMode = b.dataset.mode;
+  if (coverage.remoteMode === 'asl' && !Number.isFinite(coverage.aslAltM)) {
+    const ref = covRefNode();
+    coverage.aslAltM = Math.round(((ref?.groundElevM ?? 0) + 120) / 10) * 10;
+  }
+  syncCovPanel();
+  if (coverage.lastRun) scheduleSim(QUALITY.normal, 10);
+}));
+document.querySelectorAll('.cov-scope-btn').forEach((b) => b.addEventListener('click', () => {
+  coverage.scope = b.dataset.scope;
+  syncCovPanel();
+  if (coverage.lastRun) scheduleSim(QUALITY.normal, 10);
+}));
+$cov('cov-close').addEventListener('click', () => covPanel.classList.add('hidden'));
+$cov('cov-run').addEventListener('click', () => simulateCoverage(QUALITY.normal));
+$cov('cov-agl').addEventListener('input', () => {
+  coverage.remoteHeightM = parseFloat($cov('cov-agl').value) || 2;
+  if (coverage.lastRun) scheduleSim(QUALITY.coarse);
+});
+$cov('cov-agl').addEventListener('change', () => { if (coverage.lastRun) scheduleSim(QUALITY.normal, 10); });
+$cov('cov-nearground').addEventListener('change', () => {
+  coverage.nearGround = $cov('cov-nearground').checked;
+  if (coverage.lastRun) scheduleSim(QUALITY.normal, 10);
+});
+$cov('cov-gain').addEventListener('change', () => {
+  coverage.remoteGainDbi = parseFloat($cov('cov-gain').value) || 3;
+  if (coverage.lastRun) scheduleSim(QUALITY.normal, 10);
+});
+$cov('cov-metric').addEventListener('change', () => {
+  coverage.metric = $cov('cov-metric').value;
+  if (coverage.lastRun) scheduleSim(QUALITY.normal, 10);
+});
+$cov('cov-node').addEventListener('change', () => {
+  coverage.targetNodeId = parseInt($cov('cov-node').value);
+  syncCovPanel();
+  if (coverage.lastRun) scheduleSim(QUALITY.normal, 10);
+});
+$cov('cov-asl-slider').addEventListener('input', () => {
+  coverage.aslAltM = parseFloat($cov('cov-asl-slider').value);
+  $cov('cov-asl').value = coverage.aslAltM;
+  syncCovPanel();
+  scheduleSim(QUALITY.coarse, 45); // live while dragging
+});
+$cov('cov-asl-slider').addEventListener('change', () => scheduleSim(QUALITY.normal, 10));
+$cov('cov-asl').addEventListener('change', () => {
+  coverage.aslAltM = parseFloat($cov('cov-asl').value);
+  syncCovPanel();
+  scheduleSim(QUALITY.normal, 10);
+});
+
+$cov('cov-find-fl').addEventListener('click', async () => {
+  const status = $cov('cov-status');
+  status.textContent = 'Sweeping flight levels…';
+  try {
+    const res = await findLowestFlightLevel(covEntries(), {
+      remoteGainDbi: coverage.remoteGainDbi, fadeMargin: FADE_MARGIN,
+      nearGround: false, quality: QUALITY.coarse, targetFraction: 0.9,
+    }, (p) => { status.textContent = `Sweeping flight levels… ${Math.round(p * 100)}%`; });
+    coverage.aslAltM = res.chosen.altM;
+    coverage.remoteMode = 'asl';
+    coverage.terrainMinM = res.terrainMin;
+    coverage.terrainMaxM = res.terrainMax;
+    syncCovPanel();
+    await simulateCoverage(QUALITY.normal);
+    status.textContent = `Lowest workable level: ${res.chosen.altM} m ASL — covers `
+      + `${(100 * res.chosen.servedFraction).toFixed(0)}% of the search area, i.e. `
+      + `${(100 * res.targetFraction).toFixed(0)}% of the best any altitude reaches `
+      + `(${(100 * res.bestFraction).toFixed(0)}%). Terrain nearby: ${Math.round(res.terrainMin)}–${Math.round(res.terrainMax)} m ASL.`;
+  } catch (err) {
+    console.error('flight level sweep failed', err);
+    status.textContent = 'Flight-level sweep failed — see console';
+  }
+});
+
+// Entry points
 async function runCoverage(node) {
-  if (coverage.computing) return;
-  coverage.computing = true;
-  coverage.nodeId = node.id;
-  renderSidebar();
-  const radio = RADIOS.find((r) => r.id === node.radioId);
-  hint.textContent = 'Computing coverage… 0%';
-  try {
-    const pat = getPattern(node);
-    const result = await computeCoverage(node, radio, {
-      remoteHeightM: coverage.remoteHeightM,
-      remoteGainDbi: coverage.remoteGainDbi,
-      fadeMargin: FADE_MARGIN,
-      txPattern: (pat.directional || pat.hpbwEl < 360) ? { azimuthDeg: node.azimuthDeg, tiltDeg: node.tiltDeg, hpbwAz: pat.hpbwAz, hpbwEl: pat.hpbwEl } : null,
-    }, (p) => { hint.textContent = `Computing coverage… ${Math.round(p * 100)}%`; });
-    await styleReady();
-    if (map.getLayer('coverage')) map.removeLayer('coverage');
-    if (map.getSource('coverage')) map.removeSource('coverage');
-    map.addSource('coverage', { type: 'canvas', canvas: result.canvas, coordinates: result.bounds, animate: false });
-    map.addLayer({ id: 'coverage', type: 'raster', source: 'coverage', paint: { 'raster-opacity': 0.72 } }, 'links');
-    renderLegend(node);
-    hint.textContent = '';
-  } catch (err) {
-    console.error('coverage failed', err);
-    hint.textContent = 'Coverage computation failed';
-    coverage.nodeId = null;
-  }
-  coverage.computing = false;
-  renderSidebar();
+  openCovPanel({ scope: 'node', nodeId: node.id, useDefaults: true });
+  await simulateCoverage(QUALITY.normal);
 }
-
 async function runMeshCoverage() {
-  if (coverage.computing) return;
-  if (nodes.length < 1) { alert('Place nodes first.'); return; }
-  coverage.computing = true;
-  coverage.nodeId = null;
-  renderSidebar();
-  hint.textContent = 'Computing mesh coverage… 0%';
-  try {
-    const entries = nodes.map((n) => {
-      const radio = RADIOS.find((r) => r.id === n.radioId);
-      const pat = getPattern(n);
-      return {
-        node: n, radio, bandId: n.bandId,
-        txPattern: (pat.directional || pat.hpbwEl < 360) ? { azimuthDeg: n.azimuthDeg, tiltDeg: n.tiltDeg, hpbwAz: pat.hpbwAz, hpbwEl: pat.hpbwEl } : null,
-      };
-    });
-    const result = await computeMeshCoverage(entries, {
-      remoteHeightM: coverage.remoteHeightM,
-      remoteGainDbi: coverage.remoteGainDbi,
-      fadeMargin: FADE_MARGIN,
-    }, (p) => { hint.textContent = `Computing mesh coverage… ${Math.round(p * 100)}%`; });
-    await styleReady();
-    if (map.getLayer('coverage')) map.removeLayer('coverage');
-    if (map.getSource('coverage')) map.removeSource('coverage');
-    map.addSource('coverage', { type: 'canvas', canvas: result.canvas, coordinates: result.bounds, animate: false });
-    map.addLayer({ id: 'coverage', type: 'raster', source: 'coverage', paint: { 'raster-opacity': 0.75 } }, 'links');
-    coverage.meshStats = result.stats;
-    coverage.nodeId = 'mesh';
-    renderMeshLegend(result.stats);
-    hint.textContent = '';
-  } catch (err) {
-    console.error('mesh coverage failed', err);
-    hint.textContent = 'Mesh coverage computation failed';
-  }
-  coverage.computing = false;
-  renderSidebar();
+  openCovPanel({ scope: 'mesh', useDefaults: false });
+  await simulateCoverage(QUALITY.normal);
 }
-document.getElementById('btn-mesh-coverage').addEventListener('click', runMeshCoverage);
-
-function renderMeshLegend(stats) {
-  document.getElementById('coverage-legend')?.remove();
-  const div = document.createElement('div');
-  div.id = 'coverage-legend';
-  div.innerHTML = `<b>Mesh coverage — ${stats.nodeCount} node${stats.nodeCount > 1 ? 's' : ''}</b>
-    <div class="leg-row"><span class="leg-swatch" style="background:rgb(123,44,191)"></span>3+ radios · EXTREME (${stats.extremeKm2.toFixed(1)} km²)</div>
-    <div class="leg-row"><span class="leg-swatch" style="background:rgb(16,110,190)"></span>2 radios · redundant (${stats.redundantKm2.toFixed(1)} km²)</div>
-    <div class="leg-row"><span class="leg-swatch" style="background:rgb(120,170,60)"></span>1 radio · covered (${stats.singleKm2.toFixed(1)} km², shaded by rate)</div>
-    <div class="leg-row leg-note">Overlap counted between same-band nodes only · Remote: ${coverage.remoteHeightM} m / ${coverage.remoteGainDbi} dBi</div>
-    <div class="leg-row leg-note"><button class="tool-btn" style="padding:2px 8px;font-size:11px" onclick="document.getElementById('coverage-legend').remove(); window.__app.clearCoverage()">✕ clear</button></div>`;
-  document.getElementById('map').appendChild(div);
-}
-
-function renderLegend(node) {
-  document.getElementById('coverage-legend')?.remove();
-  const div = document.createElement('div');
-  div.id = 'coverage-legend';
-  const entries = [
-    [14, 'MCS 14–15'], [12, 'MCS 12–13'], [10, 'MCS 10–11'], [8, 'MCS 8–9'], [4, 'MCS 4–7'], [0, 'MCS 0–3'],
-  ];
-  div.innerHTML = `<b>Coverage — Node ${node.id}</b>` + entries.map(([mcs, label]) => {
-    const c = colorForMcs(mcs);
-    const mbps = throughputMbps(mcs, node.bwMhz);
-    return `<div class="leg-row"><span class="leg-swatch" style="background:rgb(${c.join(',')})"></span>${label} · ≥${mbps.toFixed(0)} Mbps</div>`;
-  }).join('') + `<div class="leg-row leg-note">Remote: ${coverage.remoteHeightM} m AGL, ${coverage.remoteGainDbi} dBi</div>`;
-  document.getElementById('map').appendChild(div);
-}
+document.getElementById('btn-mesh-coverage').addEventListener('click', () => {
+  if (!nodes.length) { alert('Place at least one node first.'); return; }
+  openCovPanel({ scope: nodes.length > 1 ? 'mesh' : 'node', useDefaults: !coverage.lastRun });
+});
 
 function removeLink(link) {
   links = links.filter((l) => l !== link);
@@ -857,7 +1077,7 @@ function renderSidebar() {
         <input type="number" data-cov="remoteHeightM" value="${coverage.remoteHeightM}" min="0.1" step="0.5" title="Remote node height AGL for coverage"/>
         <input type="number" data-cov="remoteGainDbi" value="${coverage.remoteGainDbi}" step="0.5" title="Remote node antenna gain for coverage"/></div>
       <div class="row cov-row">
-        <button class="tool-btn" data-coverage ${coverage.computing ? 'disabled' : ''}>${coverage.nodeId === node.id ? '↻ Recompute heatmap' : '▦ Coverage heatmap'}</button>
+        <button class="tool-btn" data-coverage ${coverage.computing ? 'disabled' : ''}>${coverage.nodeId === node.id ? '↻ Recompute coverage' : '▦ Simulate coverage'}</button>
         ${coverage.nodeId === node.id ? '<button class="tool-btn" data-coverage-clear title="Remove heatmap">✕</button>' : ''}
       </div>`;
     card.querySelector('.del').addEventListener('click', () => removeNode(node));
@@ -1123,5 +1343,8 @@ window.__app = {
   runCoverage: (id) => runCoverage(nodes.find((n) => n.id === id)),
   runMeshCoverage,
   clearCoverage,
+  simulateCoverage,
+  openCovPanel,
+  QUALITY,
   get coverage() { return coverage; },
 };

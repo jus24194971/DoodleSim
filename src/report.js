@@ -21,7 +21,7 @@ export function minClearHeight(link, whichEnd) {
 
 const esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;');
 
-export function buildReportHtml({ nodes, links, renderProfilePng, mapImagePng, missionNote, meshStats, meshRemote }) {
+export function buildReportHtml({ nodes, links, renderProfilePng, mapImagePng, missionNote, meshStats, meshRemote, covRun }) {
   const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 
   const nodeRows = nodes.map((n) => {
@@ -100,13 +100,22 @@ ${missionNote ? `<div class="mission"><b>Objective:</b> ${esc(missionNote)}</div
 ${mapImagePng ? `<h2>Deployment Map</h2><img class="map" src="${mapImagePng}"/>` : ''}
 <h2>Equipment &amp; Placement</h2>
 <table><tr><th>Node</th><th>Location</th><th>Radio</th><th>Antenna</th><th>Cable / BDA</th></tr>${nodeRows}</table>
-${meshStats ? `<h2>Mesh Coverage &amp; Redundancy</h2>
-<p class="sub" style="margin-bottom:6px">Combined terrain-aware coverage of all ${meshStats.nodeCount} nodes, for a remote node at ${meshRemote?.h ?? '?'} m AGL with ${meshRemote?.g ?? '?'} dBi. Overlap counted between same-band nodes only (different bands do not mesh). The deployment map above shows the zones.</p>
+${meshStats ? `<h2>Mesh Coverage &amp; Redundancy${covRun?.mode === 'asl' ? ` at Flight Level ${Math.round(covRun.altM)} m ASL` : ` — Terrain-Following (${covRun?.altM ?? meshRemote?.h ?? '?'} m above ground)`}</h2>
+<p class="sub" style="margin-bottom:6px">Combined terrain-aware coverage of all ${meshStats.nodeCount} nodes${covRun?.mode === 'asl'
+  ? `, simulated for an aircraft holding a constant ${Math.round(covRun.altM)} m ASL`
+  : `, simulated for a ground platform at ${covRun?.altM ?? meshRemote?.h ?? '?'} m above the terrain beneath it`} with a ${meshRemote?.g ?? '?'} dBi antenna${covRun?.nearGround ? ', including the conservative near-ground propagation penalty' : ''}. Overlap counted between same-band nodes only (different bands do not mesh). The deployment map above shows the zones.</p>
 <table><tr><th>Coverage tier</th><th>Meaning</th><th>Area</th></tr>
 <tr><td><b style="color:#7b2cbf">■</b> Extreme (3+ radios)</td><td>A roaming node has three or more mesh peers — maximum resilience and roaming capacity</td><td><b>${meshStats.extremeKm2.toFixed(2)} km²</b></td></tr>
 <tr><td><b style="color:#106ebe">■</b> Redundant (2 radios)</td><td>Two independent paths into the mesh — survives any single-node outage</td><td><b>${meshStats.redundantKm2.toFixed(2)} km²</b></td></tr>
 <tr><td><b style="color:#78aa3c">■</b> Covered (1 radio)</td><td>Single-radio coverage, shaded by achievable data rate</td><td><b>${meshStats.singleKm2.toFixed(2)} km²</b></td></tr>
+${meshStats.belowTerrainKm2 > 0.05 ? `<tr><td><b style="color:#46464e">■</b> Below terrain</td><td>The requested flight level is underground here — an aircraft cannot occupy this airspace</td><td><b>${meshStats.belowTerrainKm2.toFixed(2)} km²</b></td></tr>` : ''}
 <tr><td>Total footprint</td><td></td><td><b>${(meshStats.singleKm2 + meshStats.redundantKm2 + meshStats.extremeKm2).toFixed(2)} km²</b></td></tr></table>` : ''}
+${covRun?.metric === 'minalt' && covRun.stats ? `<h2>Minimum Altitude to Connect</h2>
+<p class="sub" style="margin-bottom:6px">For every point in the search area, the lowest height <b>above the ground beneath it</b> at which a link into the network closes with the standard 10 dB fade margin. This is the climb an aircraft needs, not a constant flight level.</p>
+<table><tr><th>Result</th><th>Value</th></tr>
+<tr><td>Area reachable at some altitude (up to 900 m AGL)</td><td><b>${covRun.stats.reachablePct.toFixed(0)}%</b></td></tr>
+${covRun.stats.ceilingBreakPct > 0.5 ? `<tr><td>Area that also drops out again <i>higher up</i></td><td><b>${covRun.stats.ceilingBreakPct.toFixed(0)}%</b> — these locations have an altitude <i>window</i>, not a floor. Caused by the vertical beamwidth of the ground antenna: climbing too high leaves the beam. Plan the altitude band, not just a minimum.</td></tr>` : ''}
+</table>` : ''}
 <h2>Link Analysis</h2>
 ${linkSections || '<p class="sub">No links defined.</p>'}
 <footer>
