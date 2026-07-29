@@ -3,21 +3,11 @@
 // evaluate the link budget to a hypothetical remote node (height + gain configurable),
 // including cumulative worst-knife-edge diffraction along that ray.
 
-import { elevationAt } from './terrain.js';
-import { txPowerDbm, sensitivityDbm, throughputMbps } from './engine.js';
-import { SENS_MCS0_7_20MHZ } from './radios.js';
+import { elevationAt, destination } from './terrain.js';
+import { txPowerDbm, sensitivityDbm, throughputMbps, patternLossDb, elevationAngleDeg, angDiff } from './engine.js';
 
 const R_EARTH = 6371008.8;
 const R_EFF = R_EARTH * (4 / 3);
-
-function destination(lng, lat, bearingDeg, distM) {
-  const br = (bearingDeg * Math.PI) / 180;
-  const dR = distM / R_EARTH;
-  const la1 = (lat * Math.PI) / 180, lo1 = (lng * Math.PI) / 180;
-  const la2 = Math.asin(Math.sin(la1) * Math.cos(dR) + Math.cos(la1) * Math.sin(dR) * Math.cos(br));
-  const lo2 = lo1 + Math.atan2(Math.sin(br) * Math.sin(dR) * Math.cos(la1), Math.cos(dR) - Math.sin(la1) * Math.sin(la2));
-  return { lng: (lo2 * 180) / Math.PI, lat: (la2 * 180) / Math.PI };
-}
 
 // Max distance worth computing: solve FSPL for the weakest usable budget (MCS0) + slack
 export function autoRadiusM(node, radio, remoteGain, fadeMargin) {
@@ -39,7 +29,8 @@ export function colorForMcs(mcs) {
 }
 
 export async function computeCoverage(node, radio, opts, onProgress) {
-  const { remoteHeightM, remoteGainDbi, fadeMargin, azimuths = 180, steps = 120 } = opts;
+  const { remoteHeightM, remoteGainDbi, fadeMargin, azimuths = 180, steps = 120, txPattern = null } = opts;
+  // txPattern: { azimuthDeg, tiltDeg, hpbwAz, hpbwEl } — null means isotropic-in-azimuth
   const origin = node.marker.getLngLat();
   const radiusM = opts.radiusM || autoRadiusM(node, radio, remoteGainDbi, fadeMargin);
   const antennas = radio.chains === 1 ? 1 : 2;
@@ -81,7 +72,17 @@ export async function computeCoverage(node, radio, opts, onProgress) {
       if (worstV > -0.78) diffLoss = 6.9 + 20 * Math.log10(Math.sqrt((worstV - 0.1) ** 2 + 1) + worstV - 0.1);
 
       const fspl = 32.45 + 20 * Math.log10(Math.max(D, 1) / 1000) + 20 * Math.log10(node.freqMhz);
-      const gains = node.antennaGain + remoteGainDbi - node.cableLoss + node.bdaGain;
+      let patLoss = 0;
+      if (txPattern) {
+        const elAngle = elevationAngleDeg(elevTx, elevRx, D);
+        patLoss = patternLossDb({
+          offAzDeg: angDiff(bearing, txPattern.azimuthDeg ?? 0),
+          offElDeg: Math.abs(elAngle - (txPattern.tiltDeg ?? 0)),
+          hpbwAz: txPattern.hpbwAz ?? 360,
+          hpbwEl: txPattern.hpbwEl ?? 360,
+        });
+      }
+      const gains = node.antennaGain - patLoss + remoteGainDbi - node.cableLoss + node.bdaGain;
 
       let best = -1;
       for (let mcs = maxMcs - 1; mcs >= 0; mcs--) {

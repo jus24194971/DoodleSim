@@ -49,6 +49,23 @@ export async function elevationAt(lon, lat) {
 
 const R_EARTH = 6371008.8;
 
+export function bearingDeg(a, b) {
+  const toRad = (d) => (d * Math.PI) / 180;
+  const la1 = toRad(a.lat), la2 = toRad(b.lat), dLon = toRad(b.lng - a.lng);
+  const y = Math.sin(dLon) * Math.cos(la2);
+  const x = Math.cos(la1) * Math.sin(la2) - Math.sin(la1) * Math.cos(la2) * Math.cos(dLon);
+  return ((Math.atan2(y, x) * 180) / Math.PI + 360) % 360;
+}
+
+export function destination(lng, lat, bearing, distM) {
+  const br = (bearing * Math.PI) / 180;
+  const dR = distM / R_EARTH;
+  const la1 = (lat * Math.PI) / 180, lo1 = (lng * Math.PI) / 180;
+  const la2 = Math.asin(Math.sin(la1) * Math.cos(dR) + Math.cos(la1) * Math.sin(dR) * Math.cos(br));
+  const lo2 = lo1 + Math.atan2(Math.sin(br) * Math.sin(dR) * Math.cos(la1), Math.cos(dR) - Math.sin(la1) * Math.sin(la2));
+  return { lng: (lo2 * 180) / Math.PI, lat: (la2 * 180) / Math.PI };
+}
+
 export function haversineM(a, b) {
   const toRad = (d) => (d * Math.PI) / 180;
   const dLat = toRad(b.lat - a.lat), dLon = toRad(b.lng - a.lng);

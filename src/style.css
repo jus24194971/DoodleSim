@@ -61,6 +61,14 @@ html, body, #app { height: 100%; font-family: 'Segoe UI', system-ui, sans-serif;
 }
 .node-marker.selected { background: #e8590c; }
 
+.beam-handle {
+  width: 16px; height: 16px; border-radius: 50%;
+  background: #fff; border: 3px solid #1c7ed6;
+  box-shadow: 0 1px 4px rgba(0,0,0,.4); cursor: grab;
+}
+.beam-handle:hover { transform: scale(1.25); }
+.pat-info { color: #495057; font-size: 12px; }
+
 #profile-panel {
   height: 260px; background: #101418; border-top: 2px solid #1c7ed6; display: flex; flex-direction: column;
 }

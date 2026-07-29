@@ -1,9 +1,9 @@
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import './style.css';
-import { RADIOS, BANDS, CHANNEL_WIDTHS, PLATFORMS } from './radios.js';
-import { terrainProfile, haversineM } from './terrain.js';
-import { analyzePath, evaluateLink, fsplDb, throughputMbps } from './engine.js';
+import { RADIOS, BANDS, CHANNEL_WIDTHS, PLATFORMS, CABLES, cableLossDb } from './radios.js';
+import { terrainProfile, haversineM, bearingDeg, destination } from './terrain.js';
+import { analyzePath, evaluateLink, fsplDb, throughputMbps, patternLossDb, elevationAngleDeg, angDiff } from './engine.js';
 import { computeCoverage, colorForMcs } from './coverage.js';
 
 // ---------- State ----------
@@ -21,6 +21,7 @@ const FADE_MARGIN = 10;
 // ---------- Map ----------
 const OSM_STYLE = {
   version: 8,
+  glyphs: 'https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf',
   sources: {
     osm: { type: 'raster', tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'], tileSize: 256, attribution: '© OpenStreetMap contributors' },
     sat: { type: 'raster', tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'], tileSize: 256, attribution: 'Esri World Imagery' },
@@ -38,6 +39,15 @@ map.addControl(new maplibregl.NavigationControl(), 'top-left');
 map.addControl(new maplibregl.ScaleControl({ unit: 'metric' }));
 
 map.on('load', () => {
+  map.addSource('beams', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
+  map.addLayer({
+    id: 'beams', type: 'fill', source: 'beams',
+    paint: { 'fill-color': '#1c7ed6', 'fill-opacity': 0.18 },
+  });
+  map.addLayer({
+    id: 'beam-outline', type: 'line', source: 'beams',
+    paint: { 'line-color': '#1c7ed6', 'line-width': 1.5, 'line-opacity': 0.55, 'line-dasharray': [2, 2] },
+  });
   map.addSource('links', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
   map.addLayer({
     id: 'links', type: 'line', source: 'links',
@@ -69,6 +79,35 @@ function antennasForFreq(freqMhz) {
   return antennaCatalog.filter((a) => a.band_mhz[0] <= freqMhz && a.band_mhz[1] >= freqMhz);
 }
 
+// Resolve a node's antenna radiation pattern (from catalog, or custom fields)
+function getPattern(node) {
+  const a = node.antennaId ? antennaCatalog.find((x) => x.id === node.antennaId) : null;
+  if (a) {
+    const omniAz = a.pattern === 'omni';
+    return {
+      hpbwAz: omniAz ? 360 : (a.hpbw_az_deg && a.hpbw_az_deg < 360 ? a.hpbw_az_deg : 60),
+      hpbwEl: a.hpbw_el_deg || (omniAz ? 20 : 25),
+      directional: !omniAz,
+    };
+  }
+  return {
+    hpbwAz: node.customHpbwAz || 360,
+    hpbwEl: node.customHpbwEl || 360,
+    directional: (node.customHpbwAz || 360) < 360,
+  };
+}
+
+function effectiveGain(node, towardBearing, elevAngle) {
+  const pat = getPattern(node);
+  const loss = patternLossDb({
+    offAzDeg: pat.directional ? angDiff(towardBearing, node.azimuthDeg) : 0,
+    offElDeg: Math.abs(elevAngle - node.tiltDeg),
+    hpbwAz: pat.hpbwAz,
+    hpbwEl: pat.hpbwEl,
+  });
+  return { gain: node.antennaGain - loss, patternLoss: loss };
+}
+
 // ---------- Modes ----------
 const btnAdd = document.getElementById('btn-add-node');
 const btnLink = document.getElementById('btn-link-mode');
@@ -87,9 +126,9 @@ btnAdd.addEventListener('click', () => setMode('add'));
 btnLink.addEventListener('click', () => setMode('link'));
 document.getElementById('btn-clear').addEventListener('click', () => {
   if (!nodes.length || confirm('Remove all nodes and links?')) {
-    nodes.forEach((n) => n.marker.remove());
+    nodes.forEach((n) => { n.marker.remove(); removeBeamHandle(n); });
     nodes = []; links = []; selectedLink = null;
-    hideProfile(); refreshLinks(); renderSidebar();
+    hideProfile(); refreshLinks(); refreshBeams(); renderSidebar(); persistState();
   }
 });
 window.addEventListener('keydown', (e) => {
@@ -111,7 +150,7 @@ function serializeState() {
     coverage: { remoteHeightM: coverage.remoteHeightM, remoteGainDbi: coverage.remoteGainDbi },
     nodes: nodes.map((n) => {
       const { lng, lat } = n.marker.getLngLat();
-      return { id: n.id, label: n.label, lng, lat, radioId: n.radioId, bandId: n.bandId, freqMhz: n.freqMhz, bwMhz: n.bwMhz, powerDbm: n.powerDbm, antennaId: n.antennaId, antennaGain: n.antennaGain, heightM: n.heightM, cableLoss: n.cableLoss, bdaGain: n.bdaGain, platform: n.platform };
+      return { id: n.id, label: n.label, lng, lat, radioId: n.radioId, bandId: n.bandId, freqMhz: n.freqMhz, bwMhz: n.bwMhz, powerDbm: n.powerDbm, antennaId: n.antennaId, antennaGain: n.antennaGain, heightM: n.heightM, cableLoss: n.cableLoss, bdaGain: n.bdaGain, platform: n.platform, azimuthDeg: n.azimuthDeg, tiltDeg: n.tiltDeg, customHpbwAz: n.customHpbwAz, customHpbwEl: n.customHpbwEl, cableType: n.cableType, cableLenM: n.cableLenM };
     }),
     links: links.map((l) => [l.a.id, l.b.id]),
   };
@@ -124,7 +163,7 @@ function restoreState(data) {
   for (const s of data.nodes || []) {
     addNode({ lng: s.lng, lat: s.lat });
     const n = nodes[nodes.length - 1];
-    Object.assign(n, { label: s.label ?? n.label, radioId: s.radioId, bandId: s.bandId, freqMhz: s.freqMhz, bwMhz: s.bwMhz, powerDbm: s.powerDbm, antennaId: s.antennaId ?? null, antennaGain: s.antennaGain, heightM: s.heightM, cableLoss: s.cableLoss ?? 0, bdaGain: s.bdaGain ?? 0, platform: s.platform ?? 'mast' });
+    Object.assign(n, { label: s.label ?? n.label, radioId: s.radioId, bandId: s.bandId, freqMhz: s.freqMhz, bwMhz: s.bwMhz, powerDbm: s.powerDbm, antennaId: s.antennaId ?? null, antennaGain: s.antennaGain, heightM: s.heightM, cableLoss: s.cableLoss ?? 0, bdaGain: s.bdaGain ?? 0, platform: s.platform ?? 'mast', azimuthDeg: s.azimuthDeg ?? 0, tiltDeg: s.tiltDeg ?? 0, customHpbwAz: s.customHpbwAz ?? 360, customHpbwEl: s.customHpbwEl ?? 360, cableType: s.cableType ?? 'manual', cableLenM: s.cableLenM ?? 0 });
     n._savedId = s.id;
     n.marker.getElement().title = n.label;
   }
@@ -134,7 +173,7 @@ function restoreState(data) {
   }
   if (data.coverage) Object.assign(coverage, { remoteHeightM: data.coverage.remoteHeightM ?? 2, remoteGainDbi: data.coverage.remoteGainDbi ?? 3 });
   if (data.view) map.jumpTo({ center: data.view.center, zoom: data.view.zoom });
-  renderSidebar(); recomputeAllLinks();
+  refreshBeams(); renderSidebar(); recomputeAllLinks();
 }
 
 let persistTimer = null;
@@ -184,8 +223,11 @@ function addNode(lngLat) {
     id, label: `Node ${id}`, marker,
     radioId: 'miniOEM_v4', bandId: 'ism2400', freqMhz: 2450, bwMhz: 20,
     powerDbm: 32, antennaId: null, antennaGain: 3, heightM: 10, cableLoss: 0, bdaGain: 0, platform: 'mast',
+    azimuthDeg: 0, tiltDeg: 0, customHpbwAz: 360, customHpbwEl: 360,
+    cableType: 'none', cableLenM: 0,
   };
-  marker.on('dragend', () => { recomputeAllLinks(); persistState(); });
+  marker.on('drag', () => refreshBeams());
+  marker.on('dragend', () => { refreshBeams(); recomputeAllLinks(); persistState(); });
   el.addEventListener('click', (ev) => {
     ev.stopPropagation();
     if (mode === 'link') handleLinkClick(node, el);
@@ -212,6 +254,7 @@ function handleLinkClick(node, el) {
 
 function removeNode(node) {
   node.marker.remove();
+  removeBeamHandle(node);
   nodes = nodes.filter((n) => n !== node);
   links = links.filter((l) => l.a !== node && l.b !== node);
   if (selectedLink && (selectedLink.a === node || selectedLink.b === node)) hideProfile();
@@ -236,10 +279,12 @@ async function runCoverage(node) {
   const radio = RADIOS.find((r) => r.id === node.radioId);
   hint.textContent = 'Computing coverage… 0%';
   try {
+    const pat = getPattern(node);
     const result = await computeCoverage(node, radio, {
       remoteHeightM: coverage.remoteHeightM,
       remoteGainDbi: coverage.remoteGainDbi,
       fadeMargin: FADE_MARGIN,
+      txPattern: (pat.directional || pat.hpbwEl < 360) ? { azimuthDeg: node.azimuthDeg, tiltDeg: node.tiltDeg, hpbwAz: pat.hpbwAz, hpbwEl: pat.hpbwEl } : null,
     }, (p) => { hint.textContent = `Computing coverage… ${Math.round(p * 100)}%`; });
     if (map.getLayer('coverage')) map.removeLayer('coverage');
     if (map.getSource('coverage')) map.removeSource('coverage');
@@ -293,18 +338,26 @@ async function recomputeAllLinks() {
       const radioA = RADIOS.find((r) => r.id === link.a.radioId);
       const radioB = RADIOS.find((r) => r.id === link.b.radioId);
       const antennas = radioA.chains === 1 || radioB.chains === 1 ? 1 : 2;
+      // antenna pattern: off-boresight losses from geometry (bearing + elevation angle)
+      const elevAAsl = profile[0].elevM + link.a.heightM;
+      const elevBAsl = profile[profile.length - 1].elevM + link.b.heightM;
+      const brAB = bearingDeg(a, b);
+      const brBA = bearingDeg(b, a);
+      const elAB = elevationAngleDeg(elevAAsl, elevBAsl, distM);
+      const effA = effectiveGain(link.a, brAB, elAB);
+      const effB = effectiveGain(link.b, brBA, -elAB);
       const result = evaluateLink({
         distM, freqMhz, bwMhz, radioA, radioB,
         pathLoss: pathAnalysis,
         cfg: {
           powerA: link.a.powerDbm, powerB: link.b.powerDbm,
-          gainA: link.a.antennaGain, gainB: link.b.antennaGain,
+          gainA: effA.gain, gainB: effB.gain,
           cableA: link.a.cableLoss, cableB: link.b.cableLoss,
           bdaA: link.a.bdaGain, bdaB: link.b.bdaGain,
           fadeMargin: FADE_MARGIN, antennas,
         },
       });
-      Object.assign(link, { result, pathAnalysis, profile, distM, freqMhz, bwMhz });
+      Object.assign(link, { result, pathAnalysis, profile, distM, freqMhz, bwMhz, patternLossA: effA.patternLoss, patternLossB: effB.patternLoss });
     } catch (err) {
       console.error('link compute failed', err);
       Object.assign(link, { result: null, pathAnalysis: null, profile: null, distM });
@@ -340,6 +393,63 @@ function refreshLinks() {
   });
 }
 
+// ---------- Antenna beam visualization + drag-to-aim ----------
+function beamRadiusM(node) {
+  return 400 + Math.max(node.antennaGain, 0) * 130;
+}
+
+function refreshBeams() {
+  const src = map.getSource('beams');
+  if (!src) return;
+  const features = [];
+  for (const node of nodes) {
+    const pat = getPattern(node);
+    if (!pat.directional) { removeBeamHandle(node); continue; }
+    const { lng, lat } = node.marker.getLngLat();
+    const R = beamRadiusM(node);
+    const half = Math.max(pat.hpbwAz, 8) / 2;
+    const ring = [[lng, lat]];
+    for (let a = node.azimuthDeg - half; a <= node.azimuthDeg + half + 0.01; a += Math.max(half / 8, 1)) {
+      const p = destination(lng, lat, a, R);
+      ring.push([p.lng, p.lat]);
+    }
+    ring.push([lng, lat]);
+    features.push({ type: 'Feature', geometry: { type: 'Polygon', coordinates: [ring] }, properties: { id: node.id } });
+    ensureBeamHandle(node);
+  }
+  src.setData({ type: 'FeatureCollection', features });
+}
+
+function ensureBeamHandle(node) {
+  const { lng, lat } = node.marker.getLngLat();
+  const tip = destination(lng, lat, node.azimuthDeg, beamRadiusM(node));
+  if (!node._beamHandle) {
+    const el = document.createElement('div');
+    el.className = 'beam-handle';
+    el.title = 'Drag to aim antenna';
+    const marker = new maplibregl.Marker({ element: el, draggable: true }).setLngLat(tip).addTo(map);
+    marker.on('drag', () => {
+      const hp = marker.getLngLat();
+      node.azimuthDeg = Math.round(bearingDeg(node.marker.getLngLat(), hp)) % 360;
+      refreshBeams();
+      const azInput = document.querySelector(`[data-node="${node.id}"][data-f="azimuthDeg"]`);
+      if (azInput) azInput.value = node.azimuthDeg;
+    });
+    marker.on('dragend', () => {
+      ensureBeamHandle(node); // snap handle back onto the arc
+      recomputeAllLinks(); persistState();
+      if (coverage.nodeId === node.id) runCoverage(node);
+    });
+    node._beamHandle = marker;
+  } else {
+    node._beamHandle.setLngLat(tip);
+  }
+}
+
+function removeBeamHandle(node) {
+  if (node._beamHandle) { node._beamHandle.remove(); node._beamHandle = null; }
+}
+
 // ---------- Sidebar ----------
 function renderSidebar() {
   const nodeList = document.getElementById('node-list');
@@ -366,8 +476,15 @@ function renderSidebar() {
         ${ants.map((a) => `<option value="${a.id}" ${a.id === node.antennaId ? 'selected' : ''}>${(a.manufacturer || '').split(' ')[0]} ${a.model} (${a.gain_dbi} dBi ${a.pattern})</option>`).join('')}
       </select></div>
       <div class="row"><label>Ant. gain (dBi)</label><input type="number" data-f="antennaGain" value="${node.antennaGain}" step="0.5" ${node.antennaId ? 'disabled' : ''}/></div>
+      ${node.antennaId ? `<div class="row"><label>Beamwidth az/el</label><span class="pat-info">${getPattern(node).directional ? getPattern(node).hpbwAz + '° / ' + getPattern(node).hpbwEl + '°' : 'omni / ' + getPattern(node).hpbwEl + '°'}</span></div>`
+        : `<div class="row"><label>Beamwidth az (°)</label><input type="number" data-f="customHpbwAz" value="${node.customHpbwAz}" min="5" max="360" step="5" title="360 = omnidirectional"/></div>
+           <div class="row"><label>Beamwidth el (°)</label><input type="number" data-f="customHpbwEl" value="${node.customHpbwEl}" min="5" max="360" step="5" title="360 = no elevation rolloff"/></div>`}
+      ${getPattern(node).directional ? `<div class="row"><label>Azimuth (°)</label><input type="number" data-f="azimuthDeg" data-node="${node.id}" value="${node.azimuthDeg}" min="0" max="359" title="Boresight bearing — or drag the beam handle on the map"/></div>` : ''}
+      ${getPattern(node).hpbwEl < 360 ? `<div class="row"><label>Tilt (°, + up)</label><input type="number" data-f="tiltDeg" value="${node.tiltDeg}" min="-90" max="90" step="1" title="Elevation boresight tilt: positive aims up, negative down"/></div>` : ''}
       <div class="row"><label>Height AGL (m)</label><input type="number" data-f="heightM" value="${node.heightM}" min="0.1" step="0.5"/></div>
-      <div class="row"><label>Cable loss (dB)</label><input type="number" data-f="cableLoss" value="${node.cableLoss}" min="0" step="0.5"/></div>
+      <div class="row"><label>Cable type</label><select data-f="cableType">${Object.entries(CABLES).map(([k, c]) => `<option value="${k}" ${k === node.cableType ? 'selected' : ''}>${c.label}</option>`).join('')}</select></div>
+      ${node.cableType !== 'manual' && node.cableType !== 'none' ? `<div class="row"><label>Cable length (m)</label><input type="number" data-f="cableLenM" value="${node.cableLenM}" min="0" step="0.5"/></div>` : ''}
+      <div class="row"><label>Cable loss (dB)</label><input type="number" data-f="cableLoss" value="${node.cableLoss.toFixed ? node.cableLoss.toFixed(1) : node.cableLoss}" min="0" step="0.5" ${node.cableType !== 'manual' ? 'disabled' : ''} title="${node.cableType !== 'manual' ? 'Auto-computed from cable type, length, and frequency (incl. 0.5 dB connectors)' : 'Manual cable + connector loss'}"/></div>
       <div class="row"><label>BDA gain (dB)</label><input type="number" data-f="bdaGain" value="${node.bdaGain}" min="0" step="1"/></div>
       <div class="row"><label>Remote ant. (m / dBi)</label>
         <input type="number" data-cov="remoteHeightM" value="${coverage.remoteHeightM}" min="0.1" step="0.5" title="Remote node height AGL for coverage"/>
@@ -406,6 +523,10 @@ function renderSidebar() {
           const a = antennaCatalog.find((x) => x.id === v);
           if (a) node.antennaGain = a.gain_dbi;
         }
+        // auto cable loss depends on cable selection AND operating frequency
+        const auto = cableLossDb(node.cableType, node.cableLenM, node.freqMhz);
+        if (auto !== null) node.cableLoss = auto;
+        refreshBeams();
         renderSidebar(); recomputeAllLinks(); persistState();
       });
     });
@@ -424,6 +545,7 @@ function renderSidebar() {
       <div class="link-stat"><span>Distance</span><b>${link.distM ? (link.distM / 1000).toFixed(2) + ' km' : '—'}</b></div>
       <div class="link-stat"><span>Path</span><b>${!pa ? '—' : pa.losBlocked ? '⛔ Terrain blocked' : pa.fresnelIntruded ? '⚠ Fresnel intrusion' : '✓ Clear LOS'}</b></div>
       <div class="link-stat"><span>Diffraction loss</span><b>${pa ? pa.diffractionLossDb.toFixed(1) + ' dB' : '—'}</b></div>
+      ${(link.patternLossA > 0.5 || link.patternLossB > 0.5) ? `<div class="link-stat"><span>Pattern (off-axis) loss</span><b>${link.patternLossA.toFixed(1)} / ${link.patternLossB.toFixed(1)} dB</b></div>` : ''}
       <div class="link-stat"><span>Best MCS / Throughput</span><b>${best ? `MCS${best.mcs} · ${best.mbps.toFixed(1)} Mbps` : 'No usable link'}</b></div>
       <div class="link-stat"><span>RSSI / Margin</span><b>${best ? `${best.rssi.toFixed(0)} dBm · +${best.margin.toFixed(0)} dB` : '—'}</b></div>
       <button class="tool-btn" style="width:100%;margin-top:6px" data-profile>Terrain profile ▾</button>`;

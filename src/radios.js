@@ -47,6 +47,26 @@ export const RADIOS = [
 
 export const CHANNEL_WIDTHS = [3, 5, 10, 15, 20, 26, 40];
 
+// Coax cable attenuation model: loss(dB/100m) ≈ k · √f(MHz), fitted to published
+// LMR-class attenuation tables (within ~5% across 900–5800 MHz). MC400/MC600 are
+// 400/600-class equivalents. Connector allowance added separately.
+export const CABLES = {
+  manual: { label: 'Manual entry (dB)', k: null },
+  none: { label: 'None / integrated', k: 0 },
+  c195: { label: '195-class (LMR-195)', k: 1.19 },
+  c240: { label: '240-class (LMR-240)', k: 0.85 },
+  c400: { label: '400-class (LMR-400 / MC400)', k: 0.45 },
+  c600: { label: '600-class (LMR-600 / MC600)', k: 0.29 },
+};
+export const CONNECTOR_LOSS_DB = 0.5; // pair of connectors
+
+export function cableLossDb(cableType, lengthM, freqMhz) {
+  const c = CABLES[cableType];
+  if (!c || c.k === null) return null; // manual
+  if (c.k === 0) return 0;
+  return c.k * Math.sqrt(freqMhz) * (lengthM / 100) + CONNECTOR_LOSS_DB;
+}
+
 export const PLATFORMS = [
   { id: 'mast', label: 'Fixed mast / tower', defaultHeight: 10 },
   { id: 'uav', label: 'UAV (drone)', defaultHeight: 100 },

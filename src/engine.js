@@ -31,6 +31,28 @@ export function throughputMbps(mcsIndex, bwMhz) {
   return table[mcsIndex % 8] * (bwMhz / 20);
 }
 
+// ---- Antenna pattern model -----------------------------------------------
+// Parametric 3GPP-style pattern: parabolic rolloff over the half-power beamwidth
+// in azimuth and elevation, with sidelobe floors. Az/el losses combine, capped
+// at the front-to-back floor. hpbwAz >= 360 means omnidirectional in azimuth.
+
+export function angDiff(a, b) {
+  let d = Math.abs(a - b) % 360;
+  return d > 180 ? 360 - d : d;
+}
+
+export function patternLossDb({ offAzDeg = 0, offElDeg = 0, hpbwAz = 360, hpbwEl = 360, frontToBackDb = 25 }) {
+  const lAz = hpbwAz >= 360 ? 0 : Math.min(12 * (offAzDeg / hpbwAz) ** 2, frontToBackDb);
+  const lEl = hpbwEl >= 360 ? 0 : Math.min(12 * (offElDeg / hpbwEl) ** 2, 20);
+  return Math.min(lAz + lEl, 30);
+}
+
+// Elevation angle (deg) from TX to RX given ASL elevations incl. antenna heights
+export function elevationAngleDeg(elevTxAsl, elevRxAsl, distM) {
+  if (distM < 1) return 0;
+  return (Math.atan2(elevRxAsl - elevTxAsl, distM) * 180) / Math.PI;
+}
+
 // ---- Terrain analysis ----------------------------------------------------
 
 // Given a profile (from terrain.js) and the two node heights AGL, analyze
