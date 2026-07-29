@@ -199,7 +199,8 @@ export async function computeCoverage(node, radio, opts, onProgress) {
  * Lowest altitude at which the link closes, as a raster (UAS mission planning).
  */
 export async function computeMinAltitude(node, radio, opts, onProgress) {
-  const { remoteGainDbi, fadeMargin = 10, txPattern = null, minMbps = 0, quality = QUALITY.normal } = opts;
+  const { remoteGainDbi, fadeMargin = 10, txPattern = null, minMbps = 0,
+          nearGround = false, quality = QUALITY.normal } = opts;
   const origin = node.marker.getLngLat();
   const radiusM = opts.radiusM || autoRadiusM(node, radio, remoteGainDbi, fadeMargin);
   const rays = await sampleRays(origin, radiusM, quality, (p) => onProgress && onProgress(p * 0.6));
@@ -208,7 +209,7 @@ export async function computeMinAltitude(node, radio, opts, onProgress) {
     elevTxAsl: rays.baseElev + node.heightM,
     freqMhz: node.freqMhz, bwMhz: node.bwMhz, radio, powerDbm: node.powerDbm,
     txGainDbi: node.antennaGain, remoteGainDbi, cableLossDb: node.cableLoss, bdaGainDb: node.bdaGain,
-    txPattern, fadeMarginDb: fadeMargin,
+    txPattern, fadeMarginDb: fadeMargin, nearGround,
   };
   const res = minAltitudeRays(rays, params, { minMbps });
   const geom = { azimuths: rays.azimuths, steps: rays.steps, radiusM };
@@ -233,7 +234,7 @@ export async function computeMinAltitude(node, radio, opts, onProgress) {
  * a whole ground network.
  */
 export async function computeMeshMinAltitude(entries, opts, onProgress) {
-  const { remoteGainDbi, fadeMargin = 10, minMbps = 0, quality = QUALITY.normal } = opts;
+  const { remoteGainDbi, fadeMargin = 10, minMbps = 0, nearGround = false, quality = QUALITY.normal } = opts;
   const datasets = [];
   for (let i = 0; i < entries.length; i++) {
     const e = entries[i];
@@ -245,7 +246,7 @@ export async function computeMeshMinAltitude(entries, opts, onProgress) {
       elevTxAsl: rays.baseElev + e.node.heightM,
       freqMhz: e.node.freqMhz, bwMhz: e.node.bwMhz, radio: e.radio, powerDbm: e.node.powerDbm,
       txGainDbi: e.node.antennaGain, remoteGainDbi, cableLossDb: e.node.cableLoss,
-      bdaGainDb: e.node.bdaGain, txPattern: e.txPattern, fadeMarginDb: fadeMargin,
+      bdaGainDb: e.node.bdaGain, txPattern: e.txPattern, fadeMarginDb: fadeMargin, nearGround,
     }, { minMbps });
     datasets.push({ origin, radiusM, azimuths: rays.azimuths, steps: rays.steps, res });
   }

@@ -77,6 +77,10 @@ export function invalidateRayCache() { rayCache.clear(); }
 const GROUND_A = [[250, 36.07], [500, 40.70], [915, 43.25], [1000, 43.66],
                   [2000, 44.62], [2450, 44.75], [4000, 46.06], [5800, 48.05]];
 
+// Above this height above ground the empirical near-ground curve stops being
+// applicable — it was fitted to ground-level radios, not to aircraft.
+export const NEAR_GROUND_MAX_M = 15;
+
 export function groundPathLossDb(freqMhz, distM) {
   const lf = Math.log10(freqMhz);
   let A = GROUND_A[GROUND_A.length - 1][1];
@@ -256,7 +260,12 @@ export function minAltitudeRays(rays, params, options = {}) {
   const worked = new Uint8Array(n);
 
   for (const alt of altitudes) {
-    const res = evaluateRays(rays, { ...params, remoteMode: mode, remoteAltM: alt });
+    // The empirical near-ground penalty was derived from radios sitting on the
+    // ground, so it applies to the low candidates only — but it must not be
+    // silently dropped for them, or the reported minimum height would be
+    // optimistic for exactly the ground platforms it was meant to cover.
+    const nearGround = !!params.nearGround && alt <= NEAR_GROUND_MAX_M;
+    const res = evaluateRays(rays, { ...params, remoteMode: mode, remoteAltM: alt, nearGround });
     for (let i = 0; i < n; i++) {
       const mcs = res.bestMcs[i];
       const ok = mcs >= 0 && (minMbps <= 0 || throughputMbps(mcs, params.bwMhz) >= minMbps);
