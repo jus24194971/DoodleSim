@@ -17,6 +17,7 @@
         <button id="btn-advisor" class="tool-btn" title="Describe your mission and get recommended configurations">🎯 Plan Advisor</button>
         <button id="btn-save" class="tool-btn" title="Download this layout as a .json file">💾 Save</button>
         <button id="btn-load" class="tool-btn" title="Load a layout .json file">📂 Load</button>
+        <button id="btn-mesh-coverage" class="tool-btn" title="Combined coverage of all nodes with overlap/redundancy zones">▩ Mesh coverage</button>
         <button id="btn-report" class="tool-btn" title="Export a customer-ready design summary">📄 Report</button>
         <input type="file" id="file-load" accept=".json" style="display:none" />
         <span id="mode-hint"></span>
@@ -108,6 +109,7 @@
         <section>
           <h2>▦ Coverage heatmaps</h2>
           <p>On any node card, set the <b>remote end's height and gain</b> (what does a 2 m handheld see? a 100 m drone?) and click <b>Coverage heatmap</b>. The map colors everywhere that node can serve, by achievable MCS/throughput — computed over real terrain in every direction, honoring the antenna's beam shape. Recompute after aiming or config changes; run it per-scenario by changing the remote height.</p>
+          <p><b>▩ Mesh coverage</b> (toolbar) combines every node's footprint into one overlap map: areas served by one radio show the normal rate colors, <b>two same-band radios</b> show deep blue (redundant — survives any single-node outage), and <b>three or more</b> show purple (extreme coverage — maximum mesh resilience). The legend reports km² per tier, and the figures flow into the exported report.</p>
         </section>
 
         <section>

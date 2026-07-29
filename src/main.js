@@ -4,7 +4,7 @@ import './style.css';
 import { RADIOS, BANDS, CHANNEL_WIDTHS, PLATFORMS, CABLES, cableLossDb } from './radios.js';
 import { terrainProfile, haversineM, bearingDeg, destination, elevationAt } from './terrain.js';
 import { analyzePath, evaluateLink, fsplDb, throughputMbps, patternLossDb, elevationAngleDeg, angDiff } from './engine.js';
-import { computeCoverage, colorForMcs } from './coverage.js';
+import { computeCoverage, computeMeshCoverage, colorForMcs } from './coverage.js';
 import { SCENARIOS, recommend, adviseExtension, REMOTE_PLATFORMS } from './advisor.js';
 import { buildReportHtml } from './report.js';
 import { startTour } from './tour.js';
@@ -41,7 +41,9 @@ const map = new maplibregl.Map({ container: 'map', style: OSM_STYLE, center: [-9
 map.addControl(new maplibregl.NavigationControl(), 'top-left');
 map.addControl(new maplibregl.ScaleControl({ unit: 'metric' }));
 
-map.on('load', () => {
+function setupMapLayers() {
+  if (map.getSource('beams')) return;
+  mapReady = true;
   map.addSource('beams', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
   map.addLayer({
     id: 'beams', type: 'fill', source: 'beams',
@@ -68,7 +70,9 @@ map.on('load', () => {
   });
   map.on('mouseenter', 'links', () => (map.getCanvas().style.cursor = 'pointer'));
   map.on('mouseleave', 'links', () => (map.getCanvas().style.cursor = ''));
-});
+  refreshLinks(); refreshBeams();
+}
+map.on('load', setupMapLayers);
 
 document.getElementById('basemap-toggle').addEventListener('change', (e) => {
   map.setLayoutProperty('sat', 'visibility', e.target.checked ? 'visible' : 'none');
@@ -248,7 +252,7 @@ document.getElementById('btn-report').addEventListener('click', async () => {
   };
   let mapImagePng = null;
   try { mapImagePng = map.getCanvas().toDataURL('image/png'); } catch { /* map WebGL context may block capture */ }
-  const html = buildReportHtml({ nodes, links, renderProfilePng, mapImagePng, missionNote });
+  const html = buildReportHtml({ nodes, links, renderProfilePng, mapImagePng, missionNote, meshStats: coverage.meshStats, meshRemote: { h: coverage.remoteHeightM, g: coverage.remoteGainDbi } });
   const blob = new Blob([html], { type: 'text/html' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
@@ -554,10 +558,23 @@ function removeNode(node) {
 }
 
 // ---------- Coverage heatmap ----------
+let mapReady = false;
+function styleReady() {
+  return new Promise((res) => {
+    const check = () => {
+      if (map.style && map.style._loaded) { setupMapLayers(); res(); return true; }
+      return false;
+    };
+    if (check()) return;
+    const iv = setInterval(() => { if (check()) clearInterval(iv); }, 150);
+  });
+}
+
 function clearCoverage() {
   if (map.getLayer('coverage')) map.removeLayer('coverage');
   if (map.getSource('coverage')) map.removeSource('coverage');
   coverage.nodeId = null;
+  coverage.meshStats = null;
   document.getElementById('coverage-legend')?.remove();
   renderSidebar();
 }
@@ -577,6 +594,7 @@ async function runCoverage(node) {
       fadeMargin: FADE_MARGIN,
       txPattern: (pat.directional || pat.hpbwEl < 360) ? { azimuthDeg: node.azimuthDeg, tiltDeg: node.tiltDeg, hpbwAz: pat.hpbwAz, hpbwEl: pat.hpbwEl } : null,
     }, (p) => { hint.textContent = `Computing coverage… ${Math.round(p * 100)}%`; });
+    await styleReady();
     if (map.getLayer('coverage')) map.removeLayer('coverage');
     if (map.getSource('coverage')) map.removeSource('coverage');
     map.addSource('coverage', { type: 'canvas', canvas: result.canvas, coordinates: result.bounds, animate: false });
@@ -590,6 +608,58 @@ async function runCoverage(node) {
   }
   coverage.computing = false;
   renderSidebar();
+}
+
+async function runMeshCoverage() {
+  if (coverage.computing) return;
+  if (nodes.length < 1) { alert('Place nodes first.'); return; }
+  coverage.computing = true;
+  coverage.nodeId = null;
+  renderSidebar();
+  hint.textContent = 'Computing mesh coverage… 0%';
+  try {
+    const entries = nodes.map((n) => {
+      const radio = RADIOS.find((r) => r.id === n.radioId);
+      const pat = getPattern(n);
+      return {
+        node: n, radio, bandId: n.bandId,
+        txPattern: (pat.directional || pat.hpbwEl < 360) ? { azimuthDeg: n.azimuthDeg, tiltDeg: n.tiltDeg, hpbwAz: pat.hpbwAz, hpbwEl: pat.hpbwEl } : null,
+      };
+    });
+    const result = await computeMeshCoverage(entries, {
+      remoteHeightM: coverage.remoteHeightM,
+      remoteGainDbi: coverage.remoteGainDbi,
+      fadeMargin: FADE_MARGIN,
+    }, (p) => { hint.textContent = `Computing mesh coverage… ${Math.round(p * 100)}%`; });
+    await styleReady();
+    if (map.getLayer('coverage')) map.removeLayer('coverage');
+    if (map.getSource('coverage')) map.removeSource('coverage');
+    map.addSource('coverage', { type: 'canvas', canvas: result.canvas, coordinates: result.bounds, animate: false });
+    map.addLayer({ id: 'coverage', type: 'raster', source: 'coverage', paint: { 'raster-opacity': 0.75 } }, 'links');
+    coverage.meshStats = result.stats;
+    coverage.nodeId = 'mesh';
+    renderMeshLegend(result.stats);
+    hint.textContent = '';
+  } catch (err) {
+    console.error('mesh coverage failed', err);
+    hint.textContent = 'Mesh coverage computation failed';
+  }
+  coverage.computing = false;
+  renderSidebar();
+}
+document.getElementById('btn-mesh-coverage').addEventListener('click', runMeshCoverage);
+
+function renderMeshLegend(stats) {
+  document.getElementById('coverage-legend')?.remove();
+  const div = document.createElement('div');
+  div.id = 'coverage-legend';
+  div.innerHTML = `<b>Mesh coverage — ${stats.nodeCount} node${stats.nodeCount > 1 ? 's' : ''}</b>
+    <div class="leg-row"><span class="leg-swatch" style="background:rgb(123,44,191)"></span>3+ radios · EXTREME (${stats.extremeKm2.toFixed(1)} km²)</div>
+    <div class="leg-row"><span class="leg-swatch" style="background:rgb(16,110,190)"></span>2 radios · redundant (${stats.redundantKm2.toFixed(1)} km²)</div>
+    <div class="leg-row"><span class="leg-swatch" style="background:rgb(120,170,60)"></span>1 radio · covered (${stats.singleKm2.toFixed(1)} km², shaded by rate)</div>
+    <div class="leg-row leg-note">Overlap counted between same-band nodes only · Remote: ${coverage.remoteHeightM} m / ${coverage.remoteGainDbi} dBi</div>
+    <div class="leg-row leg-note"><button class="tool-btn" style="padding:2px 8px;font-size:11px" onclick="document.getElementById('coverage-legend').remove(); window.__app.clearCoverage()">✕ clear</button></div>`;
+  document.getElementById('map').appendChild(div);
 }
 
 function renderLegend(node) {
@@ -1051,5 +1121,7 @@ window.__app = {
   },
   recompute: () => recomputeAllLinks(),
   runCoverage: (id) => runCoverage(nodes.find((n) => n.id === id)),
+  runMeshCoverage,
+  clearCoverage,
   get coverage() { return coverage; },
 };

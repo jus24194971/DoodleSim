@@ -21,7 +21,7 @@ export function minClearHeight(link, whichEnd) {
 
 const esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;');
 
-export function buildReportHtml({ nodes, links, renderProfilePng, mapImagePng, missionNote }) {
+export function buildReportHtml({ nodes, links, renderProfilePng, mapImagePng, missionNote, meshStats, meshRemote }) {
   const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 
   const nodeRows = nodes.map((n) => {
@@ -100,6 +100,13 @@ ${missionNote ? `<div class="mission"><b>Objective:</b> ${esc(missionNote)}</div
 ${mapImagePng ? `<h2>Deployment Map</h2><img class="map" src="${mapImagePng}"/>` : ''}
 <h2>Equipment &amp; Placement</h2>
 <table><tr><th>Node</th><th>Location</th><th>Radio</th><th>Antenna</th><th>Cable / BDA</th></tr>${nodeRows}</table>
+${meshStats ? `<h2>Mesh Coverage &amp; Redundancy</h2>
+<p class="sub" style="margin-bottom:6px">Combined terrain-aware coverage of all ${meshStats.nodeCount} nodes, for a remote node at ${meshRemote?.h ?? '?'} m AGL with ${meshRemote?.g ?? '?'} dBi. Overlap counted between same-band nodes only (different bands do not mesh). The deployment map above shows the zones.</p>
+<table><tr><th>Coverage tier</th><th>Meaning</th><th>Area</th></tr>
+<tr><td><b style="color:#7b2cbf">■</b> Extreme (3+ radios)</td><td>A roaming node has three or more mesh peers — maximum resilience and roaming capacity</td><td><b>${meshStats.extremeKm2.toFixed(2)} km²</b></td></tr>
+<tr><td><b style="color:#106ebe">■</b> Redundant (2 radios)</td><td>Two independent paths into the mesh — survives any single-node outage</td><td><b>${meshStats.redundantKm2.toFixed(2)} km²</b></td></tr>
+<tr><td><b style="color:#78aa3c">■</b> Covered (1 radio)</td><td>Single-radio coverage, shaded by achievable data rate</td><td><b>${meshStats.singleKm2.toFixed(2)} km²</b></td></tr>
+<tr><td>Total footprint</td><td></td><td><b>${(meshStats.singleKm2 + meshStats.redundantKm2 + meshStats.extremeKm2).toFixed(2)} km²</b></td></tr></table>` : ''}
 <h2>Link Analysis</h2>
 ${linkSections || '<p class="sub">No links defined.</p>'}
 <footer>
