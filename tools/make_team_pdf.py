@@ -16,11 +16,23 @@ MID = HexColor('#6A6A6A')
 LINE = HexColor('#E2E2E2')
 WASH = HexColor('#F9F9F9')
 
-SCRATCH = os.path.dirname(os.path.abspath(__file__))
-LOGO = os.path.join(SCRATCH, 'brand', 'doodle_logo.png')
-OUT = r'C:\Users\jus24\Documents\Doodle Labs RF Simulator\RF-Link-Planner-Team-Summary.pdf'
+HERE = os.path.dirname(os.path.abspath(__file__))
+ROOT = os.path.dirname(HERE)
+# brand asset lives at the repo root; fall back to a sibling brand/ dir
+LOGO = next((c for c in (os.path.join(ROOT, 'brand', 'doodle_logo.png'),
+                         os.path.join(HERE, 'brand', 'doodle_logo.png'))
+             if os.path.exists(c)), None)
+if not LOGO:
+    raise SystemExit('brand/doodle_logo.png not found - the header needs the official logo')
+OUT = os.path.join(ROOT, 'RF-Link-Planner-Team-Summary.pdf')
 
 BASE, BOLD = 'Helvetica', 'Helvetica-Bold'
+
+SITE = 'https://doodlesim.jus2419497.workers.dev'
+REPO = 'https://github.com/jus24194971/DoodleSim'
+def A(url, text=None):
+    """Clickable link, brand blue and underlined."""
+    return '<a href="%s" color="#1E73BE"><u>%s</u></a>' % (url, text or url)
 
 H1 = ParagraphStyle('H1', fontName=BOLD, fontSize=19, leading=23, textColor=INK, spaceAfter=2)
 SUB = ParagraphStyle('SUB', fontName=BASE, fontSize=11, leading=15, textColor=MID, spaceAfter=10)
@@ -50,7 +62,7 @@ def header_footer(canvas, doc, first=False):
     # brand blue keyline under the band
     canvas.setFillColor(BRAND)
     canvas.rect(0, H - band - 3, W, 3, stroke=0, fill=1)
-    if os.path.exists(LOGO):
+    if LOGO:
         lw = 168 if first else 104
         lh = lw * 211.0 / 627.0
         canvas.drawImage(LOGO, 0.78 * inch, H - band + (band - lh) / 2.0,
@@ -66,6 +78,13 @@ def header_footer(canvas, doc, first=False):
     canvas.setFillColor(MID)
     canvas.drawString(0.78 * inch, 0.44 * inch, 'RF Link Planner - program summary - 29 July 2026')
     canvas.drawRightString(W - 0.78 * inch, 0.44 * inch, 'Page %d' % doc.page)
+    # centred, clickable link to the live tool
+    tool = 'doodlesim.jus2419497.workers.dev'
+    tw = canvas.stringWidth(tool, BASE, 7.4)
+    x = (W - tw) / 2.0
+    canvas.setFillColor(BRAND)
+    canvas.drawString(x, 0.44 * inch, tool)
+    canvas.linkURL(SITE, (x, 0.42 * inch, x + tw, 0.54 * inch), relative=0, thickness=0)
     canvas.restoreState()
 
 def tbl(rows, widths, header=True, zebra=True):
@@ -122,8 +141,8 @@ S(Paragraph('RF Link Planner', H1))
 S(Paragraph('Terrain-aware network planning for Mesh Rider radios. What the tool does, '
             'how far we can trust it, and what it has already found.', SUB))
 
-S(Paragraph('doodlesim.jus2419497.workers.dev &nbsp;&nbsp;<font size="9" color="#6A6A6A">'
-            'Live now - no login, nothing to install</font>', URLST))
+S(Paragraph(A(SITE, 'doodlesim.jus2419497.workers.dev')
+            + ' &nbsp;&nbsp;<font size="9" color="#6A6A6A">Live now - no login, nothing to install</font>', URLST))
 S(stats([('$0 / mo', 'Hosted on our own Cloudflare account'),
          ('14 radios', 'Full per-MCS data, including v4 and RM-1300/1400'),
          ('90 antennas', 'Every row audited against manufacturer datasheets'),
@@ -248,6 +267,21 @@ for b in [
     'Sequential captures cannot be combined, and the tool refuses rather than guessing.',
 ]:
     S(Paragraph(b, BUL, bulletText='\u2022'))
+
+RES = [Paragraph('Where to find more', H2), tbl([['Resource', 'Link'],
+       ['The tool itself', A(SITE, 'doodlesim.jus2419497.workers.dev')],
+       ['Source, data and all documentation', A(REPO, 'github.com/jus24194971/DoodleSim')],
+       ['Antenna verification, all 90 rows',
+        A(REPO + '/blob/main/data/verification_report.md', 'data/verification_report.md')],
+       ['Customer log findings, six bundles',
+        A(REPO + '/blob/main/data/LOG_FINDINGS.md', 'data/LOG_FINDINGS.md')],
+       ['Ukraine field validation',
+        A(REPO + '/blob/main/data/FIELD_VALIDATION_UA.md', 'data/FIELD_VALIDATION_UA.md')],
+       ['Technical summary, for engineering review',
+        A(REPO + '/blob/main/DoodleSim-Technical-Summary.pdf', 'DoodleSim-Technical-Summary.pdf')]],
+      [2.5 * inch, 4.4 * inch]),
+    Paragraph('Repository links need access to the DoodleSim repo; the tool itself needs nothing.', SMALL)]
+S(KeepTogether(RES))
 
 S(Paragraph('What would help most', H2))
 S(Paragraph('Have a play - a 60-second tour runs on your first visit, and Help has tutorials and an FAQ. Then '
