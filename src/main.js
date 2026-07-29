@@ -90,6 +90,25 @@ function antennasForFreq(freqMhz) {
   return antennaCatalog.filter((a) => a.band_mhz[0] <= freqMhz && a.band_mhz[1] >= freqMhz);
 }
 
+// Custom ("Other") antenna types with typical az/el half-power beamwidths
+const CUSTOM_ANT_TYPES = {
+  omni: { label: 'Omni (collinear/fiberglass)', az: 360, el: 15 },
+  whip: { label: 'Whip / dipole', az: 360, el: 40 },
+  sector: { label: 'Sector', az: 90, el: 10 },
+  panel: { label: 'Panel / patch', az: 60, el: 60 },
+  yagi: { label: 'Yagi', az: 40, el: 35 },
+  dish: { label: 'Dish / grid (size-based)', az: 8, el: 8 },
+  helical: { label: 'Helical', az: 35, el: 35 },
+};
+
+// Parabolic dish estimates from diameter: gain ≈ 10·log10(η·(πD/λ)²), HPBW ≈ 70·λ/D
+function dishEstimates(diaM, freqMhz) {
+  const lambda = 299.792458 / freqMhz;
+  const gain = 10 * Math.log10(0.55 * (Math.PI * diaM / lambda) ** 2);
+  const hpbw = Math.max(1, 70 * lambda / diaM);
+  return { gain: Math.round(gain * 10) / 10, hpbw: Math.round(hpbw * 10) / 10 };
+}
+
 // Resolve a node's antenna radiation pattern (from catalog, or custom fields)
 function getPattern(node) {
   const a = node.antennaId ? antennaCatalog.find((x) => x.id === node.antennaId) : null;
@@ -161,7 +180,7 @@ function serializeState() {
     coverage: { remoteHeightM: coverage.remoteHeightM, remoteGainDbi: coverage.remoteGainDbi },
     nodes: nodes.map((n) => {
       const { lng, lat } = n.marker.getLngLat();
-      return { id: n.id, label: n.label, lng, lat, radioId: n.radioId, bandId: n.bandId, freqMhz: n.freqMhz, bwMhz: n.bwMhz, powerDbm: n.powerDbm, antennaId: n.antennaId, antennaGain: n.antennaGain, heightM: n.heightM, cableLoss: n.cableLoss, bdaGain: n.bdaGain, platform: n.platform, azimuthDeg: n.azimuthDeg, tiltDeg: n.tiltDeg, customHpbwAz: n.customHpbwAz, customHpbwEl: n.customHpbwEl, cableType: n.cableType, cableLenM: n.cableLenM };
+      return { id: n.id, label: n.label, lng, lat, radioId: n.radioId, bandId: n.bandId, freqMhz: n.freqMhz, bwMhz: n.bwMhz, powerDbm: n.powerDbm, antennaId: n.antennaId, antennaGain: n.antennaGain, heightM: n.heightM, cableLoss: n.cableLoss, bdaGain: n.bdaGain, platform: n.platform, azimuthDeg: n.azimuthDeg, tiltDeg: n.tiltDeg, customHpbwAz: n.customHpbwAz, customHpbwEl: n.customHpbwEl, customName: n.customName, customType: n.customType, dishDiaM: n.dishDiaM, cableType: n.cableType, cableLenM: n.cableLenM };
     }),
     links: links.map((l) => [l.a.id, l.b.id]),
   };
@@ -174,7 +193,7 @@ function restoreState(data) {
   for (const s of data.nodes || []) {
     addNode({ lng: s.lng, lat: s.lat });
     const n = nodes[nodes.length - 1];
-    Object.assign(n, { label: s.label ?? n.label, radioId: s.radioId, bandId: s.bandId, freqMhz: s.freqMhz, bwMhz: s.bwMhz, powerDbm: s.powerDbm, antennaId: s.antennaId ?? null, antennaGain: s.antennaGain, heightM: s.heightM, cableLoss: s.cableLoss ?? 0, bdaGain: s.bdaGain ?? 0, platform: s.platform ?? 'mast', azimuthDeg: s.azimuthDeg ?? 0, tiltDeg: s.tiltDeg ?? 0, customHpbwAz: s.customHpbwAz ?? 360, customHpbwEl: s.customHpbwEl ?? 360, cableType: s.cableType ?? 'manual', cableLenM: s.cableLenM ?? 0 });
+    Object.assign(n, { label: s.label ?? n.label, radioId: s.radioId, bandId: s.bandId, freqMhz: s.freqMhz, bwMhz: s.bwMhz, powerDbm: s.powerDbm, antennaId: s.antennaId ?? null, antennaGain: s.antennaGain, heightM: s.heightM, cableLoss: s.cableLoss ?? 0, bdaGain: s.bdaGain ?? 0, platform: s.platform ?? 'mast', azimuthDeg: s.azimuthDeg ?? 0, tiltDeg: s.tiltDeg ?? 0, customHpbwAz: s.customHpbwAz ?? 360, customHpbwEl: s.customHpbwEl ?? 360, customName: s.customName ?? '', customType: s.customType ?? 'omni', dishDiaM: s.dishDiaM ?? null, cableType: s.cableType ?? 'manual', cableLenM: s.cableLenM ?? 0 });
     n._savedId = s.id;
     n.marker.getElement().title = n.label;
   }
@@ -212,7 +231,8 @@ document.getElementById('btn-report').addEventListener('click', async () => {
   // annotate antenna display names for the report
   for (const n of nodes) {
     const a = n.antennaId ? antennaCatalog.find((x) => x.id === n.antennaId) : null;
-    n._antName = a ? `${a.manufacturer} ${a.model} (${a.gain_dbi} dBi ${a.pattern})` : null;
+    n._antName = a ? `${a.manufacturer} ${a.model} (${a.gain_dbi} dBi ${a.pattern})`
+      : (n.customName ? `${n.customName} (${CUSTOM_ANT_TYPES[n.customType]?.label || 'custom'}, ${n.antennaGain} dBi)` : null);
   }
   const off = document.createElement('canvas');
   const renderProfilePng = (link) => {
@@ -473,6 +493,7 @@ function addNode(lngLat) {
     radioId: 'miniOEM_v4', bandId: 'ism2400', freqMhz: 2450, bwMhz: 20,
     powerDbm: 32, antennaId: null, antennaGain: 3, heightM: 10, cableLoss: 0, bdaGain: 0, platform: 'mast',
     azimuthDeg: 0, tiltDeg: 0, customHpbwAz: 360, customHpbwEl: 360,
+    customName: '', customType: 'omni', dishDiaM: null,
     cableType: 'none', cableLenM: 0,
   };
   marker.on('drag', () => refreshBeams());
@@ -731,9 +752,13 @@ function renderSidebar() {
       <div class="row"><label>Bandwidth</label><select data-f="bwMhz">${CHANNEL_WIDTHS.map((w) => `<option value="${w}" ${w === node.bwMhz ? 'selected' : ''}>${w} MHz</option>`).join('')}</select></div>
       <div class="row"><label>TX power (dBm)</label><input type="number" data-f="powerDbm" value="${node.powerDbm}" min="0" max="${radio.maxConfig}"/></div>
       <div class="row"><label>Antenna</label><select data-f="antennaId">
-        <option value="">Custom gain…</option>
+        <option value="">Other (specify custom)…</option>
         ${[...ants].sort((x, y) => (y.doodle_recommended ? 1 : 0) - (x.doodle_recommended ? 1 : 0) || y.gain_dbi - x.gain_dbi).map((a) => `<option value="${a.id}" ${a.id === node.antennaId ? 'selected' : ''}>${a.doodle_recommended ? '★ ' : ''}${(a.manufacturer || '').split(' ')[0]} ${a.model} (${a.gain_dbi} dBi ${a.pattern})</option>`).join('')}
       </select></div>
+      ${!node.antennaId ? `
+      <div class="row"><label>Ant. name</label><input type="text" data-f="customName" value="${(node.customName || '').replace(/"/g, '&quot;')}" placeholder="e.g. Customer's existing yagi" style="flex:1;min-width:0;padding:3px 6px;border:1px solid #ced4da;border-radius:4px;font-size:12px"/></div>
+      <div class="row"><label>Ant. type</label><select data-f="customType">${Object.entries(CUSTOM_ANT_TYPES).map(([k, t]) => `<option value="${k}" ${k === node.customType ? 'selected' : ''}>${t.label}</option>`).join('')}</select></div>
+      ${node.customType === 'dish' ? `<div class="row"><label>Dish diameter (m)</label><input type="number" data-f="dishDiaM" value="${node.dishDiaM ?? ''}" min="0.1" step="0.1" placeholder="auto-estimates gain" title="Gain and beamwidth estimated from diameter at the operating frequency"/></div>` : ''}` : ''}
       <div class="row"><label>Ant. gain (dBi)</label><input type="number" data-f="antennaGain" value="${node.antennaGain}" step="0.5" ${node.antennaId ? 'disabled' : ''}/></div>
       ${node.antennaId ? `<div class="row"><label>Beamwidth az/el</label><span class="pat-info">${getPattern(node).directional ? getPattern(node).hpbwAz + '° / ' + getPattern(node).hpbwEl + '°' : 'omni / ' + getPattern(node).hpbwEl + '°'}</span></div>`
         : `<div class="row"><label>Beamwidth az (°)</label><input type="number" data-f="customHpbwAz" value="${node.customHpbwAz}" min="5" max="360" step="5" title="360 = omnidirectional"/></div>
@@ -769,6 +794,16 @@ function renderSidebar() {
         const f = el.dataset.f;
         const v = el.type === 'number' ? parseFloat(el.value) : el.value;
         node[f] = v;
+        if (f === 'customType') {
+          const t = CUSTOM_ANT_TYPES[v];
+          node.customHpbwAz = t.az; node.customHpbwEl = t.el;
+          if (v !== 'dish') node.dishDiaM = null;
+        }
+        if ((f === 'dishDiaM' && v > 0) || (f === 'freqMhz' && node.customType === 'dish' && node.dishDiaM > 0 && !node.antennaId)) {
+          const est = dishEstimates(node.dishDiaM, f === 'freqMhz' ? v : node.freqMhz);
+          node.antennaGain = est.gain;
+          node.customHpbwAz = est.hpbw; node.customHpbwEl = est.hpbw;
+        }
         if (f === 'platform') {
           node.heightM = PLATFORMS.find((p) => p.id === v).defaultHeight;
         }
