@@ -9,3 +9,6 @@ __pycache__/
 data/hubspot_bundles/
 data/tickets.json
 data/hubspot_manifest.json
+data/failure_cases_hubspot.json
+data/FAILURE_ANALYSIS_REPORT.md
+Doodle-Labs-RF-Failure-Analysis.pdf
