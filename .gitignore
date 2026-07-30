@@ -12,3 +12,7 @@ data/hubspot_manifest.json
 data/failure_cases_hubspot.json
 data/FAILURE_ANALYSIS_REPORT.md
 Doodle-Labs-RF-Failure-Analysis.pdf
+
+data/fault_attribution.json
+data/FAULT_ATTRIBUTION_REPORT.md
+Doodle-Labs-Fault-Attribution.pdf
