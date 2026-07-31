@@ -22,13 +22,27 @@ def short_vendor(v):
     if 'Domo' in v or 'DTC' in v: return 'DTC'
     return v[:18]
 
+_SAFE = {u'≤': '<=', u'≥': '>=', u'→': '->', u'≈': '~', u'–': '-', u'—': '-',
+         u'‘': "'", u'’': "'", u'“': '"', u'”': '"', u'•': '-', u'±': '+/-',
+         u'×': 'x', u'·': '-', u'�': '', u' ': ' '}
+
 def tidy(t, n=200):
+    """Normalise a spec value AND escape it for reportlab.
+
+    Escaping happens here, at assembly time, because these values genuinely contain
+    angle brackets - the Doodle range claim is literally '>8 Km (>5 Miles)'. The
+    caller then wraps the result in <b> markup, so escaping downstream would turn
+    those tags into visible text.
+    """
     if not t or str(t).strip().lower().startswith('not published'):
         return 'not published'
     t = re.sub(r'\s+', ' ', str(t)).strip()
     # strip the agent's editorial framing, keep the figure
     t = re.sub(r'^(Verbatim[:,]?|Per the [^:]{0,40}:|Datasheet states BOTH:)\s*', '', t, flags=re.I)
-    return t[:n] + ('...' if len(t) > n else '')
+    t = t[:n] + ('...' if len(t) > n else '')
+    for k, v in _SAFE.items():
+        t = t.replace(k, v)
+    return t.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
 
 def key_specs(m):
     """One compact line per model: the fields an SE would actually compare."""

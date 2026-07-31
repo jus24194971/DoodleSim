@@ -170,7 +170,7 @@ def main():
                 W(Paragraph(esc(g['role']), SMALL))
             rows = [['Vendor', 'Model', 'Key specifications']]
             for m in (g.get('models') or []):
-                rows.append([esc(m['vendor']), esc(m['model']), clip(m['key_specs'], 340)])
+                rows.append([esc(m['vendor']), esc(m['model']), rawclip(m['key_specs'], 700)])
             W(tbl(rows, [0.95 * inch, 1.5 * inch, 4.45 * inch], tiny=True))
             M('| Vendor | Model | Key specifications |')
             M('|---|---|---|')
@@ -487,7 +487,7 @@ def main():
     doc = document(OUT, 'Doodle Labs - Mesh Rider Programme Report',
                    'Doodle Labs Solutions Engineering',
                    'Mesh Rider programme report - 29 July 2026')
-    doc.build(S)
+    build(doc, S)
     print('written %s' % MD)
     print('written %s' % OUT)
 

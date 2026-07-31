@@ -18,7 +18,8 @@ from reportlab.lib.colors import HexColor, white, black
 from reportlab.lib.styles import ParagraphStyle
 from reportlab.lib.enums import TA_LEFT
 from reportlab.platypus import (BaseDocTemplate, PageTemplate, Frame, Paragraph,
-                                Spacer, Table, TableStyle, KeepTogether)
+                                Spacer, Table, TableStyle, KeepTogether,
+                                NextPageTemplate)
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -71,6 +72,23 @@ def esc(t):
 def clip(t, n):
     t = esc(t)
     return t if len(t) <= n else t[:n - 1].rstrip() + '...'
+
+def rawclip(t, n):
+    """Truncate WITHOUT escaping, for strings that already carry intentional markup.
+
+    Passing pre-built markup through clip() escapes the tags and prints a literal
+    "<b>" on the page, which is exactly what happened to the spec tables. Anything
+    handed to this must have had its data escaped when it was assembled.
+    """
+    t = '' if t is None else str(t)
+    if len(t) <= n:
+        return t
+    cut = t[:n]
+    # do not truncate inside a tag, or reportlab sees an unterminated element
+    lt, gt = cut.rfind('<'), cut.rfind('>')
+    if lt > gt:
+        cut = cut[:lt]
+    return cut.rstrip() + '...'
 
 def A(url, text=None):
     return '<a href="%s" color="#1E73BE"><u>%s</u></a>' % (url, text or url)
@@ -134,15 +152,35 @@ def _hf(canvas, doc, first, footer_text, banner):
     canvas.linkURL(SITE, (x, 0.42 * inch, x + tw, 0.54 * inch), relative=0, thickness=0)
     canvas.restoreState()
 
+FIRST_BAND, LATER_BAND, KEYLINE, HEAD_GAP = 96, 46, 3, 10
+
 def document(out, title, author, footer, banner='INTERNAL - CONTAINS CUSTOMER DATA'):
     doc = BaseDocTemplate(out, pagesize=letter, leftMargin=0.78 * inch,
                           rightMargin=0.78 * inch, topMargin=0.62 * inch,
                           bottomMargin=0.78 * inch, title=title, author=author)
-    ff = Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height - 0.52 * inch, id='f')
-    fl = Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height + 0.16 * inch, id='l')
+    # Derive each frame's top from the header band that page actually draws, rather
+    # than nudging doc.height by a guessed offset. The guessed version overlapped the
+    # band by ~16 pt, so the first line of every page printed under the black bar.
+    H = letter[1]
+    top_first = H - FIRST_BAND - KEYLINE - HEAD_GAP
+    top_later = H - LATER_BAND - KEYLINE - HEAD_GAP
+    ff = Frame(doc.leftMargin, doc.bottomMargin, doc.width,
+               top_first - doc.bottomMargin, id='f')
+    fl = Frame(doc.leftMargin, doc.bottomMargin, doc.width,
+               top_later - doc.bottomMargin, id='l')
     doc.addPageTemplates([
         PageTemplate(id='first', frames=[ff],
                      onPage=lambda c, d: _hf(c, d, True, footer, banner)),
         PageTemplate(id='later', frames=[fl],
                      onPage=lambda c, d: _hf(c, d, False, footer, banner))])
     return doc
+
+def build(doc, story):
+    """Build the document with the compact header active from page two onward.
+
+    BaseDocTemplate never advances past its first PageTemplate on its own, so
+    without the leading NextPageTemplate the 'later' template is dead code: every
+    page draws the tall 96 pt title banner and loses roughly an inch of usable
+    height. Always build through this rather than calling doc.build directly.
+    """
+    doc.build([NextPageTemplate('later')] + list(story))

@@ -18,7 +18,8 @@ from reportlab.lib.colors import HexColor, white, black
 from reportlab.lib.styles import ParagraphStyle
 from reportlab.lib.enums import TA_LEFT
 from reportlab.platypus import (BaseDocTemplate, PageTemplate, Frame, Paragraph,
-                                Spacer, Table, TableStyle, KeepTogether)
+                                Spacer, Table, TableStyle, KeepTogether,
+                                NextPageTemplate)
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC = os.path.join(ROOT, 'data', 'fault_attribution.json')
@@ -485,12 +486,21 @@ def write_pdf(d, A, S):
                           topMargin=0.62 * inch, bottomMargin=0.78 * inch,
                           title='Doodle Labs - Fault Attribution',
                           author='Doodle Labs Solutions Engineering')
-    ff = Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height - 0.52 * inch, id='f')
-    fl = Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height + 0.16 * inch, id='l')
+    # Frame tops derived from the header band each page actually draws. The previous
+    # doc.height offsets overlapped the band by ~16 pt, printing the first line of
+    # every page under the black bar.
+    _H = letter[1]
+    ff = Frame(doc.leftMargin, doc.bottomMargin, doc.width,
+               (_H - 96 - 3 - 10) - doc.bottomMargin, id='f')
+    fl = Frame(doc.leftMargin, doc.bottomMargin, doc.width,
+               (_H - 46 - 3 - 10) - doc.bottomMargin, id='l')
     doc.addPageTemplates([
         PageTemplate(id='first', frames=[ff], onPage=lambda c, dd: header_footer(c, dd, True)),
         PageTemplate(id='later', frames=[fl], onPage=lambda c, dd: header_footer(c, dd, False))])
-    doc.build(Sy)
+    # BaseDocTemplate never advances past the first PageTemplate on its own, so
+    # without this the compact header is dead code and every page draws the tall
+    # title banner, losing about an inch of usable height.
+    doc.build([NextPageTemplate('later')] + Sy)
     print('written', PDF)
 
 
