@@ -290,3 +290,30 @@ html, body, #app { height: 100%; font-family: 'Segoe UI', system-ui, sans-serif;
 .gps-badge.yes { background: #e7f5ec; color: #2b8a3e; }
 .gps-badge.no { background: #fff0f0; color: #c92a2a; }
 .loc-fix-marker { width: 22px; height: 22px; border-radius: 50%; background: #be4bdb; border: 3px solid #fff; box-shadow: 0 2px 8px rgba(0,0,0,.5); }
+
+/* Link budget & airtime panel (model design: Aaron Do) */
+#air-panel {
+  position: absolute; top: 58px; right: 12px; width: 310px; max-height: calc(100vh - 78px);
+  overflow-y: auto; background: #131a24; color: #e9ecef; border: 1px solid #2b3648;
+  border-radius: 8px; box-shadow: 0 8px 28px rgba(0,0,0,.45); font-size: 12px; z-index: 6;
+}
+#air-panel.hidden { display: none; }
+#air-head { display: flex; align-items: center; padding: 9px 11px; border-bottom: 1px solid #2b3648; }
+#air-head button { margin-left: auto; background: none; border: none; color: #adb5bd; cursor: pointer; font-size: 14px; }
+#air-panel select { width: 100%; background: #0d1117; color: #e9ecef; border: 1px solid #2b3648;
+  border-radius: 4px; padding: 3px 5px; font-size: 12px; }
+#air-panel .cov-row input[type=number] { background: #0d1117; color: #e9ecef; border: 1px solid #2b3648; }
+#air-result { padding: 0 11px 10px; }
+.air-verdict { border-radius: 6px; padding: 8px 10px; margin: 9px 0 7px; font-weight: 600; }
+.air-verdict.ok   { background: #123a22; border: 1px solid #1f8a4c; color: #8ce0ab; }
+.air-verdict.warn { background: #3a2f12; border: 1px solid #c77700; color: #ffd08a; }
+.air-verdict.bad  { background: #3a1618; border: 1px solid #b02a2a; color: #ff9a9a; }
+.air-verdict small { display: block; font-weight: 400; color: #c9d3e0; margin-top: 3px; }
+.air-grid { display: grid; grid-template-columns: 1fr auto; gap: 3px 8px; margin-top: 6px; }
+.air-grid .k { color: #91a7c0; }
+.air-grid .v { text-align: right; font-variant-numeric: tabular-nums; }
+.air-bar { height: 7px; border-radius: 4px; background: #0d1117; border: 1px solid #2b3648;
+  overflow: hidden; margin: 5px 0 2px; }
+.air-bar > i { display: block; height: 100%; background: #1f8a4c; }
+.air-bar.warn > i { background: #c77700; }
+.air-bar.bad  > i { background: #b02a2a; }

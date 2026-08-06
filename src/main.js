@@ -4,6 +4,7 @@ import './style.css';
 import { RADIOS, BANDS, CHANNEL_WIDTHS, PLATFORMS, CABLES, cableLossDb, hasGps, FORM_FACTORS } from './radios.js';
 import { terrainProfile, haversineM, bearingDeg, destination, elevationAt, elevationAtSync, prewarmArea } from './terrain.js';
 import { analyzePath, evaluateLink, fsplDb, throughputMbps, patternLossDb, elevationAngleDeg, angDiff } from './engine.js';
+import * as AIR from './airtime.js';
 import {
   computeCoverage, computeMeshCoverage, computeMinAltitude, computeMeshMinAltitude,
   findLowestFlightLevel,
@@ -2008,3 +2009,184 @@ window.__app = {
   QUALITY,
   get coverage() { return coverage; },
 };
+
+// ---------------------------------------------------------------- link budget & airtime
+// Model design: Aaron Do, Doodle Labs Solutions Engineering. See src/airtime.js.
+// The panel answers two questions customers routinely conflate: does the link close,
+// and can it carry the offered traffic. A link can pass the first with margin to
+// spare and fail the second badly - which is the "good signal, poor throughput"
+// complaint pattern almost verbatim.
+const airPanel = document.getElementById('air-panel');
+const $air = (id) => document.getElementById(id);
+const airState = { source: 'fspl', traffic: 'video', basis: 'datasheet' };
+
+function airFillSelects() {
+  const cur = $air('air-radio').value;
+  $air('air-radio').innerHTML = RADIOS.map((r) =>
+    `<option value="${r.id}" ${r.id === cur ? 'selected' : ''}>${r.name}</option>`).join('');
+  const radio = RADIOS.find((r) => r.id === $air('air-radio').value) || RADIOS[0];
+  $air('air-band').innerHTML = radio.bands.map((b) =>
+    `<option value="${b}">${BANDS[b].label}</option>`).join('');
+  if (!$air('air-bw').options.length) {
+    $air('air-bw').innerHTML = CHANNEL_WIDTHS.map((w) =>
+      `<option value="${w}" ${w === 20 ? 'selected' : ''}>${w} MHz</option>`).join('');
+  }
+}
+
+function airBasisNote() {
+  const b = AIR.BASIS[airState.basis];
+  $air('air-basis-note').textContent = b.note
+    + ' The two agree at MCS0 and differ by 2.0 dB above it; that residual is a'
+    + ' transmit-power disagreement in our own documentation, not a sensitivity one.';
+}
+
+function airSeg(ids, activeId) {
+  ids.forEach((id) => $air(id).classList.toggle('active', id === activeId));
+}
+
+function airBandCentre(band) {
+  if (!band) return 2450;
+  if (band.centerMhz) return band.centerMhz;
+  if (band.lowMhz != null && band.highMhz != null) return (band.lowMhz + band.highMhz) / 2;
+  if (Array.isArray(band.range)) return (band.range[0] + band.range[1]) / 2;
+  return 2450;
+}
+
+async function airCalculate() {
+  const radio = RADIOS.find((r) => r.id === $air('air-radio').value) || RADIOS[0];
+  const band = BANDS[$air('air-band').value];
+  const bwMhz = parseFloat($air('air-bw').value) || 20;
+  const freqMhz = airBandCentre(band);
+  const gtx = parseFloat($air('air-gtx').value) || 0;
+  const grx = parseFloat($air('air-grx').value) || 0;
+  const fade = parseFloat($air('air-fade').value) || 0;
+  const payload = parseFloat($air('air-payload').value) || 1200;
+  const isUnicast = $air('air-cast').value === 'unicast';
+  const meshMode = $air('air-mode').value;
+  const nodesN = parseFloat($air('air-nodes').value) || 2;
+  const ogmIntervalS = parseFloat($air('air-ogm').value) || 1;
+  const packetLoss = (parseFloat($air('air-loss').value) || 0) / 100;
+
+  let distanceM = parseFloat($air('air-dist').value) || 1000;
+  let pathLossDb = null;
+  let sourceLabel = 'free space';
+
+  if (airState.source === 'terrain') {
+    // Reuse the selected map link so the airtime model inherits the near-ground
+    // term, Fresnel clearance and diffraction that free space cannot see.
+    if (!selectedLink) {
+      $air('air-result').innerHTML = '<div class="air-verdict warn">Select a link on the map first'
+        + '<small>Terrain mode reads path loss from a link between two placed nodes.</small></div>';
+      return;
+    }
+    const a = selectedLink.a.marker.getLngLat();
+    const b = selectedLink.b.marker.getLngLat();
+    distanceM = haversineM(a, b);
+    $air('air-dist').value = Math.round(distanceM);
+    const profile = await terrainProfile(a, b, 160);
+    const pa = analyzePath(profile, selectedLink.a.heightM, selectedLink.b.heightM, freqMhz);
+    const diff = pa.diffractionDb || 0;
+    pathLossDb = (pa.fsplDb != null ? pa.fsplDb : fsplDb(distanceM / 1000, freqMhz)) + diff;
+    sourceLabel = `terrain, ${diff.toFixed(1)} dB diffraction`;
+  }
+
+  const flow = airState.traffic === 'video'
+    ? { kind: 'video',
+        bitrateMbps: parseFloat($air('air-bitrate').value) || 4,
+        fps: parseFloat($air('air-fps').value) || 30,
+        gop: parseFloat($air('air-gop').value) || 30,
+        iFrameMultiplier: parseFloat($air('air-imult').value) || 6,
+        payloadBytes: payload, isUnicast, label: 'Video' }
+    : { kind: 'constant', pps: parseFloat($air('air-pps').value) || 0,
+        payloadBytes: payload, isUnicast, label: 'Constant rate' };
+
+  const res = AIR.analyseLink({
+    pathLossDb, distanceM, freqMhz, bandwidthMhz: bwMhz,
+    txGainDbi: gtx, rxGainDbi: grx, fadeMarginDb: fade,
+    basis: airState.basis, chains: radio.chains, configuredMaxDbm: radio.maxConfig,
+    flows: [flow], meshMode, packetLoss, nodes: nodesN, ogmIntervalS,
+  });
+
+  const L = res.link;
+  const cls = !res.closes ? 'bad' : res.status;
+  const headline = !res.closes
+    ? `Link does not close - ${L.marginDb.toFixed(1)} dB short`
+    : res.status === 'bad' ? 'Link closes, but the medium is saturated'
+    : res.status === 'warn' ? 'Link closes; medium is busy'
+    : 'Link closes and carries the traffic';
+  let sub = !res.closes
+    ? 'Add antenna gain or height, or narrow the channel, before looking at traffic.'
+    : `Peak airtime ${res.peakPercent.toFixed(0)}% of the medium against `
+      + `${res.avgPercent.toFixed(0)}% average.`;
+  if (res.closes && res.peakPercent > 100) {
+    sub += ' The burst cannot fit inside its frame interval, which shows up as stutter'
+        + ' rather than a dropped link.';
+  }
+  const barPct = Math.max(0, Math.min(res.peakPercent, 100));
+
+  $air('air-result').innerHTML =
+    `<div class="air-verdict ${cls}">${headline}<small>${sub}</small></div>`
+    + `<div class="air-bar ${res.status}"><i style="width:${barPct}%"></i></div>`
+    + '<div class="air-grid">'
+    + `<span class="k">Path loss (${sourceLabel})</span><span class="v">${res.pathLossDb.toFixed(1)} dB</span>`
+    + `<span class="k">Distance</span><span class="v">${(distanceM / 1000).toFixed(2)} km</span>`
+    + `<span class="k">Selected MCS</span><span class="v">MCS${L.mcs}</span>`
+    + `<span class="k">Receive level</span><span class="v">${L.rxDbm.toFixed(1)} dBm</span>`
+    + `<span class="k">Sensitivity</span><span class="v">${L.sensDbm.toFixed(1)} dBm</span>`
+    + `<span class="k">Margin over fade</span><span class="v">${L.marginDb.toFixed(1)} dB</span>`
+    + `<span class="k">PHY rate</span><span class="v">${L.phyRateMbps.toFixed(1)} Mbps</span>`
+    + `<span class="k">Usable capacity</span><span class="v">${res.capacityMbps.toFixed(2)} Mbps</span>`
+    + `<span class="k">Offered traffic</span><span class="v">${res.offeredMbps.toFixed(2)} Mbps</span>`
+    + `<span class="k">Headroom</span><span class="v">${res.headroomMbps.toFixed(2)} Mbps</span>`
+    + `<span class="k">Airtime average</span><span class="v">${res.avgPercent.toFixed(1)} %</span>`
+    + `<span class="k">Airtime peak</span><span class="v">${res.peakPercent.toFixed(1)} %</span>`
+    + `<span class="k">Routing overhead (OGM)</span><span class="v">${res.ogmPercent.toFixed(2)} %</span>`
+    + '</div>';
+}
+
+document.getElementById('btn-airtime').addEventListener('click', () => {
+  airPanel.classList.remove('hidden');
+  airFillSelects();
+  airBasisNote();
+  airCalculate();
+});
+$air('air-close').addEventListener('click', () => airPanel.classList.add('hidden'));
+$air('air-radio').addEventListener('change', () => { airFillSelects(); airCalculate(); });
+$air('air-src-fspl').addEventListener('click', () => {
+  airState.source = 'fspl';
+  airSeg(['air-src-fspl', 'air-src-terrain'], 'air-src-fspl');
+  airCalculate();
+});
+$air('air-src-terrain').addEventListener('click', () => {
+  airState.source = 'terrain';
+  airSeg(['air-src-fspl', 'air-src-terrain'], 'air-src-terrain');
+  airCalculate();
+});
+$air('air-t-video').addEventListener('click', () => {
+  airState.traffic = 'video';
+  airSeg(['air-t-video', 'air-t-const'], 'air-t-video');
+  $air('air-video-rows').classList.remove('hidden');
+  $air('air-const-rows').classList.add('hidden');
+  airCalculate();
+});
+$air('air-t-const').addEventListener('click', () => {
+  airState.traffic = 'constant';
+  airSeg(['air-t-video', 'air-t-const'], 'air-t-const');
+  $air('air-video-rows').classList.add('hidden');
+  $air('air-const-rows').classList.remove('hidden');
+  airCalculate();
+});
+$air('air-basis-ds').addEventListener('click', () => {
+  airState.basis = 'datasheet';
+  airSeg(['air-basis-ds', 'air-basis-est'], 'air-basis-ds');
+  airBasisNote(); airCalculate();
+});
+$air('air-basis-est').addEventListener('click', () => {
+  airState.basis = 'estimator';
+  airSeg(['air-basis-ds', 'air-basis-est'], 'air-basis-est');
+  airBasisNote(); airCalculate();
+});
+$air('air-run').addEventListener('click', airCalculate);
+['air-band', 'air-bw', 'air-dist', 'air-gtx', 'air-grx', 'air-fade', 'air-payload', 'air-cast',
+ 'air-mode', 'air-nodes', 'air-ogm', 'air-loss', 'air-bitrate', 'air-fps', 'air-gop', 'air-imult',
+ 'air-pps'].forEach((id) => $air(id).addEventListener('change', airCalculate));
