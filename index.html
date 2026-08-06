@@ -11,17 +11,45 @@
     <header id="topbar">
       <div class="brand"><span class="brand-mark">M</span> Doodle Labs <span class="brand-light">RF Link Planner</span></div>
       <div class="toolbar">
+        <!-- Toolbar is grouped by stage of the job: place the radios, analyse them,
+             then produce something. The two placement actions stay one click away
+             because they are used constantly; everything else folds into a menu. -->
         <button id="btn-add-node" class="tool-btn" title="Add a radio node (N)">+ Add Node</button>
         <button id="btn-link-mode" class="tool-btn" title="Create a link between two nodes (L)">⟋ Link Nodes</button>
-        <button id="btn-clear" class="tool-btn danger" title="Remove all nodes and links">Clear</button>
-        <button id="btn-advisor" class="tool-btn" title="Describe your mission and get recommended configurations">🎯 Plan Advisor</button>
-        <button id="btn-save" class="tool-btn" title="Download this layout as a .json file">💾 Save</button>
-        <button id="btn-load" class="tool-btn" title="Load a layout .json file">📂 Load</button>
-        <button id="btn-mesh-coverage" class="tool-btn" title="Coverage simulation: terrain-following (UGV) or flight level (UAS), single node or whole mesh">▩ Coverage sim</button>
-        <button id="btn-route" class="tool-btn" title="Mission route: waypoints by click or coordinates, analysed against every radio on the map">🛣 Mission route</button>
-        <button id="btn-locate" class="tool-btn" title="Locate a GPS-less radio (Nano/Mini) from its signal strength to radios whose positions are known">📶 Locate by signal</button>
-        <button id="btn-airtime" class="tool-btn" title="Link budget and airtime calculator: does the link close, and can it carry the traffic? Design by Aaron Do">📊 Link budget</button>
-        <button id="btn-report" class="tool-btn" title="Export a customer-ready design summary">📄 Report</button>
+
+        <div class="tool-group">
+          <button class="tool-btn menu-btn" data-menu="m-analyse" aria-haspopup="true" aria-expanded="false"
+                  title="Coverage, routes, link budget and locating">📡 Analyse <span class="caret">▾</span></button>
+          <div class="tool-menu hidden" id="m-analyse" role="menu">
+            <button id="btn-mesh-coverage" role="menuitem">▩ Coverage simulation
+              <small>Terrain-following (UGV) or flight level (UAS), one node or the whole mesh</small></button>
+            <button id="btn-route" role="menuitem">🛣 Mission route
+              <small>Waypoints by click or coordinates, analysed against every radio placed</small></button>
+            <button id="btn-airtime" role="menuitem">📊 Link budget &amp; airtime
+              <small>Does the link close, and can it carry the traffic? Model by Aaron Do</small></button>
+            <button id="btn-locate" role="menuitem">📶 Locate by signal
+              <small>Position a GPS-less Nano or Mini from its signal to known radios</small></button>
+          </div>
+        </div>
+
+        <div class="tool-group">
+          <button class="tool-btn menu-btn" data-menu="m-deliver" aria-haspopup="true" aria-expanded="false"
+                  title="Plan a network, export a summary, save or load a layout">📦 Plan &amp; deliver <span class="caret">▾</span></button>
+          <div class="tool-menu hidden" id="m-deliver" role="menu">
+            <button id="btn-advisor" role="menuitem">🎯 Plan Advisor
+              <small>Describe the mission and get recommended radios, antennas and heights</small></button>
+            <button id="btn-report" role="menuitem">📄 Report
+              <small>Export a customer-ready design summary</small></button>
+            <div class="tool-menu-sep"></div>
+            <button id="btn-save" role="menuitem">💾 Save layout
+              <small>Download this layout as a .json file</small></button>
+            <button id="btn-load" role="menuitem">📂 Load layout
+              <small>Open a previously saved layout</small></button>
+            <button id="btn-clear" class="danger" role="menuitem">🗑 Clear all
+              <small>Remove every node and link on the map</small></button>
+          </div>
+        </div>
+
         <input type="file" id="file-load" accept=".json" style="display:none" />
         <span id="mode-hint"></span>
       </div>

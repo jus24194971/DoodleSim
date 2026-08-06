@@ -2190,3 +2190,34 @@ $air('air-run').addEventListener('click', airCalculate);
 ['air-band', 'air-bw', 'air-dist', 'air-gtx', 'air-grx', 'air-fade', 'air-payload', 'air-cast',
  'air-mode', 'air-nodes', 'air-ogm', 'air-loss', 'air-bitrate', 'air-fps', 'air-gop', 'air-imult',
  'air-pps'].forEach((id) => $air(id).addEventListener('change', airCalculate));
+
+// ---------------------------------------------------------------- toolbar menus
+// The toolbar is grouped by stage of the job. Every action button kept its original
+// id, so the listeners bound elsewhere in this file still work untouched - this only
+// governs opening and closing the containing menu.
+function closeToolMenus(except) {
+  document.querySelectorAll('.tool-menu').forEach((m) => {
+    if (m !== except) m.classList.add('hidden');
+  });
+  document.querySelectorAll('.menu-btn').forEach((b) => {
+    const open = !document.getElementById(b.dataset.menu).classList.contains('hidden');
+    b.classList.toggle('open', open);
+    b.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+}
+document.querySelectorAll('.menu-btn').forEach((btn) => {
+  btn.addEventListener('click', (ev) => {
+    ev.stopPropagation();
+    const menu = document.getElementById(btn.dataset.menu);
+    const wasOpen = !menu.classList.contains('hidden');
+    closeToolMenus();
+    menu.classList.toggle('hidden', wasOpen);
+    closeToolMenus(menu);
+  });
+});
+// A menu item does its own work through its original listener; this just dismisses
+// the menu afterwards so the map is not left obscured.
+document.querySelectorAll('.tool-menu button').forEach((b) =>
+  b.addEventListener('click', () => setTimeout(closeToolMenus, 0)));
+document.addEventListener('click', () => closeToolMenus());
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeToolMenus(); });

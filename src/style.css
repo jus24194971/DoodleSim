@@ -317,3 +317,27 @@ html, body, #app { height: 100%; font-family: 'Segoe UI', system-ui, sans-serif;
 .air-bar > i { display: block; height: 100%; background: #1f8a4c; }
 .air-bar.warn > i { background: #c77700; }
 .air-bar.bad  > i { background: #b02a2a; }
+
+/* Toolbar dropdown groups. Buttons keep their original ids so every existing
+   listener in main.js still binds - only their position in the DOM changed. */
+.tool-group { position: relative; display: inline-block; }
+.tool-group .menu-btn .caret { font-size: 9px; opacity: .75; margin-left: 1px; }
+.tool-group .menu-btn.open { background: #1c7ed6; border-color: #1c7ed6; color: #fff; }
+.tool-menu {
+  position: absolute; top: calc(100% + 5px); left: 0; min-width: 268px; z-index: 40;
+  background: #131a24; border: 1px solid #2b3648; border-radius: 8px; padding: 4px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.5);
+}
+.tool-menu.hidden { display: none; }
+.tool-menu button {
+  display: block; width: 100%; text-align: left; background: none; border: none;
+  color: #e9ecef; font: inherit; font-size: 12px; padding: 7px 9px; border-radius: 5px;
+  cursor: pointer; line-height: 1.25;
+}
+.tool-menu button:hover { background: #1c2532; }
+.tool-menu button small {
+  display: block; color: #91a7c0; font-size: 10.5px; margin-top: 2px; white-space: normal;
+}
+.tool-menu button.danger { color: #ff9a9a; }
+.tool-menu button.danger:hover { background: #3a1618; }
+.tool-menu-sep { height: 1px; background: #2b3648; margin: 4px 6px; }
