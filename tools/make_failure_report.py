@@ -43,17 +43,28 @@ def db_equiv(expected_m, achieved_m):
 # figures are verbatim AND the geometry is unambiguous enough to model. Kept
 # explicit rather than regex-scraped from prose: a wrong number here would
 # discredit the whole report.
+#
+# Identified by ticket reference only. The account name is looked up from the
+# gitignored case data at build time by account_for(), so no customer is named in
+# tracked source - this file goes to a git remote, the data does not.
 CALIB = [
-    {'ticket': '2699674715', 'account': 'Archangel Imaging', 'freq': 917,
+    {'ticket': '2699674715', 'freq': 917,
      'expected_m': 1333, 'achieved_m': 409, 'geometry': 'shoulder height ~1.5 m, open field LOS',
      'note': 'estimator figure quoted by the customer'},
-    {'ticket': '2699674715', 'account': 'Archangel Imaging', 'freq': 917,
+    {'ticket': '2699674715', 'freq': 917,
      'expected_m': 1333, 'achieved_m': 240, 'geometry': 'antennas at ground level, open field LOS',
      'note': 'same test, radios on the ground'},
-    {'ticket': '2699674715', 'account': 'Archangel Imaging', 'freq': 2409,
+    {'ticket': '2699674715', 'freq': 2409,
      'expected_m': 1170, 'achieved_m': 489, 'geometry': 'ground and shoulder height, open field LOS',
      'note': 'both heights gave the same distance'},
 ]
+
+def account_for(ticket, cases):
+    """Account name for a ticket, read from the case data rather than stored here."""
+    for c in cases or []:
+        if str(c.get('ticket_id')) == str(ticket) and c.get('account'):
+            return re.sub(r'\s*\(.*?\)\s*', '', c['account']).strip()
+    return 'the reporting customer'
 
 STAGE_FAIL = {'Closed - Dormant', 'Closed - Unresolved'}
 
@@ -162,7 +173,8 @@ def main():
     W('The estimator computes free-space loss. It has no term for antennas close to the ground, '
       'which is exactly how these customers tested - handhelds at shoulder height, radios on the '
       'ground, UGVs, small UAS on takeoff. DoodleSim adds that term. Testing it against the one '
-      'case with fully verbatim figures at a known geometry:')
+      'case with fully verbatim figures at a known geometry (%s, ticket %s):'
+      % (account_for(CALIB[0]['ticket'], cases), CALIB[0]['ticket']))
     W('')
     W('| Geometry | Observed shortfall | DoodleSim near-ground | Error |')
     W('|---|---:|---:|---:|')

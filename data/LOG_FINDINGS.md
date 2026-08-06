@@ -9,13 +9,13 @@ Analysed 29 July 2026 from `longtermlog` support bundles. Raw metrics in
 |---|---|---|---|---|---|---|
 | Air Flight 7 | RM-915-2KM-XO | 2025-06.5 | 918 MHz / 10 MHz | 481 | 28 min | 100% |
 | GCS Flight 7 | RM-915v4-2KM-XO | 2025-06.5 | 918 MHz / 10 MHz | 480 | 28 min | 100% |
-| GCS Kratos DD | RM-1675v4-2L-X | 2026-03.1 | 1636 MHz / 20 MHz | 18,718 | 10.7 h | 98.2% |
-| Relay Kratos DD | RM-1675v4-2L-X | 2026-03.1 | 1636/1675/1715, 20+26 MHz | 9,318 | 5.4 h | **69.6%** |
+| GCS Site B | RM-1675v4-2L-X | 2026-03.1 | 1636 MHz / 20 MHz | 18,718 | 10.7 h | 98.2% |
+| Relay Site B | RM-1675v4-2L-X | 2026-03.1 | 1636/1675/1715, 20+26 MHz | 9,318 | 5.4 h | **69.6%** |
 | smartradio-…3af4e9 | RM-1675-2KM-XW | 2024-10.1 | 1675 MHz / 10 MHz | 143 | 8 min | 100% |
 | smartradio-…50814f | RM-1675-2KM-XO | 2024-10.1 | 1675 MHz / 10 MHz | 141 | 8 min | 100% |
 
 All three pairs are genuine two-ended captures — each radio's logged peer MAC is the other's
-mesh-interface MAC. The Kratos GCS additionally sees five peers, so that bundle covers a six-node mesh.
+mesh-interface MAC. The Site B GCS additionally sees five peers, so that bundle covers a six-node mesh.
 
 **No bundle contains GPS data.** `meshmap` is disabled (`enabled '0'`) and although `gpsd` is configured
 against `/dev/GPS`, no position was ever logged. True locations therefore cannot be recovered from these
@@ -56,7 +56,7 @@ Bursty co-channel occupancy destroys frames even when average SNR looks fine, wh
 **Recommend:** a spectrum/ACS scan at the site before the next flight, and pick a quieter channel inside
 902–928 MHz (the regulatory table in the bundle allows the whole band at 30 dBm).
 
-### 3. Kratos GCS and Relay: local antenna chain imbalance on both — HIGH confidence
+### 3. Site B GCS and Relay: local antenna chain imbalance on both — HIGH confidence
 The GCS shows an imbalance against **every one of its five peers** (5, 6, 7, 5, 2 dB), always with chain 0
 weaker. An imbalance that follows the receiver rather than the peer is a **local** antenna/cable fault, not
 propagation. The Relay shows the same pattern against its peers (7, 6, 4, 6 dB).
@@ -66,7 +66,7 @@ The Relay **never exceeded MCS 6 on any link**, i.e. it ran single-stream throug
 **Recommend:** check chain 0 antenna/feed on both units; the fleet-wide consistency suggests an
 installation or cable-batch issue rather than two coincidental failures.
 
-### 4. Kratos Relay: linked only 69.6% of the time, and it changed channel mid-mission — needs confirmation
+### 4. Site B Relay: linked only 69.6% of the time, and it changed channel mid-mission — needs confirmation
 The Relay was associated for 69.6% of samples and operated across **1636, 1675 and 1715 MHz at both 20 and
 26 MHz** within one log. The GCS stayed on 1636 MHz / 20 MHz the entire time.
 
@@ -74,7 +74,7 @@ If the Relay is re-scanning (ACS) while the GCS holds a fixed channel, that alon
 Worth confirming whether automatic channel selection is enabled on the Relay only.
 
 ### 5. Signal levels imply bench/ramp ranges, not field ranges — interpretation caveat
-Implied separations from the measured levels: Kratos peers **15–60 m** (−24 to −36 dBm), longtermmon pair
+Implied separations from the measured levels: Site B peers **15–60 m** (−24 to −36 dBm), longtermmon pair
 **~25–30 m** (−29/−31 dBm). Two genuine over-air links exist in the Relay data (−59 dBm ≈ 330 m and
 −77 dBm ≈ 3.7 km).
 
@@ -106,7 +106,7 @@ Recording these because they would each have been a confident, wrong headline:
   110,638 of those are spectral-scan samples, which the driver counts as PHY errors. Normal for a radio with
   spectral scan enabled, not a fault.
 
-Also note two **implausible noise samples**: the Kratos GCS reports a −43.9 dBm peak and the Relay a
+Also note two **implausible noise samples**: the Site B GCS reports a −43.9 dBm peak and the Relay a
 **0.0 dBm** peak. 0.0 dBm is not a physical reading; both are almost certainly captured during a channel
 switch or reset. Treated as data-quality artefacts, not interference.
 
@@ -120,12 +120,12 @@ the implied separations**, ready to load with 📂 Load:
 | File | Contents |
 |---|---|
 | `layouts/flight7.json` | GCS ↔ air unit, 918 MHz/10 MHz, labelled with measured levels and the chain fault |
-| `layouts/kratos-mesh.json` | Six-node Kratos mesh at 1636 MHz/20 MHz around the GCS |
+| `layouts/site-b-mesh.json` | Six-node Site B mesh at 1636 MHz/20 MHz around the GCS |
 | `layouts/bench-pair-healthy.json` | The clean reference pair |
 
 Each node's label carries its **measured** receive level and its measured defect, so once you drag the nodes
 onto the real site the simulator's prediction sits next to the field measurement on the same screen. Loaded
-as-is, the Kratos layout already predicts MCS 15 / 83 Mbps for the peer that measured MCS 15 at 15 m.
+as-is, the Site B layout already predicts MCS 15 / 83 Mbps for the peer that measured MCS 15 at 15 m.
 
 Separations assume 30–32 dBm TX (as reported by each radio), 3 dBi omnis at both ends and free space;
 bearings are arbitrary. **They are a starting geometry, not a survey.**
@@ -153,10 +153,10 @@ majorisation, and it **refused to solve** on this dataset. Three independent rea
 | System | Radio A window (UTC) | Radio B window (UTC) | Overlap |
 |---|---|---|---|
 | Flight 7 | 2025-09-30 18:31–18:59 | 2025-09-30 19:31–19:59 | **none, 32 min apart** |
-| Kratos | 2022-05-06 02:14–12:54 | 2022-05-05 13:26–18:51 | **none, different day** |
+| Site B | 2022-05-06 02:14–12:54 | 2022-05-05 13:26–18:51 | **none, different day** |
 | Bench pair | 2022-05-05 13:58–14:06 | 2022-05-05 14:21–14:29 | **none, 15 min apart** |
 
-**2. The Kratos ranges are geometrically impossible together.** The GCS measures peer 21:07 at 15 m and the
+**2. The Site B ranges are geometrically impossible together.** The GCS measures peer 21:07 at 15 m and the
 Relay at 55 m, while the Relay measures that same peer at 3.7 km. Two nodes 55 m apart cannot disagree by
 3.6 km about a third. The triangle inequality is violated by **3593 m** on that triple and 251 m on another —
 arithmetic proof that the samples describe different moments, not one layout.
@@ -173,11 +173,11 @@ closing rate between consecutive samples separates the static links from the mov
 | Link | Implied separation | Apparent motion | Verdict |
 |---|---|---|---|
 | Bench pair, both directions | **20 m and 25 m** | 0% of steps implausible | Static, ~20–25 m apart |
-| Kratos 23:1b ↔ 21:13 | **18 m** | 0% | Static |
-| Kratos 20:fb ↔ 2d:81 | **18 m** | 0% | Static |
-| Kratos 23:1b ↔ 22:ff | **23 m** | 0.3% | Static |
+| Site B 23:1b ↔ 21:13 | **18 m** | 0% | Static |
+| Site B 20:fb ↔ 2d:81 | **18 m** | 0% | Static |
+| Site B 23:1b ↔ 22:ff | **23 m** | 0.3% | Static |
 | Flight 7, both directions | median 2.9 km / 2.1 km | **63–66%** | Airborne — a median is meaningless |
-| Kratos 23:1b ↔ 20:fb | median 52–58 m | 17–23% | Partly moving |
+| Site B 23:1b ↔ 20:fb | median 52–58 m | 17–23% | Partly moving |
 
 "Implausible" means the level changed faster than a platform could physically move (>60 m/s). On the Flight 7
 link the 95th-percentile apparent closing rate is **1200 m/s**, so on that link **RSSI is being driven by

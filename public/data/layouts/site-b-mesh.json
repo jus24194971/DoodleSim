@@ -3,7 +3,7 @@
  "savedAt": "2026-07-29T00:00:00.000Z",
  "_source": "Generated from Mesh Rider longtermlog bundles by DoodleSim log analysis",
  "_warning": "SYNTHETIC POSITIONS. No bundle contained GPS data. Separations are implied by the measured receive level and reported TX power assuming 3 dBi omnis and free space; bearings are arbitrary. Drag the nodes onto the real site before drawing conclusions.",
- "_headline": "Kratos: both GCS and Relay show a local 5-7 dB antenna chain imbalance; Relay ran single-stream only and was linked 69.6% of the time",
+ "_headline": "Site B: both GCS and Relay show a local 5-7 dB antenna chain imbalance; Relay ran single-stream only and was linked 69.6% of the time",
  "view": {
   "center": [
    -105.2,
@@ -23,7 +23,7 @@
  "nodes": [
   {
    "id": 1,
-   "label": "GCS Kratos (chains -31/-25, 5 peers)",
+   "label": "GCS Site B (chains -31/-25, 5 peers)",
    "lng": -105.2,
    "lat": 39.7392,
    "radioId": "miniOEM_v4",
@@ -49,7 +49,7 @@
   },
   {
    "id": 2,
-   "label": "Kratos node 21:07 (rx -24 dBm)",
+   "label": "Site B node 21:07 (rx -24 dBm)",
    "lng": -105.199833,
    "lat": 39.739242,
    "radioId": "miniOEM_v4",
@@ -75,7 +75,7 @@
   },
   {
    "id": 3,
-   "label": "Kratos node 23:13 (rx -27 dBm)",
+   "label": "Site B node 23:13 (rx -27 dBm)",
    "lng": -105.199856,
    "lat": 39.739047,
    "radioId": "miniOEM_v4",
@@ -101,7 +101,7 @@
   },
   {
    "id": 4,
-   "label": "Relay Kratos (rx -36 dBm)",
+   "label": "Relay Site B (rx -36 dBm)",
    "lng": -105.200399,
    "lat": 39.738778,
    "radioId": "miniOEM_v4",
@@ -127,7 +127,7 @@
   },
   {
    "id": 5,
-   "label": "Kratos node 21:13 (rx -26 dBm)",
+   "label": "Site B node 21:13 (rx -26 dBm)",
    "lng": -105.2002,
    "lat": 39.73925,
    "radioId": "miniOEM_v4",
@@ -153,7 +153,7 @@
   },
   {
    "id": 6,
-   "label": "Kratos node 22:ff (rx -28 dBm)",
+   "label": "Site B node 22:ff (rx -28 dBm)",
    "lng": -105.2,
    "lat": 39.739407,
    "radioId": "miniOEM_v4",

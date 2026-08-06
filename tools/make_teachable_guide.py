@@ -15,6 +15,22 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC = os.path.join(ROOT, 'data', 'teachable_moments.json')
 DEST = os.path.join(ROOT, 'data', 'SE_FIELD_GUIDE.md')
 
+# The Operating Distance comparison names two customer deployments, so the rows live
+# in gitignored data rather than in this file. A clean checkout without that data
+# still builds - it just shows neutral deployment labels.
+def _config_comparison():
+    p = os.path.join(os.path.join(ROOT, 'data'),
+                     'config_comparison.json')
+    try:
+        rows = json.load(open(p, encoding='utf-8'))['rows']
+    except Exception:
+        rows = [{'deployment': 'Deployment A (ground / air)', 'distance': '0',
+                 'atpc': 'disabled', 'retries': '1.11 / 1.83', 'abandoned': '18.6% / 32.6%'},
+                {'deployment': 'Deployment B (ground / air)', 'distance': '23000',
+                 'atpc': 'enabled', 'retries': '0.53 / 0.55', 'abandoned': '9.1% / 9.5%'}]
+    return [[r['deployment'], r['distance'], r['atpc'], r['retries'], r['abandoned']]
+            for r in rows]
+
 STRENGTH = {'clear_trend': 'Trend (5+ tickets)', 'weak_signal': 'Weak signal (2-4)',
             'anecdote_only': 'Anecdote (1)', 'no_evidence': 'No evidence'}
 
@@ -172,8 +188,8 @@ def main():
     W('')
     W('| Deployment | `option distance` | ATPC | Retries per frame | Frames abandoned |')
     W('|---|---|---|---:|---:|')
-    W('| Mavtech (ground / UAV) | **`0`** | disabled | **1.11 / 1.83** | **18.6% / 32.6%** |')
-    W('| OffShoreAviation (GCS / aircraft) | **`23000`** | enabled | 0.53 / 0.55 | 9.1% / 9.5% |')
+    for _r in _config_comparison():
+        W('| %s | **`%s`** | %s | %s | %s |' % tuple(_r))
     W('')
     W('The deployment with Operating Distance unset shows roughly **3.4x the retry rate and '
       '3.5x the frame abandonment** of the one that set it to the real link span. Mechanism '

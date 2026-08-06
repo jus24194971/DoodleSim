@@ -49,6 +49,22 @@ CALIB = [(917, 1333, 409, 'shoulder height ~1.5 m'),
          (917, 1333, 240, 'antennas at ground level'),
          (2409, 1170, 489, 'ground and shoulder height')]
 
+# The Operating Distance comparison names two customer deployments, so the rows live
+# in gitignored data rather than in this file. A clean checkout without that data
+# still builds - it just shows neutral deployment labels.
+def _config_comparison():
+    p = os.path.join(D if 'D' in globals() else os.path.join(ROOT, 'data'),
+                     'config_comparison.json')
+    try:
+        rows = json.load(open(p, encoding='utf-8'))['rows']
+    except Exception:
+        rows = [{'deployment': 'Deployment A (ground / air)', 'distance': '0',
+                 'atpc': 'disabled', 'retries': '1.11 / 1.83', 'abandoned': '18.6% / 32.6%'},
+                {'deployment': 'Deployment B (ground / air)', 'distance': '23000',
+                 'atpc': 'enabled', 'retries': '0.53 / 0.55', 'abandoned': '9.1% / 9.5%'}]
+    return [[r['deployment'], r['distance'], r['atpc'], r['retries'], r['abandoned']]
+            for r in rows]
+
 EV_LABEL = {
     'measured_by_customer': 'customer measured',
     'measured_by_us': 'we measured',
@@ -430,9 +446,8 @@ def main():
         'The ticket corpus concluded that an Operating Distance set too small "makes the '
         'radio abandon ACKs early and shows up as retries, not as a range limit". Two '
         'deliveries sit either side of that prediction:', BODY))
-    W(tbl([['Deployment', 'option distance', 'ATPC', 'Retries per frame', 'Frames abandoned'],
-           ['Mavtech (ground / UAV)', '0', 'disabled', '1.11 / 1.83', '18.6% / 32.6%'],
-           ['OffShoreAviation (GCS / air)', '23000', 'enabled', '0.53 / 0.55', '9.1% / 9.5%']],
+    _cmp = _config_comparison()
+    W(tbl([['Deployment', 'option distance', 'ATPC', 'Retries per frame', 'Frames abandoned']] + _cmp,
           [2.1 * inch, 1.15 * inch, 0.9 * inch, 1.45 * inch, 1.3 * inch], tiny=True))
     W(Paragraph(
         'Roughly <b>3.4x the retry rate and 3.5x the frame abandonment</b> in the deployment '
@@ -443,8 +458,8 @@ def main():
     M('')
     M('| Deployment | option distance | ATPC | Retries/frame | Frames abandoned |')
     M('|---|---|---|---:|---:|')
-    M('| Mavtech (ground / UAV) | 0 | disabled | 1.11 / 1.83 | 18.6% / 32.6% |')
-    M('| OffShoreAviation (GCS / air) | 23000 | enabled | 0.53 / 0.55 | 9.1% / 9.5% |')
+    for _r in _cmp:
+        M('| %s | %s | %s | %s | %s |' % tuple(_r))
     M('')
 
     # ---------------------------------------------------------------- limits

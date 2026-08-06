@@ -160,7 +160,7 @@
   },
   {
    "bundle": "b3",
-   "label": "GCS Kratos DD 6.9.26",
+   "label": "GCS Site B 6.9.26",
    "peer": "00:30:1a:3d:21:07",
    "model": "RM-1675v4-2L-X",
    "firmware": "firmware-2026-03.1",
@@ -190,7 +190,7 @@
   },
   {
    "bundle": "b3",
-   "label": "GCS Kratos DD 6.9.26",
+   "label": "GCS Site B 6.9.26",
    "peer": "00:30:1a:3d:23:13",
    "model": "RM-1675v4-2L-X",
    "firmware": "firmware-2026-03.1",
@@ -220,7 +220,7 @@
   },
   {
    "bundle": "b3",
-   "label": "GCS Kratos DD 6.9.26",
+   "label": "GCS Site B 6.9.26",
    "peer": "00:30:1a:3d:20:fb",
    "model": "RM-1675v4-2L-X",
    "firmware": "firmware-2026-03.1",
@@ -250,7 +250,7 @@
   },
   {
    "bundle": "b3",
-   "label": "GCS Kratos DD 6.9.26",
+   "label": "GCS Site B 6.9.26",
    "peer": "00:30:1a:3d:21:13",
    "model": "RM-1675v4-2L-X",
    "firmware": "firmware-2026-03.1",
@@ -280,7 +280,7 @@
   },
   {
    "bundle": "b3",
-   "label": "GCS Kratos DD 6.9.26",
+   "label": "GCS Site B 6.9.26",
    "peer": "00:30:1a:3d:22:ff",
    "model": "RM-1675v4-2L-X",
    "firmware": "firmware-2026-03.1",
@@ -310,7 +310,7 @@
   },
   {
    "bundle": "b4",
-   "label": "Relay Kratos DD 6.9.26",
+   "label": "Relay Site B 6.9.26",
    "peer": "00:30:1a:3d:23:1b",
    "model": "RM-1675v4-2L-X",
    "firmware": "firmware-2026-03.1",
@@ -360,7 +360,7 @@
   },
   {
    "bundle": "b4",
-   "label": "Relay Kratos DD 6.9.26",
+   "label": "Relay Site B 6.9.26",
    "peer": "00:30:1a:3d:23:13",
    "model": "RM-1675v4-2L-X",
    "firmware": "firmware-2026-03.1",
@@ -405,7 +405,7 @@
   },
   {
    "bundle": "b4",
-   "label": "Relay Kratos DD 6.9.26",
+   "label": "Relay Site B 6.9.26",
    "peer": "00:30:1a:3d:21:07",
    "model": "RM-1675v4-2L-X",
    "firmware": "firmware-2026-03.1",
@@ -450,7 +450,7 @@
   },
   {
    "bundle": "b4",
-   "label": "Relay Kratos DD 6.9.26",
+   "label": "Relay Site B 6.9.26",
    "peer": "00:30:1a:3c:2d:81",
    "model": "RM-1675v4-2L-X",
    "firmware": "firmware-2026-03.1",

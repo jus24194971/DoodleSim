@@ -225,7 +225,7 @@
   },
   "b3": {
    "bundle": "b3",
-   "label": "GCS Kratos DD 6.9.26",
+   "label": "GCS Site B 6.9.26",
    "model": "RM-1675v4-2L-X",
    "date": "22-05-06_12-54-28",
    "uptime": "228",
@@ -588,7 +588,7 @@
   },
   "b4": {
    "bundle": "b4",
-   "label": "Relay Kratos DD 6.9.26",
+   "label": "Relay Site B 6.9.26",
    "model": "RM-1675v4-2L-X",
    "date": "22-05-05_18-51-50",
    "uptime": "234",
@@ -1082,8 +1082,8 @@
   {
    "a": "b3",
    "b": "b4",
-   "a_label": "GCS Kratos DD 6.9.26",
-   "b_label": "Relay Kratos DD 6.9.26",
+   "a_label": "GCS Site B 6.9.26",
+   "b_label": "Relay Site B 6.9.26",
    "rssi_a_sees_b": -36.0,
    "rssi_b_sees_a": -35,
    "asymmetry_db": -1.0,

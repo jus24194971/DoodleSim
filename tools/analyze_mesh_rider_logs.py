@@ -20,8 +20,8 @@ DEFAULT_BUNDLES = os.path.join(
 LABELS = {
     'b1': 'Air Flight 7',
     'b2': 'GCS Flight 7',
-    'b3': 'GCS Kratos DD 6.9.26',
-    'b4': 'Relay Kratos DD 6.9.26',
+    'b3': 'GCS Site B 6.9.26',
+    'b4': 'Relay Site B 6.9.26',
     'b5': 'longtermmon smartradio-301a3af4e9',
     'b6': 'longtermmon smartradio-301a50814f',
 }

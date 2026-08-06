@@ -56,7 +56,7 @@
   ]
  },
  "b3": {
-  "label": "GCS Kratos DD 6.9.26",
+  "label": "GCS Site B 6.9.26",
   "tx_dbm": 32.0,
   "peers": [
    {
@@ -79,7 +79,7 @@
     },
     "samples_implying_impossible_motion": 306,
     "implausible_pct": 3.6,
-    "csv": "GCS_Kratos_DD_6.9.26__00301a3d2107.csv"
+    "csv": "GCS_Site B_DD_6.9.26__00301a3d2107.csv"
    },
    {
     "peer": "00:30:1a:3d:23:13",
@@ -101,7 +101,7 @@
     },
     "samples_implying_impossible_motion": 189,
     "implausible_pct": 1.6,
-    "csv": "GCS_Kratos_DD_6.9.26__00301a3d2313.csv"
+    "csv": "GCS_Site B_DD_6.9.26__00301a3d2313.csv"
    },
    {
     "peer": "00:30:1a:3d:20:fb",
@@ -123,7 +123,7 @@
     },
     "samples_implying_impossible_motion": 1324,
     "implausible_pct": 17.2,
-    "csv": "GCS_Kratos_DD_6.9.26__00301a3d20fb.csv"
+    "csv": "GCS_Site B_DD_6.9.26__00301a3d20fb.csv"
    },
    {
     "peer": "00:30:1a:3d:21:13",
@@ -145,7 +145,7 @@
     },
     "samples_implying_impossible_motion": 0,
     "implausible_pct": 0.0,
-    "csv": "GCS_Kratos_DD_6.9.26__00301a3d2113.csv"
+    "csv": "GCS_Site B_DD_6.9.26__00301a3d2113.csv"
    },
    {
     "peer": "00:30:1a:3d:22:ff",
@@ -167,12 +167,12 @@
     },
     "samples_implying_impossible_motion": 4,
     "implausible_pct": 0.3,
-    "csv": "GCS_Kratos_DD_6.9.26__00301a3d22ff.csv"
+    "csv": "GCS_Site B_DD_6.9.26__00301a3d22ff.csv"
    }
   ]
  },
  "b4": {
-  "label": "Relay Kratos DD 6.9.26",
+  "label": "Relay Site B 6.9.26",
   "tx_dbm": 32.0,
   "peers": [
    {
@@ -195,7 +195,7 @@
     },
     "samples_implying_impossible_motion": 0,
     "implausible_pct": 0.0,
-    "csv": "Relay_Kratos_DD_6.9.26__00301a3c2d81.csv"
+    "csv": "Relay_Site B_DD_6.9.26__00301a3c2d81.csv"
    },
    {
     "peer": "00:30:1a:3d:23:1b",
@@ -217,7 +217,7 @@
     },
     "samples_implying_impossible_motion": 1458,
     "implausible_pct": 23.0,
-    "csv": "Relay_Kratos_DD_6.9.26__00301a3d231b.csv"
+    "csv": "Relay_Site B_DD_6.9.26__00301a3d231b.csv"
    },
    {
     "peer": "00:30:1a:3d:23:13",
@@ -239,7 +239,7 @@
     },
     "samples_implying_impossible_motion": 739,
     "implausible_pct": 23.1,
-    "csv": "Relay_Kratos_DD_6.9.26__00301a3d2313.csv"
+    "csv": "Relay_Site B_DD_6.9.26__00301a3d2313.csv"
    },
    {
     "peer": "00:30:1a:3d:21:07",
@@ -261,7 +261,7 @@
     },
     "samples_implying_impossible_motion": 626,
     "implausible_pct": 32.5,
-    "csv": "Relay_Kratos_DD_6.9.26__00301a3d2107.csv"
+    "csv": "Relay_Site B_DD_6.9.26__00301a3d2107.csv"
    }
   ]
  },

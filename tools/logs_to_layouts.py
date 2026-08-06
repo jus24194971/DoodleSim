@@ -57,7 +57,7 @@ def node(nid, label, lat, lng, model, freq, bw, tx, platform, height, note):
 
 ANCHORS = {
     'flight7': (39.7392, -104.9903),
-    'kratos': (39.7392, -105.2000),
+    'Site B': (39.7392, -105.2000),
     'bench': (39.7392, -104.8000),
 }
 
@@ -111,8 +111,8 @@ emit('flight7', ANCHORS['flight7'], [
      'platform': 'uav', 'height': 100, 'note': 'measured: MCS<=6, 80% packet loss, channel 70% busy', 'sep_m': sep},
 ], [('b1', 'b2')], 'Flight 7: GCS receive chain down ~10 dB + congested 918 MHz channel; link up but unusable (MCS 0, 80% loss)')
 
-# ---- Kratos mesh (b3 GCS + b4 Relay + their peers)
-members = [{'key': 'b3', 'label': f"GCS Kratos (chains -31/-25, {len(B['b3']['peers'])} peers)",
+# ---- Site B mesh (b3 GCS + b4 Relay + their peers)
+members = [{'key': 'b3', 'label': f"GCS Site B (chains -31/-25, {len(B['b3']['peers'])} peers)",
             'model': B['b3']['model'], 'freq': 1636, 'bw': 20, 'tx': B['b3']['mesh_txpower_dbm'],
             'platform': 'mast', 'height': 3, 'note': 'measured: own chain 0 down 5-7 dB vs every peer', 'sep_m': 0}]
 links = []
@@ -122,7 +122,7 @@ for mac, pp in B['b3']['peers'].items():
     is_relay = mac == B['b4']['own_mac']
     members.append({
         'key': mac,
-        'label': ('Relay Kratos' if is_relay else f"Kratos node {mac[-5:]}")
+        'label': ('Relay Site B' if is_relay else f"Site B node {mac[-5:]}")
                  + f" (rx {pp['rssi_dbm']['median']:.0f} dBm)",
         'model': B['b4']['model'] if is_relay else B['b3']['model'],
         'freq': 1636, 'bw': 20, 'tx': 32,
@@ -132,8 +132,8 @@ for mac, pp in B['b3']['peers'].items():
         'sep_m': pp.get('implied_separation_m') or 50,
     })
     links.append(('b3', mac))
-emit('kratos-mesh', ANCHORS['kratos'], members, links,
-     'Kratos: both GCS and Relay show a local 5-7 dB antenna chain imbalance; Relay ran single-stream only and was linked 69.6% of the time')
+emit('site-b-mesh', ANCHORS['Site B'], members, links,
+     'Site B: both GCS and Relay show a local 5-7 dB antenna chain imbalance; Relay ran single-stream only and was linked 69.6% of the time')
 
 # ---- healthy bench pair (b5 <-> b6) as the control
 p56 = peer_of('b6', B['b5']['own_mac'])

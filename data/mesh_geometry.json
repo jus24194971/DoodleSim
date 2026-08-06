@@ -151,13 +151,13 @@
    "radios": [
     {
      "mac": "00:30:1a:3d:23:1b",
-     "label": "GCS Kratos DD 6.9.26",
+     "label": "GCS Site B 6.9.26",
      "ranges": 5,
      "positionable": true
     },
     {
      "mac": "00:30:1a:3d:20:fb",
-     "label": "Relay Kratos DD 6.9.26",
+     "label": "Relay Site B 6.9.26",
      "ranges": 4,
      "positionable": true
     },

@@ -184,8 +184,8 @@ def write_md(d, A, S):
           'was valid for, and that the shortfall was not explained by their antenna, mast '
           'height or method. That chain is almost never complete in a ticket, so those '
           'cases fell to Not Determined or to the customer-side RF-path codes. Read the '
-          'zero as "not provable from ticket prose", not "did not happen" - the Rekise case '
-          'below shows the mechanism plainly.')
+          'zero as "not provable from ticket prose", not "did not happen" - the '
+          'ground-station antenna-height case below shows the mechanism plainly.')
         W('')
 
     for code, rows in order:

@@ -253,10 +253,10 @@ S(tbl([['System', 'Finding'],
        ['Flight 7 channel',
         'The 918 MHz channel was busy 70% of the time with noise peaks to -75 dBm, against 9% on a healthy '
         'reference pair.'],
-       ['Kratos fleet',
+       ['Site B fleet',
         'The same 5-7 dB chain imbalance on both the ground station and the relay, against every peer - which '
         'localises it to their own antenna paths rather than the air.'],
-       ['Kratos relay',
+       ['Site B relay',
         'Linked only <b>69.6%</b> of the time while hopping across three frequencies and two channel widths, '
         'against a ground station that never left one channel.']],
       [1.6 * inch, 5.3 * inch]))
