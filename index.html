@@ -221,23 +221,16 @@
       </div>
 
       <div class="cov-section">
-        <div class="cov-label">Traffic</div>
-        <div class="cov-seg">
-          <button id="air-t-video" class="cov-seg-btn active">Video</button>
-          <button id="air-t-const" class="cov-seg-btn">Constant rate</button>
+        <div class="cov-label">Traffic on this link</div>
+        <div class="cov-row" style="gap:4px">
+          <select id="air-preset" title="Common UAS traffic types, each with the protocol and direction it actually uses"></select>
+          <button id="air-add-flow" class="cov-seg-btn" style="flex:0 0 auto" title="Add this traffic to the link">+ Add</button>
         </div>
-        <div id="air-video-rows" style="margin-top:6px">
-          <div class="cov-row"><label>Bitrate (Mbps)</label><input id="air-bitrate" type="number" value="4" step="0.5" min="0.1"></div>
-          <div class="cov-row"><label>Frame rate (fps)</label><input id="air-fps" type="number" value="30" step="1" min="1"></div>
-          <div class="cov-row"><label>GOP (frames)</label><input id="air-gop" type="number" value="30" step="1" min="1"></div>
-          <div class="cov-row"><label>I-frame multiplier</label><input id="air-imult" type="number" value="6" step="1" min="1"></div>
-        </div>
-        <div id="air-const-rows" class="hidden" style="margin-top:6px">
-          <div class="cov-row"><label>Packets / second</label><input id="air-pps" type="number" value="200" step="10" min="0"></div>
-        </div>
-        <div class="cov-row"><label>Payload (bytes)</label><input id="air-payload" type="number" value="1200" step="50" min="64"></div>
-        <div class="cov-row"><label>Direction</label><select id="air-cast">
-          <option value="unicast">Unicast</option><option value="broadcast">Broadcast / multicast</option></select></div>
+        <div id="air-preset-why" class="air-why"></div>
+        <div id="air-flows"></div>
+        <div class="cov-foot" style="padding:6px 0 0">The radio is half duplex, so uplink and
+          downlink spend the <b>same</b> airtime rather than separate budgets. TCP flows also put
+          acknowledgements on the opposite direction, which is why a download loads the uplink.</div>
       </div>
 
       <div class="cov-section">

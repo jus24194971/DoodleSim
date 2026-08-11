@@ -2012,13 +2012,17 @@ window.__app = {
 
 // ---------------------------------------------------------------- link budget & airtime
 // Model design: Aaron Do, Doodle Labs Solutions Engineering. See src/airtime.js.
+//
 // The panel answers two questions customers routinely conflate: does the link close,
 // and can it carry the offered traffic. A link can pass the first with margin to
-// spare and fail the second badly - which is the "good signal, poor throughput"
-// complaint pattern almost verbatim.
+// spare and fail the second badly - the "good signal, poor throughput" pattern.
+//
+// Traffic is a LIST, because a drone link never carries one stream. Each entry has
+// its own protocol and direction, and the radio is half duplex, so every direction of
+// every flow spends the same airtime.
 const airPanel = document.getElementById('air-panel');
 const $air = (id) => document.getElementById(id);
-const airState = { source: 'fspl', traffic: 'video', basis: 'datasheet' };
+const airState = { source: 'fspl', basis: 'datasheet', flows: [] };
 
 function airFillSelects() {
   const cur = $air('air-radio').value;
@@ -2031,6 +2035,13 @@ function airFillSelects() {
     $air('air-bw').innerHTML = CHANNEL_WIDTHS.map((w) =>
       `<option value="${w}" ${w === 20 ? 'selected' : ''}>${w} MHz</option>`).join('');
   }
+  if (!$air('air-preset').options.length) {
+    const groups = {};
+    AIR.TRAFFIC_PRESETS.forEach((p) => { (groups[p.group] = groups[p.group] || []).push(p); });
+    $air('air-preset').innerHTML = Object.entries(groups).map(([g, list]) =>
+      `<optgroup label="${g}">` + list.map((p) =>
+        `<option value="${p.id}">${p.label}</option>`).join('') + '</optgroup>').join('');
+  }
 }
 
 function airBasisNote() {
@@ -2040,8 +2051,51 @@ function airBasisNote() {
     + ' transmit-power disagreement in our own documentation, not a sensitivity one.';
 }
 
+function airPresetWhy() {
+  const p = AIR.presetById($air('air-preset').value);
+  if (!p) { $air('air-preset-why').textContent = ''; return; }
+  const proto = AIR.PROTOCOLS[p.protocol], dir = AIR.DIRECTIONS[p.direction];
+  $air('air-preset-why').innerHTML =
+    `<b>${proto.label} &middot; ${dir.label}</b><br>${p.why}`;
+}
+
 function airSeg(ids, activeId) {
   ids.forEach((id) => $air(id).classList.toggle('active', id === activeId));
+}
+
+const DIR_ARROW = { down: '&darr; down', up: '&uarr; up', bi: '&harr; both' };
+
+function airRenderFlows() {
+  const el = $air('air-flows');
+  if (!airState.flows.length) {
+    el.innerHTML = '<div class="air-empty">No traffic yet. Pick a type above and add it - '
+      + 'the link budget alone will not tell you whether the medium can carry it.</div>';
+    return;
+  }
+  el.innerHTML = airState.flows.map((f, i) => {
+    const proto = AIR.PROTOCOLS[f.protocol], dir = AIR.DIRECTIONS[f.direction];
+    const rate = f.kind === 'video'
+      ? `${f.bitrateMbps} Mbps &middot; ${f.fps} fps &middot; GOP ${f.gop}`
+      : `${f.pps} pps &middot; ${f.payloadBytes} B`;
+    return `<div class="air-flow ${f.enabled === false ? 'off' : ''}">
+      <div class="air-flow-top">
+        <input type="checkbox" data-fi="${i}" class="air-flow-en" ${f.enabled === false ? '' : 'checked'}
+               title="Include this flow in the calculation">
+        <span class="air-flow-name">${f.label}</span>
+        <span class="air-tag ${f.protocol}">${proto.label}</span>
+        <span class="air-tag dir">${DIR_ARROW[f.direction] || f.direction}</span>
+        <button class="air-flow-x" data-fx="${i}" title="Remove">&times;</button>
+      </div>
+      <div class="air-flow-sub">${rate}${f.reverseScale != null && f.direction === 'bi'
+        ? ` &middot; reverse ${Math.round(f.reverseScale * 100)}% of forward` : ''}</div>
+    </div>`;
+  }).join('');
+  el.querySelectorAll('.air-flow-en').forEach((c) => c.addEventListener('change', () => {
+    airState.flows[+c.dataset.fi].enabled = c.checked; airRenderFlows(); airCalculate();
+  }));
+  el.querySelectorAll('.air-flow-x').forEach((b) => b.addEventListener('click', () => {
+    airState.flows.splice(+b.dataset.fx, 1); airRenderFlows(); airCalculate();
+  }));
 }
 
 function airBandCentre(band) {
@@ -2060,8 +2114,6 @@ async function airCalculate() {
   const gtx = parseFloat($air('air-gtx').value) || 0;
   const grx = parseFloat($air('air-grx').value) || 0;
   const fade = parseFloat($air('air-fade').value) || 0;
-  const payload = parseFloat($air('air-payload').value) || 1200;
-  const isUnicast = $air('air-cast').value === 'unicast';
   const meshMode = $air('air-mode').value;
   const nodesN = parseFloat($air('air-nodes').value) || 2;
   const ogmIntervalS = parseFloat($air('air-ogm').value) || 1;
@@ -2072,8 +2124,6 @@ async function airCalculate() {
   let sourceLabel = 'free space';
 
   if (airState.source === 'terrain') {
-    // Reuse the selected map link so the airtime model inherits the near-ground
-    // term, Fresnel clearance and diffraction that free space cannot see.
     if (!selectedLink) {
       $air('air-result').innerHTML = '<div class="air-verdict warn">Select a link on the map first'
         + '<small>Terrain mode reads path loss from a link between two placed nodes.</small></div>';
@@ -2090,39 +2140,54 @@ async function airCalculate() {
     sourceLabel = `terrain, ${diff.toFixed(1)} dB diffraction`;
   }
 
-  const flow = airState.traffic === 'video'
-    ? { kind: 'video',
-        bitrateMbps: parseFloat($air('air-bitrate').value) || 4,
-        fps: parseFloat($air('air-fps').value) || 30,
-        gop: parseFloat($air('air-gop').value) || 30,
-        iFrameMultiplier: parseFloat($air('air-imult').value) || 6,
-        payloadBytes: payload, isUnicast, label: 'Video' }
-    : { kind: 'constant', pps: parseFloat($air('air-pps').value) || 0,
-        payloadBytes: payload, isUnicast, label: 'Constant rate' };
-
-  const res = AIR.analyseLink({
+  const res = AIR.analyseMultiFlow({
     pathLossDb, distanceM, freqMhz, bandwidthMhz: bwMhz,
     txGainDbi: gtx, rxGainDbi: grx, fadeMarginDb: fade,
     basis: airState.basis, chains: radio.chains, configuredMaxDbm: radio.maxConfig,
-    flows: [flow], meshMode, packetLoss, nodes: nodesN, ogmIntervalS,
+    flows: airState.flows, meshMode, packetLoss, nodes: nodesN, ogmIntervalS,
   });
 
   const L = res.link;
   const cls = !res.closes ? 'bad' : res.status;
   const headline = !res.closes
     ? `Link does not close - ${L.marginDb.toFixed(1)} dB short`
+    : !airState.flows.length ? 'Link closes. Add traffic to test capacity'
     : res.status === 'bad' ? 'Link closes, but the medium is saturated'
     : res.status === 'warn' ? 'Link closes; medium is busy'
     : 'Link closes and carries the traffic';
   let sub = !res.closes
     ? 'Add antenna gain or height, or narrow the channel, before looking at traffic.'
-    : `Peak airtime ${res.peakPercent.toFixed(0)}% of the medium against `
-      + `${res.avgPercent.toFixed(0)}% average.`;
+    : !airState.flows.length
+      ? 'A closing link tells you nothing about whether it can carry your streams.'
+      : `Peak airtime ${res.peakPercent.toFixed(0)}% of the medium against `
+        + `${res.avgPercent.toFixed(0)}% average.`;
   if (res.closes && res.peakPercent > 100) {
     sub += ' The burst cannot fit inside its frame interval, which shows up as stutter'
         + ' rather than a dropped link.';
   }
   const barPct = Math.max(0, Math.min(res.peakPercent, 100));
+
+  // Per-direction split. Forward is ground->air (uplink), reverse is air->ground.
+  const dirRows = airState.flows.length ? `
+    <div class="air-label">Airtime by direction (half duplex - these add up)</div>
+    <div class="air-grid">
+      <span class="k">&darr; Downlink (air to ground)</span><span class="v">${res.reverse.avgPercent.toFixed(1)} %</span>
+      <span class="k">&uarr; Uplink (ground to air)</span><span class="v">${res.forward.avgPercent.toFixed(1)} %</span>
+      <span class="k">Routing overhead (OGM)</span><span class="v">${res.ogmPercent.toFixed(2)} %</span>
+      ${res.ackPercent > 0 ? `<span class="k">of which TCP acknowledgements</span><span class="v">${res.ackPercent.toFixed(2)} %</span>` : ''}
+      <span class="k"><b>Combined</b></span><span class="v"><b>${res.avgPercent.toFixed(1)} %</b></span>
+    </div>` : '';
+
+  const flowRows = res.rows.length ? `
+    <div class="air-label">Per flow</div>
+    <table class="air-tbl"><tr><th>Flow</th><th>Dir</th><th>Mbps</th><th>Avg</th><th>Peak</th></tr>
+    ${res.rows.map((r) => `<tr class="${r.isAck ? 'ack' : ''}">
+      <td>${r.label}</td>
+      <td>${r.leg === 'reverse' ? '&darr;' : '&uarr;'}</td>
+      <td>${r.goodputMbps < 0.01 ? r.goodputMbps.toFixed(3) : r.goodputMbps.toFixed(2)}</td>
+      <td>${r.avgPercent.toFixed(1)}%</td>
+      <td>${r.peakPercent.toFixed(1)}%</td></tr>`).join('')}
+    </table>` : '';
 
   $air('air-result').innerHTML =
     `<div class="air-verdict ${cls}">${headline}<small>${sub}</small></div>`
@@ -2132,26 +2197,38 @@ async function airCalculate() {
     + `<span class="k">Distance</span><span class="v">${(distanceM / 1000).toFixed(2)} km</span>`
     + `<span class="k">Selected MCS</span><span class="v">MCS${L.mcs}</span>`
     + `<span class="k">Receive level</span><span class="v">${L.rxDbm.toFixed(1)} dBm</span>`
-    + `<span class="k">Sensitivity</span><span class="v">${L.sensDbm.toFixed(1)} dBm</span>`
     + `<span class="k">Margin over fade</span><span class="v">${L.marginDb.toFixed(1)} dB</span>`
     + `<span class="k">PHY rate</span><span class="v">${L.phyRateMbps.toFixed(1)} Mbps</span>`
     + `<span class="k">Usable capacity</span><span class="v">${res.capacityMbps.toFixed(2)} Mbps</span>`
     + `<span class="k">Offered traffic</span><span class="v">${res.offeredMbps.toFixed(2)} Mbps</span>`
     + `<span class="k">Headroom</span><span class="v">${res.headroomMbps.toFixed(2)} Mbps</span>`
-    + `<span class="k">Airtime average</span><span class="v">${res.avgPercent.toFixed(1)} %</span>`
-    + `<span class="k">Airtime peak</span><span class="v">${res.peakPercent.toFixed(1)} %</span>`
-    + `<span class="k">Routing overhead (OGM)</span><span class="v">${res.ogmPercent.toFixed(2)} %</span>`
-    + '</div>';
+    + '</div>' + dirRows + flowRows;
 }
 
 document.getElementById('btn-airtime').addEventListener('click', () => {
   airPanel.classList.remove('hidden');
   airFillSelects();
   airBasisNote();
+  airPresetWhy();
+  if (!airState.flows.length) {
+    // Seed with the archetypal drone payload so the panel opens saying something
+    // useful: video down, C2 both ways.
+    airState.flows = [{ ...AIR.presetById('h264-video'), enabled: true },
+                      { ...AIR.presetById('mavlink'), enabled: true }];
+  }
+  airRenderFlows();
   airCalculate();
 });
 $air('air-close').addEventListener('click', () => airPanel.classList.add('hidden'));
 $air('air-radio').addEventListener('change', () => { airFillSelects(); airCalculate(); });
+$air('air-preset').addEventListener('change', airPresetWhy);
+$air('air-add-flow').addEventListener('click', () => {
+  const p = AIR.presetById($air('air-preset').value);
+  if (!p) return;
+  airState.flows.push({ ...p, enabled: true });
+  airRenderFlows();
+  airCalculate();
+});
 $air('air-src-fspl').addEventListener('click', () => {
   airState.source = 'fspl';
   airSeg(['air-src-fspl', 'air-src-terrain'], 'air-src-fspl');
@@ -2160,20 +2237,6 @@ $air('air-src-fspl').addEventListener('click', () => {
 $air('air-src-terrain').addEventListener('click', () => {
   airState.source = 'terrain';
   airSeg(['air-src-fspl', 'air-src-terrain'], 'air-src-terrain');
-  airCalculate();
-});
-$air('air-t-video').addEventListener('click', () => {
-  airState.traffic = 'video';
-  airSeg(['air-t-video', 'air-t-const'], 'air-t-video');
-  $air('air-video-rows').classList.remove('hidden');
-  $air('air-const-rows').classList.add('hidden');
-  airCalculate();
-});
-$air('air-t-const').addEventListener('click', () => {
-  airState.traffic = 'constant';
-  airSeg(['air-t-video', 'air-t-const'], 'air-t-const');
-  $air('air-video-rows').classList.add('hidden');
-  $air('air-const-rows').classList.remove('hidden');
   airCalculate();
 });
 $air('air-basis-ds').addEventListener('click', () => {
@@ -2187,9 +2250,9 @@ $air('air-basis-est').addEventListener('click', () => {
   airBasisNote(); airCalculate();
 });
 $air('air-run').addEventListener('click', airCalculate);
-['air-band', 'air-bw', 'air-dist', 'air-gtx', 'air-grx', 'air-fade', 'air-payload', 'air-cast',
- 'air-mode', 'air-nodes', 'air-ogm', 'air-loss', 'air-bitrate', 'air-fps', 'air-gop', 'air-imult',
- 'air-pps'].forEach((id) => $air(id).addEventListener('change', airCalculate));
+['air-band', 'air-bw', 'air-dist', 'air-gtx', 'air-grx', 'air-fade',
+ 'air-mode', 'air-nodes', 'air-ogm', 'air-loss'].forEach((id) =>
+  $air(id).addEventListener('change', airCalculate));
 
 // ---------------------------------------------------------------- toolbar menus
 // The toolbar is grouped by stage of the job. Every action button kept its original

@@ -279,3 +279,228 @@ export function analyseLink({ pathLossDb, distanceM = 0, freqMhz = 2450, bandwid
     headroomMbps: Math.max(capacityMbps - offeredMbps, 0),
   };
 }
+
+// ================================================================ multi-flow
+//
+// A real drone link never carries one stream. It carries video down, command and
+// control both ways, telemetry down, and often a management session - each with its
+// own protocol, direction and bitrate.
+//
+// Why this needs modelling rather than adding up bitrates: Mesh Rider is TDD
+// half-duplex on a single channel, so every direction of every flow contends for the
+// SAME airtime. A 4 Mbps downlink and a 200 kbps uplink are not independent budgets;
+// they sum. And a TCP flow that looks one-way is not one-way on the air, because its
+// acknowledgements are real frames in the reverse direction paying full preamble,
+// interframe and 802.11-ACK cost. Small in bits, far from small in airtime.
+
+export const PROTOCOLS = {
+  udp: {
+    label: 'UDP',
+    note: 'No transport acknowledgement. Loss shows up as artefacts or a missed command, '
+        + 'not as retransmission. Airtime is what you send.',
+    ackRatio: 0,
+  },
+  tcp: {
+    label: 'TCP',
+    // Delayed ACK: one acknowledgement per two data segments is the common case.
+    note: 'Every two data segments draw an acknowledgement in the reverse direction. '
+        + 'Those are tiny packets but full-price airtime, so a one-way TCP transfer '
+        + 'still loads the return path.',
+    ackRatio: 0.5,
+    ackBytes: 64,
+  },
+};
+
+export const DIRECTIONS = {
+  down: { label: 'Downlink only (air to ground)', forward: 0, reverse: 1 },
+  up: { label: 'Uplink only (ground to air)', forward: 1, reverse: 0 },
+  bi: { label: 'Bidirectional', forward: 1, reverse: 1 },
+};
+
+// The suggestion library. Each entry carries the protocol and directionality the
+// traffic actually uses in a UAS deployment, with the reason stated - the point is to
+// stop a video downlink being modelled as bidirectional, or C2 as one-way.
+export const TRAFFIC_PRESETS = [
+  {
+    id: 'h264-video', group: 'Video', label: 'H.264 video downlink',
+    protocol: 'udp', direction: 'down', kind: 'video',
+    bitrateMbps: 4, fps: 30, gop: 30, iFrameMultiplier: 6, payloadBytes: 1200,
+    why: 'H.264 over RTP/UDP from the aircraft. Effectively one-way - the ground station '
+       + 'sends nothing back on this stream. A retransmission would arrive too late to be '
+       + 'useful, which is why it is UDP.',
+  },
+  {
+    id: 'h265-video', group: 'Video', label: 'H.265 video downlink',
+    protocol: 'udp', direction: 'down', kind: 'video',
+    bitrateMbps: 2, fps: 30, gop: 30, iFrameMultiplier: 6, payloadBytes: 1200,
+    why: 'H.265 gives roughly the same picture as H.264 at about half the bitrate, so it is '
+       + 'the first lever to pull when airtime is tight. Same one-way UDP behaviour.',
+  },
+  {
+    id: 'video-2stream', group: 'Video', label: 'Dual camera downlink',
+    protocol: 'udp', direction: 'down', kind: 'video',
+    bitrateMbps: 8, fps: 30, gop: 30, iFrameMultiplier: 6, payloadBytes: 1200,
+    why: 'Two feeds multiplexed. The I-frames of both cameras can align and burst together, '
+       + 'which is the case that saturates a link that looked fine on averages.',
+  },
+  {
+    id: 'rtsp-ctl', group: 'Video', label: 'RTSP session control',
+    protocol: 'tcp', direction: 'bi', kind: 'constant',
+    pps: 2, payloadBytes: 200, reverseScale: 1,
+    why: 'The control channel beside the stream - PLAY, PAUSE, keepalive. Tiny, TCP, and '
+       + 'genuinely bidirectional. Negligible bits, but a real reverse-path talker.',
+  },
+  {
+    id: 'mavlink', group: 'Command and control', label: 'MAVLink telemetry + commands',
+    protocol: 'udp', direction: 'bi', kind: 'constant',
+    pps: 50, payloadBytes: 90, reverseScale: 0.25,
+    why: 'Genuinely bidirectional and asymmetric: the aircraft streams attitude, GPS and '
+       + 'status down continuously while the operator sends comparatively few commands up. '
+       + 'UDP, because a late command is worse than a lost one.',
+  },
+  {
+    id: 'rc-control', group: 'Command and control', label: 'RC control uplink',
+    protocol: 'udp', direction: 'up', kind: 'constant',
+    pps: 50, payloadBytes: 64, reverseScale: 0,
+    why: 'Stick inputs from the ground. Small packets at a high rate, which is airtime-heavy '
+       + 'out of all proportion to its bitrate because every frame pays preamble and '
+       + 'interframe cost regardless of size. Latency-critical, so never TCP.',
+  },
+  {
+    id: 'c2-heartbeat', group: 'Command and control', label: 'C2 heartbeat / keepalive',
+    protocol: 'udp', direction: 'bi', kind: 'constant',
+    pps: 4, payloadBytes: 64, reverseScale: 1,
+    why: 'Symmetric by design - each end has to prove it is still there. Trivial bitrate, '
+       + 'included because it is one more small-packet talker competing for the medium.',
+  },
+  {
+    id: 'payload-dl', group: 'Payload and data', label: 'Payload file download',
+    protocol: 'tcp', direction: 'down', kind: 'constant',
+    pps: 400, payloadBytes: 1400,
+    why: 'Bulk imagery or logs pulled off the aircraft. TCP, so it will take whatever capacity '
+       + 'is left - and its acknowledgements load the uplink. Schedule it away from '
+       + 'flight-critical traffic rather than trusting it to back off politely.',
+  },
+  {
+    id: 'mission-upload', group: 'Payload and data', label: 'Mission / waypoint upload',
+    protocol: 'tcp', direction: 'up', kind: 'constant',
+    pps: 60, payloadBytes: 500,
+    why: 'A short uplink burst before or during flight. TCP because a corrupted waypoint is '
+       + 'unacceptable and the latency cost is affordable here.',
+  },
+  {
+    id: 'ssh-mgmt', group: 'Payload and data', label: 'SSH / web management',
+    protocol: 'tcp', direction: 'bi', kind: 'constant',
+    pps: 10, payloadBytes: 200, reverseScale: 0.6,
+    why: 'An engineer on the radio GUI or a shell. Bidirectional and bursty. Worth modelling '
+       + 'because troubleshooting sessions happen exactly when the link is already struggling.',
+  },
+];
+
+export function presetById(id) {
+  return TRAFFIC_PRESETS.find((p) => p.id === id) || null;
+}
+
+/**
+ * Expand one configured flow into the directional sub-flows that actually hit the air:
+ * the forward traffic, any reverse traffic, and the TCP acknowledgements each spawns.
+ *
+ * Entries are tagged 'forward' or 'reverse' so the caller can report per-direction
+ * loading as well as the combined total the half-duplex medium actually sees.
+ */
+export function expandFlow(flow) {
+  const dir = DIRECTIONS[flow.direction] || DIRECTIONS.bi;
+  const proto = PROTOCOLS[flow.protocol] || PROTOCOLS.udp;
+  const out = [];
+  const base = flow.kind === 'video' ? videoProfile(flow) : constantProfile(flow);
+
+  // reverseScale lets a bidirectional flow be asymmetric - MAVLink sends far more down
+  // than up, and modelling it as symmetric overstates the uplink badly.
+  const revScale = flow.reverseScale != null ? flow.reverseScale : 1;
+
+  if (dir.forward) {
+    out.push({ leg: 'forward', label: flow.label, profile: base,
+               isUnicast: flow.isUnicast !== false });
+  }
+  if (dir.reverse) {
+    const scale = dir.forward ? revScale : 1;   // a one-way flow carries full rate on its leg
+    out.push({
+      leg: 'reverse', label: flow.label,
+      profile: { ...base, avgPps: base.avgPps * scale, peakPps: base.peakPps * scale },
+      isUnicast: flow.isUnicast !== false,
+    });
+  }
+
+  // TCP acknowledgements travel opposite each data leg
+  if (proto.ackRatio > 0) {
+    for (const leg of out.slice()) {
+      const opposite = leg.leg === 'forward' ? 'reverse' : 'forward';
+      out.push({
+        leg: opposite, label: flow.label + ' (TCP ACK)', isAck: true, isUnicast: true,
+        profile: { avgPps: leg.profile.avgPps * proto.ackRatio,
+                   peakPps: leg.profile.peakPps * proto.ackRatio,
+                   payloadBytes: proto.ackBytes },
+      });
+    }
+  }
+  return out;
+}
+
+/**
+ * Airtime across several simultaneous flows on one half-duplex link.
+ *
+ * Reports forward, reverse and combined. Combined is the number that decides whether
+ * the link works, because TDD means both directions spend the same medium - which
+ * surprises people who size uplink and downlink separately.
+ */
+export function analyseMultiFlow({ pathLossDb, distanceM = 0, freqMhz = 2450,
+                                   bandwidthMhz = 20, txGainDbi = 3, rxGainDbi = 3,
+                                   fadeMarginDb = 12, basis = 'datasheet', chains = 2,
+                                   configuredMaxDbm = null, flows = [], meshMode = 'batman',
+                                   packetLoss = 0.1, nodes = 2, ogmIntervalS = 1,
+                                   headerOverheadBytes = 60, multicastRate20Mbps = 6.5 }) {
+  const loss = pathLossDb != null ? pathLossDb : fsplDb(freqMhz, distanceM / 1000);
+  const link = chooseBestMcs({ pathLossDb: loss, txGainDbi, rxGainDbi, bandwidthMhz,
+                               fadeMarginDb, basis, chains, configuredMaxDbm });
+  const opts = { headerOverheadBytes, multicastRate20Mbps, bandwidthMhz, distanceM };
+
+  const rows = [];
+  for (const f of flows) {
+    if (f.enabled === false) continue;
+    for (const leg of expandFlow(f)) {
+      const a = flowAirtime({ profile: leg.profile, link, isUnicast: leg.isUnicast,
+                              meshMode, packetLoss, opts });
+      rows.push({ ...leg, protocol: f.protocol, direction: f.direction,
+                  presetId: f.id, ...a });
+    }
+  }
+
+  const legSum = (leg, key) => rows.filter((r) => r.leg === leg)
+    .reduce((s, r) => s + r[key], 0);
+  const ogmPercent = MESH_MODES[meshMode]?.ogm
+    ? ogmAirtimePercent({ nodes, ogmIntervalS, phyRateMbps: link.phyRateMbps, opts })
+    : 0;
+
+  const avgPercent = rows.reduce((s, r) => s + r.avgPercent, 0) + ogmPercent;
+  const peakPercent = rows.reduce((s, r) => s + r.peakPercent, 0) + ogmPercent;
+  const capacityMbps = effectiveThroughputMbps(1500, link.phyRateMbps, true, opts,
+                                               retryFactor(packetLoss));
+  const offeredMbps = rows.reduce((s, r) => s + r.goodputMbps, 0);
+
+  return {
+    pathLossDb: loss, link, rows, ogmPercent,
+    forward: { avgPercent: legSum('forward', 'avgPercent'),
+               peakPercent: legSum('forward', 'peakPercent'),
+               mbps: rows.filter((r) => r.leg === 'forward')
+                 .reduce((s, r) => s + r.goodputMbps, 0) },
+    reverse: { avgPercent: legSum('reverse', 'avgPercent'),
+               peakPercent: legSum('reverse', 'peakPercent'),
+               mbps: rows.filter((r) => r.leg === 'reverse')
+                 .reduce((s, r) => s + r.goodputMbps, 0) },
+    avgPercent, peakPercent, offeredMbps, capacityMbps,
+    ackPercent: rows.filter((r) => r.isAck).reduce((s, r) => s + r.avgPercent, 0),
+    status: airtimeStatus(peakPercent),
+    closes: link.marginDb >= 0,
+    headroomMbps: Math.max(capacityMbps - offeredMbps, 0),
+  };
+}
