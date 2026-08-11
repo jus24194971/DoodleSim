@@ -10,6 +10,9 @@
   <div id="app">
     <header id="topbar">
       <div class="brand"><span class="brand-mark">M</span> Doodle Labs <span class="brand-light">RF Link Planner</span></div>
+      <button id="nav-toggle" aria-label="Menu" aria-expanded="false" title="Menu">&#9776;</button>
+      <div id="nav-drawer">
+        <div id="nav-drawer-head">Menu<button id="nav-close" title="Close">&#10005;</button></div>
       <div class="toolbar">
         <!-- Toolbar is grouped by stage of the job: place the radios, analyse them,
              then produce something. The two placement actions stay one click away
@@ -60,6 +63,7 @@
         </label>
         <button id="btn-help" class="tool-btn" title="How to plan a network with this tool">❓ Help me plan</button>
         <label class="sat-toggle"><input type="checkbox" id="basemap-toggle" /> Satellite</label>
+      </div>
       </div>
     </header>
     <div id="main">
@@ -204,6 +208,7 @@
         doubt is a multiplicative distance error, which is why the answer is a region, not a point.</div>
     </div>
 
+    <div id="nav-scrim" class="hidden"></div>
     <div id="panel-scrim" class="hidden"></div>
 
     <div id="air-panel" class="hidden">

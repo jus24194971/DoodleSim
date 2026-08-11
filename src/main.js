@@ -2435,3 +2435,34 @@ if (sidebarToggle) {
     setTimeout(() => { try { map.resize(); } catch (e) { /* map not ready */ } }, 210);
   });
 }
+
+// ---------------------------------------------------------------- nav drawer
+// One drawer holds every action and the options. On desktop the wrapper is
+// display:contents so this does nothing; on mobile it slides in from the right.
+const navDrawer = document.getElementById('nav-drawer');
+const navToggle = document.getElementById('nav-toggle');
+const navScrim = document.getElementById('nav-scrim');
+
+function closeNav() {
+  navDrawer.classList.remove('open');
+  navScrim.classList.add('hidden');
+  navToggle.setAttribute('aria-expanded', 'false');
+}
+function openNav() {
+  navDrawer.classList.add('open');
+  navScrim.classList.remove('hidden');
+  navToggle.setAttribute('aria-expanded', 'true');
+}
+navToggle.addEventListener('click', (e) => {
+  e.stopPropagation();
+  navDrawer.classList.contains('open') ? closeNav() : openNav();
+});
+document.getElementById('nav-close').addEventListener('click', closeNav);
+navScrim.addEventListener('click', closeNav);
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && navDrawer.classList.contains('open')) closeNav();
+});
+// Choosing an action should reveal the result, not leave the drawer over it.
+// Menu buttons are excluded: those open a submenu inside the drawer.
+navDrawer.querySelectorAll('.tool-btn:not(.menu-btn), .tool-menu button').forEach((b) =>
+  b.addEventListener('click', () => setTimeout(closeNav, 60)));
