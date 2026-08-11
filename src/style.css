@@ -368,3 +368,47 @@ html, body, #app { height: 100%; font-family: 'Segoe UI', system-ui, sans-serif;
 .air-tbl td { padding: 2px 3px; border-bottom: 1px solid #1c2532; }
 .air-tbl td:nth-child(n+3) { text-align: right; font-variant-numeric: tabular-nums; }
 .air-tbl tr.ack td { color: #8a9bb0; font-style: italic; }
+
+/* ---------------------------------------------------------------- panel pop-out
+   Any side panel can be lifted out of its dock into a centred window with the map
+   dimmed behind it. The docked position is fine for glancing at a result while you
+   work the map; it is cramped when you are actually reading a long table, which is
+   what this is for. */
+.panel-pop {
+  background: none; border: none; color: #adb5bd; cursor: pointer; font-size: 13px;
+  line-height: 1; padding: 0 4px; margin-left: auto;
+}
+.panel-pop:hover { color: #fff; }
+/* the close button already claims margin-left:auto in the docked layout; once the
+   pop control sits before it, the pop control owns the gap instead */
+#cov-head .panel-pop ~ button,
+#route-head .panel-pop ~ button,
+#loc-head .panel-pop ~ button,
+#air-head .panel-pop ~ button { margin-left: 0; }
+
+#panel-scrim {
+  position: fixed; inset: 0; background: rgba(6, 10, 16, .62);
+  backdrop-filter: blur(1.5px); z-index: 60;
+}
+#panel-scrim.hidden { display: none; }
+
+/* Popped state. Fixed and centred, wider and taller than the dock, above the scrim. */
+.panel-popped {
+  position: fixed !important;
+  top: 50% !important; left: 50% !important; right: auto !important; bottom: auto !important;
+  transform: translate(-50%, -50%);
+  width: min(760px, 92vw) !important;
+  max-height: min(84vh, 900px) !important;
+  overflow-y: auto;
+  z-index: 61 !important;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, .6);
+  border-color: #3a4a63 !important;
+}
+/* Give the extra width somewhere to go rather than leaving one tall column. */
+.panel-popped .cov-section { padding-left: 16px; padding-right: 16px; }
+.panel-popped #cov-head, .panel-popped #route-head,
+.panel-popped #loc-head, .panel-popped #air-head { padding: 12px 16px; font-size: 13px; }
+.panel-popped .cov-row input[type=number] { width: 90px; }
+.panel-popped .air-grid { grid-template-columns: 1fr auto 1fr auto; }
+.panel-popped .cov-foot, .panel-popped #air-result { padding-left: 16px; padding-right: 16px; }
+.panel-popped .cov-run { width: calc(100% - 32px); margin-left: 16px; margin-right: 16px; }

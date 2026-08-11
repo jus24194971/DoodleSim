@@ -2284,3 +2284,46 @@ document.querySelectorAll('.tool-menu button').forEach((b) =>
   b.addEventListener('click', () => setTimeout(closeToolMenus, 0)));
 document.addEventListener('click', () => closeToolMenus());
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeToolMenus(); });
+
+// ---------------------------------------------------------------- panel pop-out
+// Lift any side panel out of its dock into a centred window with the map dimmed.
+// The dock is right for glancing at a number while working the map; it is cramped
+// for reading a long flow table, which is what this is for.
+const panelScrim = document.getElementById('panel-scrim');
+
+function unpopPanels() {
+  document.querySelectorAll('.panel-popped').forEach((p) => p.classList.remove('panel-popped'));
+  document.querySelectorAll('.panel-pop').forEach((b) => {
+    b.innerHTML = '&#10529;';
+    b.title = 'Pop out into a focused window and dim the map';
+  });
+  panelScrim.classList.add('hidden');
+}
+
+function popPanel(id) {
+  const panel = document.getElementById(id);
+  if (!panel) return;
+  const already = panel.classList.contains('panel-popped');
+  unpopPanels();
+  if (already) return;                       // the control toggles
+  panel.classList.remove('hidden');          // popping a closed panel opens it
+  panel.classList.add('panel-popped');
+  panelScrim.classList.remove('hidden');
+  const btn = panel.querySelector('.panel-pop');
+  if (btn) { btn.innerHTML = '&#10530;'; btn.title = 'Dock back to the side'; }
+}
+
+document.querySelectorAll('.panel-pop').forEach((b) =>
+  b.addEventListener('click', (ev) => { ev.stopPropagation(); popPanel(b.dataset.panel); }));
+
+// Dismissing the scrim returns the panel to its dock rather than closing it, so the
+// work in it is not lost by a stray click outside.
+panelScrim.addEventListener('click', unpopPanels);
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && document.querySelector('.panel-popped')) unpopPanels();
+});
+// A panel closed by its own ✕ must not leave the scrim over the map.
+['cov-close', 'route-close', 'loc-close', 'air-close'].forEach((id) => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('click', unpopPanels);
+});

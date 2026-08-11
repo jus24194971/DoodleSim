@@ -72,6 +72,7 @@
     <div id="cov-panel" class="hidden">
       <div id="cov-head">
         <b>▩ Coverage simulation</b>
+        <button class="panel-pop" data-panel="cov-panel" title="Pop out into a focused window and dim the map">&#10529;</button>
         <button id="cov-close" title="Close">✕</button>
       </div>
 
@@ -129,7 +130,7 @@
     </div>
 
     <div id="route-panel" class="hidden">
-      <div id="route-head"><b>🛣 Mission route</b><button id="route-close" title="Close">✕</button></div>
+      <div id="route-head"><b>🛣 Mission route</b><button class="panel-pop" data-panel="route-panel" title="Pop out into a focused window and dim the map">&#10529;</button><button id="route-close" title="Close">✕</button></div>
 
       <div class="cov-section">
         <div class="cov-label">Waypoints</div>
@@ -178,7 +179,7 @@
     </div>
 
     <div id="loc-panel" class="hidden">
-      <div id="loc-head"><b>📶 Locate by signal</b><button id="loc-close" title="Close">✕</button></div>
+      <div id="loc-head"><b>📶 Locate by signal</b><button class="panel-pop" data-panel="loc-panel" title="Pop out into a focused window and dim the map">&#10529;</button><button id="loc-close" title="Close">✕</button></div>
       <div class="cov-section">
         <div class="cov-foot" style="border:none;padding:0 0 6px">Nano and Mini radios carry no GPS. Give the levels
           they exchange with radios whose positions you <i>do</i> know (OEM/Wearable units have GPS, or survey a mast)
@@ -202,8 +203,10 @@
         doubt is a multiplicative distance error, which is why the answer is a region, not a point.</div>
     </div>
 
+    <div id="panel-scrim" class="hidden"></div>
+
     <div id="air-panel" class="hidden">
-      <div id="air-head"><b>📊 Link budget &amp; airtime</b><button id="air-close" title="Close">✕</button></div>
+      <div id="air-head"><b>📊 Link budget &amp; airtime</b><button class="panel-pop" data-panel="air-panel" title="Pop out into a focused window and dim the map">&#10529;</button><button id="air-close" title="Close">✕</button></div>
 
       <div class="cov-section">
         <div class="cov-label">Link</div>
