@@ -2021,7 +2021,11 @@ window.__app = {
 // its own protocol and direction, and the radio is half duplex, so every direction of
 // every flow spends the same airtime.
 const airPanel = document.getElementById('air-panel');
-const $air = (id) => document.getElementById(id);
+// Resolve inside the panel, not the document: when the panel is moved into its own
+// browser window its elements leave this document entirely, and a document-scoped
+// lookup silently returns null - the handler fires and does nothing. airPanel is the
+// same node object either way, so querying from it works in both homes.
+const $air = (id) => airPanel.querySelector('#' + id) || document.getElementById(id);
 const airState = { source: 'fspl', basis: 'datasheet', flows: [] };
 
 function airFillSelects() {
@@ -2326,4 +2330,92 @@ document.addEventListener('keydown', (e) => {
 ['cov-close', 'route-close', 'loc-close', 'air-close'].forEach((id) => {
   const el = document.getElementById(id);
   if (el) el.addEventListener('click', unpopPanels);
+});
+
+// ---------------------------------------------------------------- panel in a real window
+// Opens a genuine browser window and MOVES the panel element into it with
+// document.adoptNode.
+//
+// Moving rather than cloning is the whole trick: adoptNode transfers the same node
+// object, so every listener already bound to it in this document keeps firing, and
+// the panel keeps reading module state here - selectedLink, the flow list, the
+// terrain cache. A cloned copy would need every handler re-bound and would drift
+// out of sync with the map immediately.
+const panelWindows = new Map();   // panelId -> { win, anchor, timer }
+
+function styleTagsFor(doc) {
+  // Vite injects <style> in dev and a <link rel=stylesheet> in the build, so carry both.
+  return [...document.querySelectorAll('style, link[rel="stylesheet"]')]
+    .map((n) => doc.importNode(n, true));
+}
+
+function dockFromWindow(id) {
+  const rec = panelWindows.get(id);
+  if (!rec) return;
+  clearInterval(rec.timer);
+  panelWindows.delete(id);
+  const panel = rec.win && !rec.win.closed
+    ? rec.win.document.getElementById(id)
+    : document.getElementById(id);
+  if (panel && rec.anchor && rec.anchor.parentNode) {
+    rec.anchor.parentNode.replaceChild(document.adoptNode(panel), rec.anchor);
+    panel.classList.remove('panel-windowed');
+    panel.classList.add('hidden');          // dock it closed; the toolbar reopens it
+  }
+  if (rec.win && !rec.win.closed) rec.win.close();
+  const btn = document.querySelector(`.panel-win[data-panel="${id}"]`);
+  if (btn) btn.classList.remove('active');
+}
+
+function openPanelWindow(id) {
+  if (panelWindows.has(id)) { dockFromWindow(id); return; }
+  const panel = document.getElementById(id);
+  if (!panel) return;
+  unpopPanels();                            // a real window supersedes the in-page pop
+
+  const title = (panel.querySelector('b') || {}).textContent || 'Doodle Labs';
+  const win = window.open('', 'dl-' + id,
+    'width=840,height=940,menubar=no,toolbar=no,location=no,status=no');
+  if (!win) {
+    // Popup blocked. Fall back to the in-page window rather than doing nothing,
+    // and say why, because a button that silently does nothing reads as broken.
+    popPanel(id);
+    const s = panel.querySelector('.cov-status, #air-result');
+    if (s) s.insertAdjacentHTML('afterbegin',
+      '<div class="air-verdict warn">Popup blocked by the browser'
+      + '<small>Opened in a focused window instead. Allow popups for this site to '
+      + 'get a separate window you can move to another screen.</small></div>');
+    return;
+  }
+
+  win.document.write('<!doctype html><html><head><meta charset="utf-8">'
+    + '<title>' + title.replace(/[<>]/g, '') + ' - Doodle Labs RF Link Planner</title>'
+    + '</head><body></body></html>');
+  win.document.close();
+  styleTagsFor(win.document).forEach((n) => win.document.head.appendChild(n));
+  win.document.body.style.cssText =
+    'margin:0;background:#0d1117;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;';
+
+  // leave a marker so the panel can be put back exactly where it came from
+  const anchor = document.createComment('panel-in-window:' + id);
+  panel.replaceWith(anchor);
+  panel.classList.remove('hidden');
+  panel.classList.add('panel-windowed');
+  win.document.body.appendChild(win.document.adoptNode(panel));
+
+  // If the child is closed from its own titlebar there is no reliable event, so poll.
+  const timer = setInterval(() => { if (win.closed) dockFromWindow(id); }, 400);
+  panelWindows.set(id, { win, anchor, timer });
+  const btn = win.document.querySelector(`.panel-win[data-panel="${id}"]`)
+    || document.querySelector(`.panel-win[data-panel="${id}"]`);
+  if (btn) btn.classList.add('active');
+  win.focus();
+}
+
+document.querySelectorAll('.panel-win').forEach((b) =>
+  b.addEventListener('click', (ev) => { ev.stopPropagation(); openPanelWindow(b.dataset.panel); }));
+
+// Never orphan a child window when the planner itself goes away.
+window.addEventListener('beforeunload', () => {
+  panelWindows.forEach((rec) => { try { rec.win.close(); } catch (e) { /* already gone */ } });
 });

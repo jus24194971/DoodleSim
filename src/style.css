@@ -412,3 +412,23 @@ html, body, #app { height: 100%; font-family: 'Segoe UI', system-ui, sans-serif;
 .panel-popped .air-grid { grid-template-columns: 1fr auto 1fr auto; }
 .panel-popped .cov-foot, .panel-popped #air-result { padding-left: 16px; padding-right: 16px; }
 .panel-popped .cov-run { width: calc(100% - 32px); margin-left: 16px; margin-right: 16px; }
+
+/* Panel living in its own browser window: no docking, fill the window. */
+.panel-win { background: none; border: none; color: #adb5bd; cursor: pointer; font-size: 12px;
+  line-height: 1; padding: 0 4px; margin-left: auto; }
+.panel-win:hover { color: #fff; }
+.panel-win.active { color: #4dabf7; }
+.panel-pop { margin-left: 0 !important; }
+.panel-windowed {
+  position: static !important; width: auto !important; max-width: none !important;
+  max-height: none !important; height: auto !important; transform: none !important;
+  border: none !important; border-radius: 0 !important; box-shadow: none !important;
+  overflow: visible !important;
+}
+.panel-windowed .panel-pop, .panel-windowed .cov-close,
+.panel-windowed #cov-close, .panel-windowed #route-close,
+.panel-windowed #loc-close, .panel-windowed #air-close { display: none; }
+.panel-windowed .cov-section, .panel-windowed .cov-foot,
+.panel-windowed #air-result { padding-left: 18px; padding-right: 18px; }
+.panel-windowed .air-grid { grid-template-columns: 1fr auto 1fr auto; }
+.panel-windowed .cov-run { width: calc(100% - 36px); margin: 8px 18px; }
