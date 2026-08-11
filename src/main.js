@@ -185,11 +185,36 @@ function setMode(m) {
   btnAdd.classList.toggle('active', mode === 'add');
   btnLink.classList.toggle('active', mode === 'link');
   nodes.forEach((n) => n.marker.getElement().classList.remove('selected'));
-  hint.textContent = mode === 'add' ? 'Click the map to place a node' : mode === 'link' ? 'Click two nodes to link them' : '';
-  map.getCanvas().style.cursor = mode === 'add' ? 'crosshair' : '';
+  const HINTS = {
+    add: 'Tap the map to place a node',
+    link: 'Tap two nodes to link them',
+    del: 'Tap a node to delete it',
+  };
+  hint.textContent = mode ? HINTS[mode] : '';
+  map.getCanvas().style.cursor = mode === 'add' ? 'crosshair' : mode === 'del' ? 'pointer' : '';
+
+  // The map buttons mirror the toolbar; on mobile the header hint is hidden, so the
+  // instruction is repeated over the map where the next tap has to happen.
+  const fabs = { add: 'fab-add', link: 'fab-link', del: 'fab-del' };
+  Object.entries(fabs).forEach(([m2, id]) => {
+    const b = document.getElementById(id);
+    if (b) b.classList.toggle('active', mode === m2);
+  });
+  const fh = document.getElementById('fab-hint');
+  if (fh) {
+    fh.textContent = hint.textContent;
+    fh.classList.toggle('hidden', !mode);
+  }
 }
 btnAdd.addEventListener('click', () => setMode('add'));
 btnLink.addEventListener('click', () => setMode('link'));
+
+// Map-side buttons for touch. They call the same setMode as the toolbar rather than
+// duplicating behaviour, so the two stay in step by construction.
+[['fab-add', 'add'], ['fab-link', 'link'], ['fab-del', 'del']].forEach(([id, m]) => {
+  const b = document.getElementById(id);
+  if (b) b.addEventListener('click', (ev) => { ev.stopPropagation(); setMode(m); });
+});
 document.getElementById('btn-clear').addEventListener('click', () => {
   if (!nodes.length || confirm('Remove all nodes and links?')) {
     nodes.forEach((n) => { n.marker.remove(); removeBeamHandle(n); });
@@ -570,6 +595,11 @@ function addNode(lngLat) {
   el.addEventListener('click', (ev) => {
     ev.stopPropagation();
     if (mode === 'link') handleLinkClick(node, el);
+    // Delete is armed first and applied on the second tap, so a stray tap on a
+    // phone cannot destroy a node outright. Disarm after each one: re-arming for a
+    // second delete is one extra tap, whereas a mode that stays hot over a map you
+    // are also panning and zooming will eventually remove something by accident.
+    else if (mode === 'del') { removeNode(node); setMode(null); }
   });
   nodes.push(node);
   renderSidebar();

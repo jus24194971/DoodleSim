@@ -68,6 +68,12 @@
     </header>
     <div id="main">
       <div id="map"></div>
+      <div id="map-fabs">
+        <button id="fab-add" class="fab" title="Add a node: tap here, then tap the map">＋<span>Add</span></button>
+        <button id="fab-link" class="fab" title="Link nodes: tap here, then tap two nodes">⟋<span>Link</span></button>
+        <button id="fab-del" class="fab danger" title="Delete a node: tap here, then tap the node to remove">🗑<span>Delete</span></button>
+      </div>
+      <div id="fab-hint" class="hidden"></div>
       <button id="sidebar-toggle" title="Show or hide the node list">▾ Nodes &amp; links</button>
       <aside id="sidebar">
         <div id="node-list"></div>
