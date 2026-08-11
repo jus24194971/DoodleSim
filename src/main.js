@@ -2419,3 +2419,19 @@ document.querySelectorAll('.panel-win').forEach((b) =>
 window.addEventListener('beforeunload', () => {
   panelWindows.forEach((rec) => { try { rec.win.close(); } catch (e) { /* already gone */ } });
 });
+
+// ---------------------------------------------------------------- mobile sheet
+// On a phone the node list and the map compete for the same screen. The handle
+// collapses the list so the map gets the whole viewport, which is what you want
+// while positioning a node, and brings it back for editing.
+const sidebarEl = document.getElementById('sidebar');
+const sidebarToggle = document.getElementById('sidebar-toggle');
+if (sidebarToggle) {
+  sidebarToggle.addEventListener('click', () => {
+    const collapsed = sidebarEl.classList.toggle('collapsed');
+    sidebarToggle.innerHTML = (collapsed ? '&#9652;' : '&#9662;') + ' Nodes &amp; links';
+    // MapLibre needs telling that its container changed size, or the canvas keeps
+    // the old dimensions and the map appears cropped.
+    setTimeout(() => { try { map.resize(); } catch (e) { /* map not ready */ } }, 210);
+  });
+}

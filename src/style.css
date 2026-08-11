@@ -25,6 +25,8 @@ html, body, #app { height: 100%; font-family: 'Segoe UI', system-ui, sans-serif;
 #mode-hint { font-size: 12px; color: #74c0fc; }
 
 #main { flex: 1; display: flex; min-height: 0; }
+/* the sheet handle only exists in the stacked mobile layout */
+#sidebar-toggle { display: none; }
 #map { flex: 1; }
 
 #sidebar {
@@ -432,3 +434,86 @@ html, body, #app { height: 100%; font-family: 'Segoe UI', system-ui, sans-serif;
 .panel-windowed #air-result { padding-left: 18px; padding-right: 18px; }
 .panel-windowed .air-grid { grid-template-columns: 1fr auto 1fr auto; }
 .panel-windowed .cov-run { width: calc(100% - 36px); margin: 8px 18px; }
+
+/* ================================================================ mobile
+   The desktop layout puts a fixed 340 px sidebar beside a flex:1 map, which on a
+   375 px phone leaves the map 35 px wide - unusable. Below 820 px the whole thing
+   stacks: map on top with the majority of the height, node list as a collapsible
+   sheet beneath it, and every floating panel becomes a bottom sheet rather than a
+   fixed-width card positioned off-screen. */
+@media (max-width: 820px) {
+  /* ---- top bar: brand shrinks, toolbar gets its own scrollable row */
+  #topbar { flex-wrap: wrap; gap: 6px 10px; padding: 6px 10px; }
+  .brand { font-size: 14px; }
+  .brand-light { display: none; }
+  .toolbar {
+    order: 3; width: 100%; overflow-x: auto; overflow-y: visible;
+    -webkit-overflow-scrolling: touch; padding-bottom: 2px;
+    scrollbar-width: none;
+  }
+  .toolbar::-webkit-scrollbar { display: none; }
+  .toolbar > button, .toolbar .menu-btn { flex: 0 0 auto; }
+  .toolbar-right { gap: 8px; font-size: 12px; }
+  .fade-ctl { font-size: 11px; }
+  .fade-ctl input { width: 46px; }
+  #mode-hint { display: none; }
+
+  /* touch targets: 13px text in a 6px padded button is a ~30px tap area */
+  .tool-btn { padding: 9px 12px; font-size: 13px; min-height: 40px; }
+  .tool-menu button { padding: 11px 10px; min-height: 44px; }
+
+  /* dropdown menus become full-width sheets so they cannot run off the edge */
+  .tool-group { position: static; }
+  .tool-menu { left: 8px; right: 8px; min-width: 0; width: auto; max-height: 60vh;
+    overflow-y: auto; }
+
+  /* ---- stack the map above the node list */
+  #main { flex-direction: column; }
+  #map { flex: 1 1 auto; min-height: 0; }
+  #sidebar {
+    width: 100%; max-height: 42vh; border-left: none; border-top: 2px solid #1c7ed6;
+    flex: 0 0 auto;
+  }
+  #sidebar.collapsed { max-height: 0; padding: 0; border-top-width: 0; overflow: hidden; }
+
+  /* handle to reclaim the screen for the map */
+  #sidebar-toggle {
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    width: 100%; padding: 7px; background: #101418; color: #adb5bd;
+    border: none; border-top: 1px solid #2b3648; font-size: 12px; cursor: pointer;
+  }
+
+  /* ---- every floating panel becomes a bottom sheet */
+  #cov-panel, #route-panel, #loc-panel, #air-panel, .panel-popped {
+    position: fixed !important;
+    left: 0 !important; right: 0 !important; bottom: 0 !important; top: auto !important;
+    width: 100% !important; max-width: none !important;
+    max-height: 76vh !important; transform: none !important;
+    border-radius: 12px 12px 0 0 !important; border-left: none; border-right: none;
+    border-bottom: none; z-index: 61 !important;
+  }
+  #cov-head, #route-head, #loc-head, #air-head {
+    position: sticky; top: 0; background: #131a24; z-index: 2;
+  }
+  /* a grab bar, so it reads as a sheet rather than a stuck card */
+  #cov-head::before, #route-head::before, #loc-head::before, #air-head::before {
+    content: ''; position: absolute; top: 5px; left: 50%; transform: translateX(-50%);
+    width: 34px; height: 3px; border-radius: 2px; background: #3a4a63;
+  }
+  .cov-row { flex-wrap: wrap; }
+  .cov-row input[type=number] { width: 90px; }
+  .panel-popped .air-grid, .panel-windowed .air-grid { grid-template-columns: 1fr auto; }
+  /* the pop-out control is meaningless when every panel is already a sheet */
+  .panel-pop, .panel-win { display: none; }
+
+  /* advisor / help take the whole screen rather than a centred card */
+  #advisor-panel, #help-panel { inset: 0 !important; width: 100% !important;
+    max-width: none !important; max-height: none !important; border-radius: 0 !important; }
+}
+
+/* very narrow: drop the brand text entirely, the mark alone is enough */
+@media (max-width: 430px) {
+  .brand { font-size: 0; }
+  .brand-mark { font-size: 22px; margin: 0; }
+  .toolbar-right .sat-toggle { font-size: 11px; }
+}
