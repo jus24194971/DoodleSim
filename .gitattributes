@@ -1,0 +1,6 @@
+# autocrlf is on for this checkout; without these git treats a PDF or image as
+# text and rewrites its line endings, which corrupts the file.
+*.pdf binary
+*.png binary
+*.jpg binary
+*.ico binary

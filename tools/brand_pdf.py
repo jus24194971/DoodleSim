@@ -144,10 +144,15 @@ def _hf(canvas, doc, first, footer_text, banner):
     canvas.setFillColor(LINE); canvas.rect(0.78 * inch, 0.62 * inch, W - 1.56 * inch, 0.6,
                                            stroke=0, fill=1)
     canvas.setFont(BASE, 7.4); canvas.setFillColor(MID)
-    canvas.drawString(0.78 * inch, 0.44 * inch, footer_text)
-    canvas.drawRightString(W - 0.78 * inch, 0.44 * inch, 'Page %d' % doc.page)
     tool = 'doodlesim.jus2419497.workers.dev'
     tw = canvas.stringWidth(tool, BASE, 7.4); x = (W - tw) / 2.0
+    # A long report title used to run straight through the centred URL. Clip it to
+    # the space actually available rather than letting the two overprint.
+    room = x - 0.78 * inch - 10
+    while footer_text and canvas.stringWidth(footer_text, BASE, 7.4) > room:
+        footer_text = footer_text[:-2].rstrip(' -') + '\u2026'
+    canvas.drawString(0.78 * inch, 0.44 * inch, footer_text)
+    canvas.drawRightString(W - 0.78 * inch, 0.44 * inch, 'Page %d' % doc.page)
     canvas.setFillColor(BRAND); canvas.drawString(x, 0.44 * inch, tool)
     canvas.linkURL(SITE, (x, 0.42 * inch, x + tw, 0.54 * inch), relative=0, thickness=0)
     canvas.restoreState()
