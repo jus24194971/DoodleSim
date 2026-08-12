@@ -61,6 +61,34 @@ export const RADIOS = [
   { id: 'RM1400_2200', formFactor: 'oem', name: 'RM-1400 Quad (2245–2450)', power: [27, 24, 24, 24, 23, 22, 21, 19], maxConfig: 30, chains: 2, bands: ['sband'] },
 ];
 
+// Background noise profiles. The figures are the noise floor a receiver actually
+// sees in a 20 MHz channel; the engine rescales with bandwidth and charges the
+// excess over thermal as a sensitivity penalty.
+//
+// The bands are anchored to what our own log analysis measures: a quiet Mesh Rider
+// link sits near -95 dBm, and the analyser already flags anything above -85 dBm as
+// an elevated noise floor worth investigating.
+export const NOISE_PROFILES = [
+  { id: 'thermal', label: 'Quiet / thermal limit', dbm: null,
+    note: 'No environmental noise. The published sensitivity figures assume this, so it costs nothing.' },
+  { id: 'rural', label: 'Rural, open country', dbm: -95,
+    note: 'Little man-made activity. Roughly what a healthy link reports in our own logs.' },
+  { id: 'suburban', label: 'Suburban', dbm: -92,
+    note: 'Domestic Wi-Fi and consumer devices in the background.' },
+  { id: 'urban', label: 'Urban', dbm: -88,
+    note: 'Dense Wi-Fi, cellular and general electrical noise.' },
+  { id: 'industrial', label: 'Industrial / congested', dbm: -85,
+    note: 'Machinery, switching supplies, many co-channel radios. Our analyser flags this level as elevated.' },
+  { id: 'contested', label: 'Contested / jammed', dbm: -75,
+    note: 'Deliberate interference or a very hot co-channel emitter. Costs about 22 dB against a quiet site.' },
+  { id: 'custom', label: 'Custom (enter dBm)', dbm: -90,
+    note: 'Measure it: the radio reports its own noise floor in the link status log.' },
+];
+
+export function noiseProfile(id) {
+  return NOISE_PROFILES.find((p) => p.id === id) || NOISE_PROFILES[0];
+}
+
 export const CHANNEL_WIDTHS = [3, 5, 10, 15, 20, 26, 40];
 
 // Coax cable attenuation model: loss(dB/100m) ≈ k · √f(MHz), fitted to published

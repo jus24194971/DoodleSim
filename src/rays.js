@@ -146,7 +146,7 @@ export function evaluateRays(rays, params) {
   const mbpsAt = new Float64Array(maxMcs);
   for (let m = 0; m < maxMcs; m++) {
     txAt[m] = txPowerDbm(radio, powerDbm, m, antennas);
-    sensAt[m] = sensitivityDbm(m, bwMhz);
+    sensAt[m] = sensitivityDbm(m, bwMhz, params.noiseFloorDbm);
     mbpsAt[m] = throughputMbps(m, bwMhz);
   }
 

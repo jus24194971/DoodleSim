@@ -13,9 +13,9 @@ import { sampleRays, evaluateRays, minAltitudeRays, QUALITY } from './rays.js';
 export { QUALITY };
 
 // Max distance worth computing: solve FSPL for the weakest usable budget (MCS0) + slack
-export function autoRadiusM(node, radio, remoteGain, fadeMargin) {
+export function autoRadiusM(node, radio, remoteGain, fadeMargin, noiseFloorDbm) {
   const tx = txPowerDbm(radio, node.powerDbm, 0, radio.chains === 1 ? 1 : 2);
-  const budget = tx + node.antennaGain + remoteGain - node.cableLoss + node.bdaGain - fadeMargin - sensitivityDbm(0, node.bwMhz);
+  const budget = tx + node.antennaGain + remoteGain - node.cableLoss + node.bdaGain - fadeMargin - sensitivityDbm(0, node.bwMhz, noiseFloorDbm);
   const dKm = 10 ** ((budget - 32.45 - 20 * Math.log10(node.freqMhz)) / 20);
   return Math.min(Math.max(dKm * 1000 * 1.1, 2000), 80000);
 }
@@ -171,7 +171,7 @@ export async function computeCoverage(node, radio, opts, onProgress) {
     metric = 'mcs', nearGround = false, quality = QUALITY.normal,
   } = opts;
   const origin = node.marker.getLngLat();
-  const radiusM = opts.radiusM || autoRadiusM(node, radio, remoteGainDbi, fadeMargin);
+  const radiusM = opts.radiusM || autoRadiusM(node, radio, remoteGainDbi, fadeMargin, opts.noiseFloorDbm);
 
   const rays = await sampleRays(origin, radiusM, quality, (p) => onProgress && onProgress(p * 0.85));
   const ev = evaluateRays(rays, {
@@ -179,6 +179,7 @@ export async function computeCoverage(node, radio, opts, onProgress) {
     freqMhz: node.freqMhz, bwMhz: node.bwMhz, radio, powerDbm: node.powerDbm,
     txGainDbi: node.antennaGain, remoteGainDbi, cableLossDb: node.cableLoss, bdaGainDb: node.bdaGain,
     txPattern, fadeMarginDb: fadeMargin, remoteMode, remoteAltM, nearGround,
+    noiseFloorDbm: opts.noiseFloorDbm,
   });
 
   const geom = { azimuths: rays.azimuths, steps: rays.steps, radiusM };
@@ -202,7 +203,7 @@ export async function computeMinAltitude(node, radio, opts, onProgress) {
   const { remoteGainDbi, fadeMargin = 10, txPattern = null, minMbps = 0,
           nearGround = false, quality = QUALITY.normal } = opts;
   const origin = node.marker.getLngLat();
-  const radiusM = opts.radiusM || autoRadiusM(node, radio, remoteGainDbi, fadeMargin);
+  const radiusM = opts.radiusM || autoRadiusM(node, radio, remoteGainDbi, fadeMargin, opts.noiseFloorDbm);
   const rays = await sampleRays(origin, radiusM, quality, (p) => onProgress && onProgress(p * 0.6));
 
   const params = {
@@ -239,7 +240,7 @@ export async function computeMeshMinAltitude(entries, opts, onProgress) {
   for (let i = 0; i < entries.length; i++) {
     const e = entries[i];
     const origin = e.node.marker.getLngLat();
-    const radiusM = opts.radiusM || autoRadiusM(e.node, e.radio, remoteGainDbi, fadeMargin);
+    const radiusM = opts.radiusM || autoRadiusM(e.node, e.radio, remoteGainDbi, fadeMargin, e.noiseFloorDbm);
     const rays = await sampleRays(origin, radiusM, quality,
       (p) => onProgress && onProgress((i + p) / entries.length));
     const res = minAltitudeRays(rays, {
@@ -247,6 +248,7 @@ export async function computeMeshMinAltitude(entries, opts, onProgress) {
       freqMhz: e.node.freqMhz, bwMhz: e.node.bwMhz, radio: e.radio, powerDbm: e.node.powerDbm,
       txGainDbi: e.node.antennaGain, remoteGainDbi, cableLossDb: e.node.cableLoss,
       bdaGainDb: e.node.bdaGain, txPattern: e.txPattern, fadeMarginDb: fadeMargin, nearGround,
+      noiseFloorDbm: e.noiseFloorDbm,
     }, { minMbps });
     datasets.push({ origin, radiusM, azimuths: rays.azimuths, steps: rays.steps, res });
   }
@@ -319,7 +321,7 @@ export async function findLowestFlightLevel(entries, opts, onProgress) {
   for (let i = 0; i < entries.length; i++) {
     const e = entries[i];
     const origin = e.node.marker.getLngLat();
-    const radiusM = opts.radiusM || autoRadiusM(e.node, e.radio, remoteGainDbi, fadeMargin);
+    const radiusM = opts.radiusM || autoRadiusM(e.node, e.radio, remoteGainDbi, fadeMargin, e.noiseFloorDbm);
     const rays = await sampleRays(origin, radiusM, quality,
       (p) => onProgress && onProgress(0.5 * (i + p) / entries.length));
     for (let k = 0; k < rays.elevs.length; k++) {
@@ -333,6 +335,7 @@ export async function findLowestFlightLevel(entries, opts, onProgress) {
         freqMhz: e.node.freqMhz, bwMhz: e.node.bwMhz, radio: e.radio, powerDbm: e.node.powerDbm,
         txGainDbi: e.node.antennaGain, remoteGainDbi, cableLossDb: e.node.cableLoss,
         bdaGainDb: e.node.bdaGain, txPattern: e.txPattern, fadeMarginDb: fadeMargin, nearGround,
+      noiseFloorDbm: e.noiseFloorDbm,
       } });
   }
 
@@ -400,7 +403,7 @@ export async function computeMeshCoverage(entries, opts, onProgress) {
   for (let i = 0; i < entries.length; i++) {
     const e = entries[i];
     const origin = e.node.marker.getLngLat();
-    const radiusM = opts.radiusM || autoRadiusM(e.node, e.radio, remoteGainDbi, fadeMargin);
+    const radiusM = opts.radiusM || autoRadiusM(e.node, e.radio, remoteGainDbi, fadeMargin, e.noiseFloorDbm);
     const rays = await sampleRays(origin, radiusM, quality,
       (p) => onProgress && onProgress((i + p) / entries.length));
     const ev = evaluateRays(rays, {

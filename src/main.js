@@ -1,7 +1,7 @@
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import './style.css';
-import { RADIOS, BANDS, CHANNEL_WIDTHS, PLATFORMS, CABLES, cableLossDb, hasGps, FORM_FACTORS } from './radios.js';
+import { RADIOS, BANDS, CHANNEL_WIDTHS, PLATFORMS, CABLES, cableLossDb, hasGps, FORM_FACTORS, NOISE_PROFILES, noiseProfile } from './radios.js';
 import { terrainProfile, haversineM, bearingDeg, destination, elevationAt, elevationAtSync, prewarmArea } from './terrain.js';
 import { analyzePath, evaluateLink, fsplDb, throughputMbps, patternLossDb, elevationAngleDeg, angDiff } from './engine.js';
 import * as AIR from './airtime.js';
@@ -588,6 +588,7 @@ function addNode(lngLat) {
     azimuthDeg: 0, tiltDeg: 0, customHpbwAz: 360, customHpbwEl: 360,
     customName: '', customType: 'omni', dishDiaM: null,
     cableType: 'none', cableLenM: 0,
+    noiseProfileId: 'thermal', noiseCustomDbm: -90,
   };
   marker.on('drag', () => refreshBeams());
   marker.on('dragend', () => { refreshBeams(); recomputeAllLinks(); persistState(); updateGroundElev(node); });
@@ -604,6 +605,27 @@ function addNode(lngLat) {
   nodes.push(node);
   renderSidebar();
   persistState();
+}
+
+/** The noise floor to plan against for this node, or null when thermal-limited. */
+function nodeNoiseDbm(node) {
+  if (!node || !node.noiseProfileId || node.noiseProfileId === 'thermal') return null;
+  if (node.noiseProfileId === 'custom') {
+    return Number.isFinite(node.noiseCustomDbm) ? node.noiseCustomDbm : null;
+  }
+  return noiseProfile(node.noiseProfileId).dbm;
+}
+
+/**
+ * A link is limited by whichever end hears more noise, so plan against the worse of
+ * the two. Using the mean would flatter a link whose ground station sits in an
+ * industrial yard while the aircraft is in clean air.
+ */
+function linkNoiseDbm(a, b) {
+  const na = nodeNoiseDbm(a), nb = nodeNoiseDbm(b);
+  if (na == null) return nb;
+  if (nb == null) return na;
+  return Math.max(na, nb);
 }
 
 async function updateGroundElev(node) {
@@ -727,12 +749,18 @@ function syncCovPanel() {
   slider.value = coverage.aslAltM;
   $cov('cov-asl').value = coverage.aslAltM;
 
+  // Operators fly and are regulated in AGL, so lead with height above ground and
+  // carry the ASL the aircraft actually holds as the secondary figure. The two only
+  // agree at the reference point: over varying terrain a constant ASL is a varying
+  // AGL, which is exactly the thing that catches people out, so say so.
   const ground = ref?.groundElevM;
-  const above = Number.isFinite(ground) ? coverage.aslAltM - ground : null;
+  const agl = Number.isFinite(ground) ? coverage.aslAltM - ground : null;
   const ft = Math.round(coverage.aslAltM * 3.28084);
-  $cov('cov-alt-readout').innerHTML = Number.isFinite(above)
-    ? `${coverage.aslAltM} m ASL (${ft} ft) · ${above >= 0 ? '≈' + Math.round(above) + ' m above' : '≈' + Math.round(-above) + ' m BELOW'} ${ref.label}`
-    : `${coverage.aslAltM} m ASL (${ft} ft)`;
+  $cov('cov-alt-readout').innerHTML = Number.isFinite(agl)
+    ? `<b>${agl >= 0 ? Math.round(agl) + ' m AGL' : Math.round(-agl) + ' m BELOW ground'}</b>
+       <span class="cov-alt-sub">over ${ref.label} · holds ${coverage.aslAltM} m ASL (${ft} ft)</span>
+       <span class="cov-alt-sub">AGL varies with terrain across the area; the map shows the result at this ASL</span>`
+    : `<b>${coverage.aslAltM} m ASL</b> <span class="cov-alt-sub">(${ft} ft) · place a node to see height above ground</span>`;
 }
 
 function openCovPanel({ scope, nodeId, useDefaults } = {}) {
@@ -752,6 +780,7 @@ function covEntries() {
     const pat = getPattern(n);
     return {
       node: n, radio, bandId: n.bandId,
+      noiseFloorDbm: nodeNoiseDbm(n),
       txPattern: (pat.directional || pat.hpbwEl < 360)
         ? { azimuthDeg: n.azimuthDeg, tiltDeg: n.tiltDeg, hpbwAz: pat.hpbwAz, hpbwEl: pat.hpbwEl } : null,
     };
@@ -1001,6 +1030,7 @@ async function recomputeAllLinks() {
           cableA: link.a.cableLoss, cableB: link.b.cableLoss,
           bdaA: link.a.bdaGain, bdaB: link.b.bdaGain,
           fadeMargin: FADE_MARGIN, antennas,
+          noiseFloorDbm: linkNoiseDbm(link.a, link.b),
         },
       });
       Object.assign(link, { result, pathAnalysis, profile, distM, freqMhz, bwMhz, patternLossA: effA.patternLoss, patternLossB: effB.patternLoss });
@@ -1120,6 +1150,8 @@ function renderSidebar() {
       <div class="row"><label>Freq (MHz)</label><input type="number" data-f="freqMhz" value="${node.freqMhz}" min="${BANDS[node.bandId].lo}" max="${BANDS[node.bandId].hi}"/></div>
       <div class="row"><label>Bandwidth</label><select data-f="bwMhz">${CHANNEL_WIDTHS.map((w) => `<option value="${w}" ${w === node.bwMhz ? 'selected' : ''}>${w} MHz</option>`).join('')}</select></div>
       <div class="row"><label>TX power (dBm)</label><input type="number" data-f="powerDbm" value="${node.powerDbm}" min="0" max="${radio.maxConfig}"/></div>
+      <div class="row"><label>Noise floor</label><select data-f="noiseProfileId">${NOISE_PROFILES.map((p) => `<option value="${p.id}" ${p.id === node.noiseProfileId ? 'selected' : ''}>${p.label}${p.dbm != null && p.id !== 'custom' ? ` (${p.dbm} dBm)` : ''}</option>`).join('')}</select></div>
+      ${node.noiseProfileId === 'custom' ? `<div class="row"><label>Measured noise</label><input type="number" data-f="noiseCustomDbm" value="${node.noiseCustomDbm}" min="-120" max="-40" step="1"/></div>` : ''}
       <div class="row"><label>Antenna</label><select data-f="antennaId">
         <option value="">Other (specify custom)…</option>
         ${[...ants].sort((x, y) => (y.doodle_recommended ? 1 : 0) - (x.doodle_recommended ? 1 : 0) || y.gain_dbi - x.gain_dbi).map((a) => `<option value="${a.id}" ${a.id === node.antennaId ? 'selected' : ''}>${a.doodle_recommended ? '★ ' : a.community ? '☁ ' : ''}${(a.manufacturer || '').split(' ')[0]} ${a.model} (${a.gain_dbi} dBi ${a.pattern})</option>`).join('')}

@@ -20,10 +20,40 @@ export function txPowerDbm(radio, configuredDbm, mcsIndex, antennas) {
   return Math.min(configuredDbm, combined);
 }
 
-export function sensitivityDbm(mcsIndex, bwMhz) {
+// Receiver noise figure, from the Mesh Rider datasheet ("Receive Noise Figure +4 dB").
+export const RX_NOISE_FIGURE_DB = 4;
+
+/** Thermal noise floor a quiet receiver sees in this bandwidth: kTB + NF. */
+export function thermalNoiseDbm(bwMhz) {
+  return -174 + 10 * Math.log10(Math.max(bwMhz, 0.1) * 1e6) + RX_NOISE_FIGURE_DB;
+}
+
+/**
+ * How much a raised noise floor costs, in dB.
+ *
+ * The published sensitivity figures already assume a receiver hearing nothing but
+ * its own thermal noise. Every dB the environment sits above that floor is a dB the
+ * signal must gain back to keep the same SNR, so the penalty is simply the excess -
+ * and it is zero for a quiet site, which keeps existing results unchanged.
+ *
+ * Deriving it from the sensitivity table rather than a separate SNR table is
+ * deliberate: the two cannot then disagree about what a given MCS needs.
+ */
+export function noisePenaltyDb(noiseFloorDbm, bwMhz) {
+  if (!Number.isFinite(noiseFloorDbm)) return 0;
+  return Math.max(0, noiseFloorDbm - thermalNoiseDbm(bwMhz));
+}
+
+/** SNR this MCS needs, implied by the sensitivity table and the thermal floor. */
+export function requiredSnrDb(mcsIndex, bwMhz) {
+  return sensitivityDbm(mcsIndex, bwMhz) - thermalNoiseDbm(bwMhz);
+}
+
+export function sensitivityDbm(mcsIndex, bwMhz, noiseFloorDbm) {
   const base = SENS_MCS0_7_20MHZ[mcsIndex % 8];
   const streamPenalty = mcsIndex >= 8 ? 3 : 0;
-  return base + streamPenalty + 10 * Math.log10(bwMhz / 20);
+  return base + streamPenalty + 10 * Math.log10(bwMhz / 20)
+       + noisePenaltyDb(noiseFloorDbm, bwMhz);
 }
 
 export function throughputMbps(mcsIndex, bwMhz) {
@@ -105,7 +135,7 @@ export function evaluateLink({ distM, freqMhz, bwMhz, radioA, radioB, cfg, pathL
     // A transmits -> B receives (use min of both directions for symmetric planning)
     const txA = txPowerDbm(radioA, cfg.powerA, mcs, cfg.antennas);
     const txB = txPowerDbm(radioB, cfg.powerB, mcs, cfg.antennas);
-    const sens = sensitivityDbm(mcs, bwMhz);
+    const sens = sensitivityDbm(mcs, bwMhz, cfg.noiseFloorDbm);
     const gains = cfg.gainA + cfg.gainB - cfg.cableA - cfg.cableB + cfg.bdaA + cfg.bdaB;
     const rssiAB = txA + gains - totalLoss;
     const rssiBA = txB + gains - totalLoss;
