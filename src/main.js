@@ -245,7 +245,9 @@ function serializeState() {
                 scope: coverage.scope },
     nodes: nodes.map((n) => {
       const { lng, lat } = n.marker.getLngLat();
-      return { id: n.id, label: n.label, lng, lat, radioId: n.radioId, bandId: n.bandId, freqMhz: n.freqMhz, bwMhz: n.bwMhz, powerDbm: n.powerDbm, antennaId: n.antennaId, antennaGain: n.antennaGain, heightM: n.heightM, cableLoss: n.cableLoss, bdaGain: n.bdaGain, platform: n.platform, azimuthDeg: n.azimuthDeg, tiltDeg: n.tiltDeg, customHpbwAz: n.customHpbwAz, customHpbwEl: n.customHpbwEl, customName: n.customName, customType: n.customType, dishDiaM: n.dishDiaM, cableType: n.cableType, cableLenM: n.cableLenM };
+      const out = { id: n.id, label: n.label, lng, lat };
+      for (const f of NODE_FIELDS) out[f] = n[f];
+      return out;
     }),
     links: links.map((l) => [l.a.id, l.b.id]),
   };
@@ -258,7 +260,11 @@ function restoreState(data) {
   for (const s of data.nodes || []) {
     addNode({ lng: s.lng, lat: s.lat });
     const n = nodes[nodes.length - 1];
-    Object.assign(n, { label: s.label ?? n.label, radioId: s.radioId, bandId: s.bandId, freqMhz: s.freqMhz, bwMhz: s.bwMhz, powerDbm: s.powerDbm, antennaId: s.antennaId ?? null, antennaGain: s.antennaGain, heightM: s.heightM, cableLoss: s.cableLoss ?? 0, bdaGain: s.bdaGain ?? 0, platform: s.platform ?? 'mast', azimuthDeg: s.azimuthDeg ?? 0, tiltDeg: s.tiltDeg ?? 0, customHpbwAz: s.customHpbwAz ?? 360, customHpbwEl: s.customHpbwEl ?? 360, customName: s.customName ?? '', customType: s.customType ?? 'omni', dishDiaM: s.dishDiaM ?? null, cableType: s.cableType ?? 'manual', cableLenM: s.cableLenM ?? 0 });
+    // An older saved layout will not carry newer fields, so fall back to the default
+    // rather than writing undefined into the node.
+    const restored = { label: s.label ?? n.label };
+    for (const f of NODE_FIELDS) restored[f] = s[f] !== undefined ? s[f] : NODE_DEFAULTS[f];
+    Object.assign(n, restored);
     n._savedId = s.id;
     n.marker.getElement().title = n.label;
   }
@@ -575,21 +581,35 @@ document.getElementById('tour-replay')?.addEventListener('click', () => {
 });
 
 // ---------- Nodes ----------
-function addNode(lngLat) {
+// Every configurable field on a node, with its default. This is the ONLY place the
+// shape is written down: saving, loading and cloning all derive from it, so adding a
+// field here is enough for it to persist and to be copied.
+const NODE_DEFAULTS = {
+  radioId: 'miniOEM_v4', bandId: 'ism2400', freqMhz: 2450, bwMhz: 20,
+  powerDbm: 32, antennaId: null, antennaGain: 3, heightM: 10, cableLoss: 0,
+  bdaGain: 0, platform: 'mast', azimuthDeg: 0, tiltDeg: 0,
+  customHpbwAz: 360, customHpbwEl: 360, customName: '', customType: 'omni',
+  dishDiaM: null, cableType: 'none', cableLenM: 0,
+  noiseProfileId: 'thermal', noiseCustomDbm: -90,
+};
+const NODE_FIELDS = Object.keys(NODE_DEFAULTS);
+
+/**
+ * Place a node. With a template, every configurable field is copied from it - which
+ * is what Clone uses, so a copy picks up any field added later without this function
+ * changing.
+ */
+function addNode(lngLat, template) {
   const id = nextNodeId++;
   const el = document.createElement('div');
   el.className = 'node-marker';
   el.textContent = id;
   const marker = new maplibregl.Marker({ element: el, draggable: true }).setLngLat(lngLat).addTo(map);
-  const node = {
-    id, label: `Node ${id}`, marker,
-    radioId: 'miniOEM_v4', bandId: 'ism2400', freqMhz: 2450, bwMhz: 20,
-    powerDbm: 32, antennaId: null, antennaGain: 3, heightM: 10, cableLoss: 0, bdaGain: 0, platform: 'mast',
-    azimuthDeg: 0, tiltDeg: 0, customHpbwAz: 360, customHpbwEl: 360,
-    customName: '', customType: 'omni', dishDiaM: null,
-    cableType: 'none', cableLenM: 0,
-    noiseProfileId: 'thermal', noiseCustomDbm: -90,
-  };
+  const cfg = {};
+  for (const f of NODE_FIELDS) {
+    cfg[f] = template && template[f] !== undefined ? template[f] : NODE_DEFAULTS[f];
+  }
+  const node = { id, label: template ? cloneLabel(template.label) : `Node ${id}`, marker, ...cfg };
   marker.on('drag', () => refreshBeams());
   marker.on('dragend', () => { refreshBeams(); recomputeAllLinks(); persistState(); updateGroundElev(node); });
   updateGroundElev(node);
@@ -626,6 +646,37 @@ function linkNoiseDbm(a, b) {
   if (na == null) return nb;
   if (nb == null) return na;
   return Math.max(na, nb);
+}
+
+/** "GCS" -> "GCS copy" -> "GCS copy 2", so a cloned node is never ambiguous. */
+function cloneLabel(base) {
+  const root = String(base || 'Node').replace(/ copy( \d+)?$/, '');
+  let name = `${root} copy`;
+  for (let n = 2; nodes.some((x) => x.label === name); n++) name = `${root} copy ${n}`;
+  return name;
+}
+
+/**
+ * Copy a node, configuration and all, and drop it just off the original.
+ *
+ * The offset is measured in SCREEN pixels rather than metres: a fixed 46 m would be
+ * invisibly close when zoomed out over a 40 km mesh and absurdly far when zoomed
+ * into a rooftop. In pixels the copy always lands visibly beside its original, and
+ * it is left undragged so the next thing you do is put it where it belongs.
+ */
+function cloneNode(src) {
+  const p = map.project(src.marker.getLngLat());
+  const at = map.unproject([p.x + 46, p.y + 34]);
+  addNode(at, src);
+  const copy = nodes[nodes.length - 1];
+  renderSidebar();
+  recomputeAllLinks();
+  persistState();
+  // pulse the new marker so it is obvious which one appeared
+  const el = copy.marker.getElement();
+  el.classList.add('just-cloned');
+  setTimeout(() => el.classList.remove('just-cloned'), 1400);
+  return copy;
 }
 
 async function updateGroundElev(node) {
@@ -1140,6 +1191,7 @@ function renderSidebar() {
     card.innerHTML = `
       <h3><span class="badge" style="background:#1c7ed6">${node.id}</span>
         <input class="label-input" value="${node.label.replace(/"/g, '&quot;')}" title="Node name (shown to customers)"/>
+        <button class="clone" title="Duplicate this node with all its settings and drop the copy beside it">⧉</button>
         <button class="del" title="Delete node">🗑</button></h3>
       <div class="row"><label>Platform</label><select data-f="platform">${PLATFORMS.map((p) => `<option value="${p.id}" ${p.id === node.platform ? 'selected' : ''}>${p.label}</option>`).join('')}</select></div>
       <div class="row"><label>GPS</label><span class="pat-info">${hasGps(node.radioId)
@@ -1181,6 +1233,7 @@ function renderSidebar() {
         ${coverage.nodeId === node.id ? '<button class="tool-btn" data-coverage-clear title="Remove heatmap">✕</button>' : ''}
       </div>`;
     card.querySelector('.del').addEventListener('click', () => removeNode(node));
+    card.querySelector('.clone').addEventListener('click', () => cloneNode(node));
     card.querySelector('.label-input').addEventListener('change', (ev) => {
       node.label = ev.target.value.trim() || `Node ${node.id}`;
       node.marker.getElement().title = node.label;

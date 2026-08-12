@@ -613,3 +613,16 @@ html, body, #app { height: 100%; font-family: 'Segoe UI', system-ui, sans-serif;
 /* Flight-level readout: AGL leads, the held ASL and the terrain caveat follow. */
 #cov-alt-readout b { font-size: 14px; color: #e9ecef; }
 .cov-alt-sub { display: block; color: #91a7c0; font-size: 10px; line-height: 1.35; margin-top: 2px; }
+
+/* Clone control on a node card, and a brief pulse on the copy so it is obvious
+   which marker just appeared. */
+.card .clone { margin-left: auto; background: none; border: none; color: #adb5bd;
+  cursor: pointer; font-size: 14px; padding: 0 2px; }
+.card .clone:hover { color: #1c7ed6; }
+.card .clone + .del { margin-left: 4px; }
+@keyframes cloned-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(28,126,214,.75); }
+  70%  { box-shadow: 0 0 0 14px rgba(28,126,214,0); }
+  100% { box-shadow: 0 0 0 0 rgba(28,126,214,0); }
+}
+.node-marker.just-cloned { animation: cloned-pulse 1.4s ease-out 1; }
