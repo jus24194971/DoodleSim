@@ -30,3 +30,15 @@ data/config_comparison.json
 # against a running dev server, plus the downscaled copies the PDF embeds.
 docs/guide-shots/
 docs/.guide-cache/
+
+# Brand documentation and its inputs stay local, alongside the competitive and
+# customer reports above. The guide and profile carry internal positioning, the
+# trademark posture and the entity question; the generators embed that prose
+# verbatim, so they are ignored too rather than only their output.
+Doodle-Labs-Brand-Profile.pdf
+Doodle-Labs-Brand-Guide.pdf
+brand/brand-profile.json
+brand/reference/
+tools/make_brand_profile.py
+tools/make_brand_guide.py
+docs/.brand-cache/
