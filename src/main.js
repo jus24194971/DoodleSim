@@ -3,7 +3,7 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import './style.css';
 import { RADIOS, BANDS, CHANNEL_WIDTHS, PLATFORMS, CABLES, cableLossDb, hasGps, FORM_FACTORS, NOISE_PROFILES, noiseProfile } from './radios.js';
 import { terrainProfile, haversineM, bearingDeg, destination, elevationAt, elevationAtSync, prewarmArea } from './terrain.js';
-import { analyzePath, evaluateLink, fsplDb, throughputMbps, patternLossDb, elevationAngleDeg, angDiff } from './engine.js';
+import { analyzePath, evaluateLink, fsplDb, throughputMbps, patternLossDb, elevationAngleDeg, angDiff, DERATE_MARGINAL, derateLossDb } from './engine.js';
 import * as AIR from './airtime.js';
 import {
   computeCoverage, computeMeshCoverage, computeMinAltitude, computeMeshMinAltitude,
@@ -31,6 +31,27 @@ let coverage = {
   metric: 'mcs', nearGround: false, scope: 'mesh', targetNodeId: null,
   terrainMinM: null, terrainMaxM: null, meshStats: null,
 };
+
+// How the answer is quoted. 'calculated' is the model's own figure; 'marginal'
+// holds DERATE_MARGINAL back from reach and rate, because the house preference is
+// to be caught being pessimistic rather than optimistic in front of a customer.
+let PLAN_MODE = 'calculated';
+function planDerate() { return PLAN_MODE === 'marginal' ? DERATE_MARGINAL : 0; }
+
+/** Set the mode and reflect it in the toolbar. Recomputing is the caller's job,
+ *  the same split the fade margin uses. */
+function setPlanMode(mode) {
+  PLAN_MODE = mode === 'marginal' ? 'marginal' : 'calculated';
+  const el = document.getElementById('plan-mode');
+  if (el && el.value !== PLAN_MODE) el.value = PLAN_MODE;
+  const note = document.getElementById('plan-mode-note');
+  if (note) {
+    note.textContent = PLAN_MODE === 'marginal'
+      ? `−${Math.round(DERATE_MARGINAL * 100)}% range & rate`
+      : 'model figure, no derate';
+  }
+  document.body.classList.toggle('marginal-mode', PLAN_MODE === 'marginal');
+}
 
 let FADE_MARGIN = 10;   // dB, user-configurable: every prediction uses this
 function setFadeMargin(v) {
@@ -240,6 +261,7 @@ function serializeState() {
     savedAt: new Date().toISOString(),
     view: { center: map.getCenter().toArray(), zoom: map.getZoom() },
     fadeMarginDb: FADE_MARGIN,
+    planMode: PLAN_MODE,
     coverage: { remoteMode: coverage.remoteMode, remoteHeightM: coverage.remoteHeightM, aslAltM: coverage.aslAltM,
                 remoteGainDbi: coverage.remoteGainDbi, metric: coverage.metric, nearGround: coverage.nearGround,
                 scope: coverage.scope },
@@ -273,6 +295,10 @@ function restoreState(data) {
     if (a && b) links.push({ id: `${a.id}-${b.id}`, a, b, result: null, pathAnalysis: null, profile: null });
   }
   if (Number.isFinite(data.fadeMarginDb)) setFadeMargin(data.fadeMarginDb);
+  // A layout carries the basis it was quoted under, so reopening it cannot silently
+  // turn a Marginal design back into a Calculated one. recomputeAllLinks() at the end
+  // of this function then evaluates everything under the restored mode.
+  setPlanMode(data.planMode || 'calculated');
   if (data.coverage) Object.assign(coverage, {
     remoteMode: data.coverage.remoteMode ?? 'agl', remoteHeightM: data.coverage.remoteHeightM ?? 2,
     aslAltM: data.coverage.aslAltM ?? NaN, remoteGainDbi: data.coverage.remoteGainDbi ?? 3,
@@ -322,6 +348,7 @@ document.getElementById('btn-report').addEventListener('click', async () => {
   const html = buildReportHtml({ nodes, links, renderProfilePng, mapImagePng, missionNote, meshStats: coverage.meshStats, meshRemote: { h: coverage.remoteHeightM, g: coverage.remoteGainDbi },
     covRun: coverage.lastRun,
     fadeMarginDb: FADE_MARGIN,
+    planMode: PLAN_MODE, planDerate: planDerate(),
     routeResult: route.result ? { stats: route.result.stats, chartPng: (() => {
       const rc = document.createElement('canvas');
       drawRouteChart(route.result, rc, { w: 860, h: 260 });
@@ -350,6 +377,18 @@ document.getElementById('fade-margin').addEventListener('change', (e) => {
   persistState();
 });
 setFadeMargin(10);
+
+document.getElementById('plan-mode').addEventListener('change', (e) => {
+  setPlanMode(e.target.value);
+  // Ray results are cached per geometry, not per link budget, so the cache itself
+  // stays valid - but every rate and margin derived from it has to be worked out
+  // again under the new mode.
+  recomputeAllLinks();
+  if (coverage.lastRun) simulateCoverage(QUALITY.normal);
+  if (route.result) analyseRoute();
+  persistState();
+});
+setPlanMode('calculated');
 
 // ---------- Help ----------
 const helpModal = document.getElementById('help-modal');
@@ -419,6 +458,7 @@ async function runExtendAdvisor() {
     needMbps,
     allowBda: document.getElementById('adv-bda').checked,
     catalog: antennaCatalog,
+    derate: planDerate(),
   });
   if (out.error) { box.innerHTML = `<div class="adv-empty">${out.error}</div>`; return; }
   const distKm = (out.distM / 1000).toFixed(1);
@@ -506,6 +546,7 @@ document.getElementById('adv-run').addEventListener('click', () => {
     allowBda: document.getElementById('adv-bda').checked,
     catalog: antennaCatalog,
     fadeMarginDb: FADE_MARGIN,
+    derate: planDerate(),
   };
   const { scen, top } = recommend(inputs);
   const box = document.getElementById('advisor-results');
@@ -853,6 +894,7 @@ async function simulateCoverage(quality = QUALITY.normal) {
   const common = {
     remoteGainDbi: coverage.remoteGainDbi,
     fadeMargin: FADE_MARGIN,
+    derate: planDerate(),
     remoteMode: coverage.remoteMode,
     remoteAltM: coverage.remoteMode === 'asl' ? coverage.aslAltM : coverage.remoteHeightM,
     remoteHeightM: coverage.remoteHeightM,
@@ -1010,6 +1052,7 @@ $cov('cov-find-fl').addEventListener('click', async () => {
   try {
     const res = await findLowestFlightLevel(covEntries(), {
       remoteGainDbi: coverage.remoteGainDbi, fadeMargin: FADE_MARGIN,
+      derate: planDerate(),
       nearGround: false, quality: QUALITY.coarse, targetFraction: 0.9,
     }, (p) => { status.textContent = `Sweeping flight levels… ${Math.round(p * 100)}%`; });
     coverage.aslAltM = res.chosen.altM;
@@ -1082,6 +1125,7 @@ async function recomputeAllLinks() {
           bdaA: link.a.bdaGain, bdaB: link.b.bdaGain,
           fadeMargin: FADE_MARGIN, antennas,
           noiseFloorDbm: linkNoiseDbm(link.a, link.b),
+          derate: planDerate(),
         },
       });
       Object.assign(link, { result, pathAnalysis, profile, distM, freqMhz, bwMhz, patternLossA: effA.patternLoss, patternLossB: effB.patternLoss });
@@ -1651,6 +1695,7 @@ async function analyseRoute() {
       },
       infra,
       fadeMarginDb: FADE_MARGIN,
+      derate: planDerate(),
       targetMbps: route.targetMbps,
     });
     const ms = Math.round(performance.now() - t0);
@@ -2241,6 +2286,11 @@ async function airCalculate() {
   let distanceM = parseFloat($air('air-dist').value) || 1000;
   let pathLossDb = null;
   let sourceLabel = 'free space';
+  // Name the derate in the label rather than letting a quietly harder path loss look
+  // like the model's own answer. Only the reach derate applies here: the flat rate
+  // haircut is a quoting convention, and taking it off a figure that then drives an
+  // airtime percentage would charge for the same pessimism twice.
+  const airDerateDb = derateLossDb(planDerate());
 
   if (airState.source === 'terrain') {
     if (!selectedLink) {
@@ -2262,6 +2312,7 @@ async function airCalculate() {
   const res = AIR.analyseMultiFlow({
     pathLossDb, distanceM, freqMhz, bandwidthMhz: bwMhz,
     txGainDbi: gtx, rxGainDbi: grx, fadeMarginDb: fade,
+    extraPathLossDb: airDerateDb,
     basis: airState.basis, chains: radio.chains, configuredMaxDbm: radio.maxConfig,
     flows: airState.flows, meshMode, packetLoss, nodes: nodesN, ogmIntervalS,
   });
@@ -2312,7 +2363,8 @@ async function airCalculate() {
     `<div class="air-verdict ${cls}">${headline}<small>${sub}</small></div>`
     + `<div class="air-bar ${res.status}"><i style="width:${barPct}%"></i></div>`
     + '<div class="air-grid">'
-    + `<span class="k">Path loss (${sourceLabel})</span><span class="v">${res.pathLossDb.toFixed(1)} dB</span>`
+    + `<span class="k">Path loss (${sourceLabel}${airDerateDb ? `, +${airDerateDb.toFixed(2)} dB marginal derate` : ''})</span>`
+    + `<span class="v">${res.pathLossDb.toFixed(1)} dB</span>`
     + `<span class="k">Distance</span><span class="v">${(distanceM / 1000).toFixed(2)} km</span>`
     + `<span class="k">Selected MCS</span><span class="v">MCS${L.mcs}</span>`
     + `<span class="k">Receive level</span><span class="v">${L.rxDbm.toFixed(1)} dBm</span>`

@@ -458,8 +458,11 @@ export function analyseMultiFlow({ pathLossDb, distanceM = 0, freqMhz = 2450,
                                    fadeMarginDb = 12, basis = 'datasheet', chains = 2,
                                    configuredMaxDbm = null, flows = [], meshMode = 'batman',
                                    packetLoss = 0.1, nodes = 2, ogmIntervalS = 1,
-                                   headerOverheadBytes = 60, multicastRate20Mbps = 6.5 }) {
-  const loss = pathLossDb != null ? pathLossDb : fsplDb(freqMhz, distanceM / 1000);
+                                   headerOverheadBytes = 60, multicastRate20Mbps = 6.5,
+                                   extraPathLossDb = 0 }) {
+  // extraPathLossDb is the planning derate charged by the caller, added here rather
+  // than folded into pathLossDb so the free-space branch is covered too.
+  const loss = (pathLossDb != null ? pathLossDb : fsplDb(freqMhz, distanceM / 1000)) + extraPathLossDb;
   const link = chooseBestMcs({ pathLossDb: loss, txGainDbi, rxGainDbi, bandwidthMhz,
                                fadeMarginDb, basis, chains, configuredMaxDbm });
   const opts = { headerOverheadBytes, multicastRate20Mbps, bandwidthMhz, distanceM };

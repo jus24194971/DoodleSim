@@ -4,7 +4,7 @@
 // link-budget engine and rank the configurations that meet the target.
 
 import { RADIOS, BANDS, MBPS_20MHZ } from './radios.js';
-import { txPowerDbm, sensitivityDbm, throughputMbps, fsplDb, analyzePath, evaluateLink, patternLossDb, elevationAngleDeg, angDiff } from './engine.js';
+import { txPowerDbm, sensitivityDbm, throughputMbps, fsplDb, analyzePath, evaluateLink, patternLossDb, elevationAngleDeg, angDiff, derateLossDb, deratedMbps, FSPL_EXPONENT } from './engine.js';
 import { terrainProfile, haversineM, bearingDeg } from './terrain.js';
 
 export const SCENARIOS = [
@@ -32,10 +32,12 @@ function groundA(freqMhz) {
   return GROUND_A[GROUND_A.length - 1][1];
 }
 
+const GROUND_EXPONENT = 22.25;
+
 function rangeFromBudget(plDb, freqMhz, ground) {
   const dFsplKm = 10 ** ((plDb - 32.45 - 20 * Math.log10(freqMhz)) / 20);
   if (!ground) return dFsplKm * 1000;
-  const dGround = 10 ** ((plDb - groundA(freqMhz)) / 22.25);
+  const dGround = 10 ** ((plDb - groundA(freqMhz)) / GROUND_EXPONENT);
   return Math.min(dGround, dFsplKm * 1000);
 }
 
@@ -60,8 +62,12 @@ function antennaCandidates(catalog, freqMhz, side, ground) {
   return out.length ? out : ok.slice(0, 2);
 }
 
-export function recommend({ scenarioId, rangeKm, throughputMbps: needMbps, allowGovBands, allowBda, catalog, fadeMarginDb = 10 }) {
+export function recommend({ scenarioId, rangeKm, throughputMbps: needMbps, allowGovBands, allowBda, catalog, fadeMarginDb = 10, derate = 0 }) {
   const FADE = fadeMarginDb;
+  // Design to the same derate the map judges by, otherwise the advisor recommends
+  // a configuration that immediately reads as failing once it is placed.
+  const derateFsplDb = derateLossDb(derate, FSPL_EXPONENT);
+  const derateGroundDb = derateLossDb(derate, GROUND_EXPONENT);
   const scen = SCENARIOS.find((s) => s.id === scenarioId);
   const targetM = rangeKm * 1000;
   const results = [];
@@ -90,16 +96,17 @@ export function recommend({ scenarioId, rangeKm, throughputMbps: needMbps, allow
               const tx = Math.min(txPowerDbm(radio, 99, mcs, radio.chains === 1 ? 1 : 2) + (bda ? Math.min(13, 36 - txPowerDbm(radio, 99, mcs, 2)) : 0), bda ? 36 : 99);
               const sens = sensitivityDbm(mcs, bw);
               const pl = tx + aA.gain_dbi + aB.gain_dbi - 2 * CABLE_ALLOWANCE - FADE - sens;
-              const reachM = rangeFromBudget(pl, freq, scen.ground);
+              const reachM = rangeFromBudget(pl - (scen.ground ? derateGroundDb : derateFsplDb), freq, scen.ground);
               if (reachM < targetM) continue;
               // margin at the target distance
-              const plAtTarget = scen.ground
-                ? Math.max(groundA(freq) + 22.25 * Math.log10(targetM), fsplDb(targetM, freq))
-                : fsplDb(targetM, freq);
+              const plAtTarget = (scen.ground
+                ? Math.max(groundA(freq) + GROUND_EXPONENT * Math.log10(targetM), fsplDb(targetM, freq))
+                    + derateGroundDb
+                : fsplDb(targetM, freq) + derateFsplDb);
               const margin = pl - plAtTarget + FADE; // dB above sensitivity at target
               results.push({
                 radio: radio.name, radioId: radio.id, bandId, band: band.label, freqMhz: freq, bwMhz: bw,
-                mcs, mbps: throughputMbps(mcs, bw) * 0.88, antA: aA, antB: aB, bdaDb: bda,
+                mcs, mbps: deratedMbps(throughputMbps(mcs, bw) * 0.88, derate), antA: aA, antB: aB, bdaDb: bda,
                 reachKm: reachM / 1000, marginDb: margin - FADE, isGov,
               });
             }
@@ -152,17 +159,17 @@ function remoteAntCandidates(catalog, freqMhz, side) {
 
 // Evaluate one candidate configuration over a (sub)profile. Returns best usable
 // MCS meeting needMbps, with margin, or null.
-function evalOver(profile, hA, hB, freqMhz, bwMhz, radio, txCfg, fadeMarginDb = 10) {
+function evalOver(profile, hA, hB, freqMhz, bwMhz, radio, txCfg, fadeMarginDb = 10, derate = 0) {
   const D = profile[profile.length - 1].distM;
   const pa = analyzePath(profile, hA, hB, freqMhz);
   const res = evaluateLink({
     distM: D, freqMhz, bwMhz, radioA: radio, radioB: radio, pathLoss: pa,
-    cfg: { ...txCfg, fadeMargin: fadeMarginDb, antennas: radio.chains === 1 ? 1 : 2 },
+    cfg: { ...txCfg, fadeMargin: fadeMarginDb, antennas: radio.chains === 1 ? 1 : 2, derate },
   });
   return { pa, res };
 }
 
-export async function adviseExtension({ anchor, targetLngLat, remotePlatformId, needMbps, allowBda, catalog, fadeMarginDb = 10 }) {
+export async function adviseExtension({ anchor, targetLngLat, remotePlatformId, needMbps, allowBda, catalog, fadeMarginDb = 10, derate = 0 }) {
   const remote = REMOTE_PLATFORMS.find((p) => p.id === remotePlatformId);
   const radio = RADIOS.find((r) => r.id === anchor.radioId);
   const freq = anchor.freqMhz, bw = anchor.bwMhz;
@@ -202,8 +209,8 @@ export async function adviseExtension({ anchor, targetLngLat, remotePlatformId, 
             gainA: anchor.antennaGain - (aim ? 0 : patLossNow), gainB: ant.gain_dbi,
             cableA: anchor.cableLoss, cableB: 1,
             bdaA: bda, bdaB: 0,
-          }, fadeMarginDb);
-          const usable = res.results.filter((r) => r.usable && throughputMbps(r.mcs, bw) * 0.88 >= needMbps);
+          }, fadeMarginDb, derate);
+          const usable = res.results.filter((r) => r.usable && deratedMbps(throughputMbps(r.mcs, bw) * 0.88, derate) >= needMbps);
           if (!usable.length) continue;
           const best = usable.reduce((x, y) => (y.mbps > x.mbps ? y : x));
           const changes = [];
@@ -241,13 +248,13 @@ export async function adviseExtension({ anchor, targetLngLat, remotePlatformId, 
         const h1 = evalOver(profA, anchor.heightM, relayH, freq, bw, radio, {
           powerA: anchor.powerDbm, powerB: radio.maxConfig, gainA: anchor.antennaGain, gainB: 10,
           cableA: anchor.cableLoss, cableB: 1.5, bdaA: anchor.bdaGain, bdaB: 0,
-        }, fadeMarginDb);
+        }, fadeMarginDb, derate);
         const h2 = evalOver(profB, relayH, remote.height, freq, bw, radio, {
           powerA: radio.maxConfig, powerB: radio.maxConfig, gainA: 10, gainB: bestAnt.gain_dbi,
           cableA: 1.5, cableB: 1, bdaA: 0, bdaB: 0,
-        }, fadeMarginDb);
-        const u1 = h1.res.results.filter((r) => r.usable && throughputMbps(r.mcs, bw) * 0.88 >= needMbps);
-        const u2 = h2.res.results.filter((r) => r.usable && throughputMbps(r.mcs, bw) * 0.88 >= needMbps);
+        }, fadeMarginDb, derate);
+        const u1 = h1.res.results.filter((r) => r.usable && deratedMbps(throughputMbps(r.mcs, bw) * 0.88, derate) >= needMbps);
+        const u2 = h2.res.results.filter((r) => r.usable && deratedMbps(throughputMbps(r.mcs, bw) * 0.88, derate) >= needMbps);
         if (u1.length && u2.length) {
           const m = Math.min(u1[u1.length - 1].margin, u2[u2.length - 1].margin);
           if (!bestRelay || m > bestRelay.minMargin) {

@@ -61,6 +61,42 @@ export function throughputMbps(mcsIndex, bwMhz) {
   return table[mcsIndex % 8] * (bwMhz / 20);
 }
 
+// ---- Planning derate -----------------------------------------------------
+// Two ways to quote a design. "Calculated" is the model's own answer. "Marginal"
+// holds a fixed fraction back, so what we put in front of a customer is short of
+// what we expect - the house preference is to be caught being pessimistic.
+//
+// The derate is deliberately NOT a percentage taken off the dB figures. RSSI and
+// sensitivity are logarithmic and negative: 85% of -70 dBm is -59.5 dBm, which is
+// a STRONGER signal. Applied that way a pessimism control would quietly make every
+// prediction optimistic. It is applied to the two linear quantities a reader
+// actually acts on instead - reach and data rate.
+
+export const DERATE_MARGINAL = 0.15;
+export const FSPL_EXPONENT = 20;        // dB per decade of distance in free space
+
+/**
+ * The extra path loss of a link `derate` further than this one.
+ *
+ * Quoting 15% less range only means something if the link budget is charged for
+ * it, otherwise the map and the numbers disagree. Charging it as loss rather than
+ * moving the endpoints leaves the terrain profile alone - the ridge is where it
+ * is - and lets a link with less than this much headroom fall to a lower rate or
+ * drop out, which is the point.
+ *
+ * exponent: 20 for free space, ~22.25 for the near-ground model, so the same 15%
+ * of reach costs what it really costs under whichever model is in play.
+ */
+export function derateLossDb(derate, exponent = FSPL_EXPONENT) {
+  if (!(derate > 0) || derate >= 1) return 0;
+  return exponent * Math.log10(1 / (1 - derate));
+}
+
+/** Data rate as quoted: the model's figure less the derate. */
+export function deratedMbps(mbps, derate = 0) {
+  return derate > 0 && derate < 1 ? mbps * (1 - derate) : mbps;
+}
+
 // ---- Antenna pattern model -----------------------------------------------
 // Parametric 3GPP-style pattern: parabolic rolloff over the half-power beamwidth
 // in azimuth and elevation, with sidelobe floors. Az/el losses combine, capped
@@ -126,9 +162,12 @@ export function analyzePath(profile, hA, hB, freqMhz) {
 // ---- Full link evaluation ------------------------------------------------
 
 export function evaluateLink({ distM, freqMhz, bwMhz, radioA, radioB, cfg, pathLoss }) {
-  // cfg: { powerA, powerB, gainA, gainB, cableA, cableB, bdaA, bdaB, fadeMargin, antennas }
+  // cfg: { powerA, powerB, gainA, gainB, cableA, cableB, bdaA, bdaB, fadeMargin,
+  //        antennas, noiseFloorDbm, derate }
   const fspl = fsplDb(distM, freqMhz);
-  const totalLoss = fspl + (pathLoss?.diffractionLossDb ?? 0);
+  const derate = cfg.derate ?? 0;
+  const derateDb = derateLossDb(derate);
+  const totalLoss = fspl + (pathLoss?.diffractionLossDb ?? 0) + derateDb;
   const results = [];
   const maxMcs = cfg.antennas === 2 ? 16 : 8;
   for (let mcs = 0; mcs < maxMcs; mcs++) {
@@ -141,12 +180,18 @@ export function evaluateLink({ distM, freqMhz, bwMhz, radioA, radioB, cfg, pathL
     const rssiBA = txB + gains - totalLoss;
     const rssi = Math.min(rssiAB, rssiBA);
     const margin = rssi - sens;
-    results.push({ mcs, rssi, sens, margin, usable: margin >= cfg.fadeMargin, mbps: throughputMbps(mcs, bwMhz) });
+    results.push({
+      mcs, rssi, sens, margin, usable: margin >= cfg.fadeMargin,
+      mbps: deratedMbps(throughputMbps(mcs, bwMhz), derate),
+    });
   }
   const usable = results.filter((r) => r.usable);
   const best = usable.length ? usable.reduce((a, b) => (b.mbps > a.mbps ? b : a)) : null;
   const mostRobust = usable.length ? usable[0] : null;
-  return { fspl, diffractionLossDb: pathLoss?.diffractionLossDb ?? 0, totalLoss, results, best, mostRobust };
+  return {
+    fspl, diffractionLossDb: pathLoss?.diffractionLossDb ?? 0, totalLoss, results, best, mostRobust,
+    derate, derateDb,
+  };
 }
 
 export function marginColor(link) {

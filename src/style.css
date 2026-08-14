@@ -286,6 +286,18 @@ html, body, #app { height: 100%; font-family: 'Segoe UI', system-ui, sans-serif;
 .fade-ctl input { width: 46px; background: #0d1117; color: #e9ecef; border: 1px solid #2b3648; border-radius: 4px; padding: 3px 4px; font-size: 12px; }
 #fade-note { color: #74c0fc; font-size: 10.5px; max-width: 150px; }
 
+/* Calculation mode sits beside the fade margin because the two together decide how
+   conservative every number on the page is. Defined before the mobile media query:
+   equal specificity means whichever comes last wins, and the mobile rules must. */
+.fade-ctl select {
+  background: #0d1117; color: #e9ecef; border: 1px solid #2b3648;
+  border-radius: 4px; padding: 3px 4px; font-size: 12px;
+}
+#plan-mode-note { color: #74c0fc; font-size: 10.5px; max-width: 150px; }
+/* Derated figures must never be mistaken for the model's own. */
+body.marginal-mode #plan-mode { border-color: #f08c00; color: #ffd8a8; }
+body.marginal-mode #plan-mode-note { color: #ffc078; }
+
 #loc-panel {
   position: absolute; top: 10px; right: 306px; z-index: 6; width: 290px;
   background: rgba(16,20,24,.94); color: #dee2e6; border-radius: 10px;
@@ -507,6 +519,7 @@ html, body, #app { height: 100%; font-family: 'Segoe UI', system-ui, sans-serif;
   }
   #nav-drawer .fade-ctl input[type=number] { width: 60px; background: #0d1117;
     color: #e9ecef; border: 1px solid #2b3648; border-radius: 4px; padding: 4px 6px; }
+  #nav-drawer .fade-ctl select { flex: 1; min-width: 0; padding: 5px 6px; }
   .brand { font-size: 14px; }
   .brand-light { display: none; }
   .toolbar {

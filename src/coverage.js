@@ -179,6 +179,7 @@ export async function computeCoverage(node, radio, opts, onProgress) {
     freqMhz: node.freqMhz, bwMhz: node.bwMhz, radio, powerDbm: node.powerDbm,
     txGainDbi: node.antennaGain, remoteGainDbi, cableLossDb: node.cableLoss, bdaGainDb: node.bdaGain,
     txPattern, fadeMarginDb: fadeMargin, remoteMode, remoteAltM, nearGround,
+    derate: opts.derate ?? 0,
     noiseFloorDbm: opts.noiseFloorDbm,
   });
 
@@ -210,7 +211,7 @@ export async function computeMinAltitude(node, radio, opts, onProgress) {
     elevTxAsl: rays.baseElev + node.heightM,
     freqMhz: node.freqMhz, bwMhz: node.bwMhz, radio, powerDbm: node.powerDbm,
     txGainDbi: node.antennaGain, remoteGainDbi, cableLossDb: node.cableLoss, bdaGainDb: node.bdaGain,
-    txPattern, fadeMarginDb: fadeMargin, nearGround,
+    txPattern, fadeMarginDb: fadeMargin, nearGround, derate: opts.derate ?? 0,
   };
   const res = minAltitudeRays(rays, params, { minMbps });
   const geom = { azimuths: rays.azimuths, steps: rays.steps, radiusM };
@@ -248,6 +249,7 @@ export async function computeMeshMinAltitude(entries, opts, onProgress) {
       freqMhz: e.node.freqMhz, bwMhz: e.node.bwMhz, radio: e.radio, powerDbm: e.node.powerDbm,
       txGainDbi: e.node.antennaGain, remoteGainDbi, cableLossDb: e.node.cableLoss,
       bdaGainDb: e.node.bdaGain, txPattern: e.txPattern, fadeMarginDb: fadeMargin, nearGround,
+      derate: opts.derate ?? 0,
       noiseFloorDbm: e.noiseFloorDbm,
     }, { minMbps });
     datasets.push({ origin, radiusM, azimuths: rays.azimuths, steps: rays.steps, res });
@@ -335,6 +337,7 @@ export async function findLowestFlightLevel(entries, opts, onProgress) {
         freqMhz: e.node.freqMhz, bwMhz: e.node.bwMhz, radio: e.radio, powerDbm: e.node.powerDbm,
         txGainDbi: e.node.antennaGain, remoteGainDbi, cableLossDb: e.node.cableLoss,
         bdaGainDb: e.node.bdaGain, txPattern: e.txPattern, fadeMarginDb: fadeMargin, nearGround,
+      derate: opts.derate ?? 0,
       noiseFloorDbm: e.noiseFloorDbm,
       } });
   }
@@ -410,7 +413,7 @@ export async function computeMeshCoverage(entries, opts, onProgress) {
       elevTxAsl: rays.baseElev + e.node.heightM,
       freqMhz: e.node.freqMhz, bwMhz: e.node.bwMhz, radio: e.radio, powerDbm: e.node.powerDbm,
       txGainDbi: e.node.antennaGain, remoteGainDbi, cableLossDb: e.node.cableLoss,
-      bdaGainDb: e.node.bdaGain, txPattern: e.txPattern, fadeMarginDb: fadeMargin,
+      bdaGainDb: e.node.bdaGain, txPattern: e.txPattern, fadeMarginDb: fadeMargin, derate: opts.derate ?? 0,
       remoteMode, remoteAltM, nearGround,
     });
     datasets.push({

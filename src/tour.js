@@ -26,6 +26,11 @@ const STEPS = [
     text: 'Click “⟋ Link Nodes”, then two nodes. The link is checked over the real elevation profile — line of sight, Fresnel-zone clearance, and diffraction — and colored green/amber/orange/red by how healthy it is. Click any link to see its terrain profile.',
   },
   {
+    target: '#plan-mode',
+    title: 'Quote it optimistically, or honestly',
+    text: '“Calculated” gives you the model’s own answer. “Marginal” holds 15% back — ranges shrink to 85%, quoted data rates drop to 85%, and the link budget is charged the path loss that implies, so a link with only a little headroom will flip from working to failing. Use it for anything a customer will hold you to; the exported report says which basis produced its numbers.',
+  },
+  {
     target: '#btn-advisor',
     reveal: 'm-deliver',
     title: 'Or let the Plan Advisor design it',

@@ -9,7 +9,7 @@
 import { elevationAtSync, haversineM, bearingDeg } from './terrain.js';
 import {
   txPowerDbm, sensitivityDbm, throughputMbps, patternLossDb,
-  elevationAngleDeg, angDiff, analyzePath,
+  elevationAngleDeg, angDiff, analyzePath, derateLossDb, deratedMbps,
 } from './engine.js';
 
 // Colour a route segment by achievable throughput
@@ -80,7 +80,8 @@ function profileSync(a, b, distM) {
  *
  * Returns { samples, stats, segments, handovers, servingNodes }
  */
-export function analyzeRoute({ waypoints, vehicle, infra, fadeMarginDb = 10, spacingM, targetMbps = 5 }) {
+export function analyzeRoute({ waypoints, vehicle, infra, fadeMarginDb = 10, spacingM, targetMbps = 5, derate = 0 }) {
+  const derateDb = derateLossDb(derate);
   const { samples, totalM } = sampleRoute(waypoints, spacingM || Math.min(250, Math.max(25, totalGuess(waypoints) / 400)));
   const compatible = infra.filter((e) => e.node.bandId === vehicle.bandId);
 
@@ -137,7 +138,7 @@ export function analyzeRoute({ waypoints, vehicle, infra, fadeMarginDb = 10, spa
         : 0;
 
       const fspl = 32.45 + 20 * Math.log10(Math.max(D, 1) / 1000) + 20 * Math.log10(e.node.freqMhz);
-      const totalLoss = fspl + pa.diffractionLossDb;
+      const totalLoss = fspl + pa.diffractionLossDb + derateDb;
       const gains = e.node.antennaGain - patLossNode + vehicle.antennaGain - patLossVeh
                   - e.node.cableLoss - vehicle.cableLoss + e.node.bdaGain + vehicle.bdaGain;
 
@@ -151,7 +152,7 @@ export function analyzeRoute({ waypoints, vehicle, infra, fadeMarginDb = 10, spa
         const txV = txPowerDbm(vehicle.radio, vehicle.powerDbm, m, antennas);
         const rssi = Math.min(txN, txV) + gains - totalLoss;
         const margin = rssi - sensitivityDbm(m, bw);
-        const mbps = throughputMbps(m, bw);
+        const mbps = deratedMbps(throughputMbps(m, bw), derate);
         if (margin >= fadeMarginDb && (!best || mbps > best.mbps)) {
           best = { mcs: m, mbps, rssi, margin };
         }

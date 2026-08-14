@@ -57,6 +57,14 @@
         <span id="mode-hint"></span>
       </div>
       <div class="toolbar-right">
+        <label class="fade-ctl" title="Calculated quotes the model's own figure. Marginal holds 15% back from range and data rate — the house preference is to be caught being pessimistic rather than optimistic in front of a customer.">
+          Calculation
+          <select id="plan-mode">
+            <option value="calculated">Calculated</option>
+            <option value="marginal">Marginal (−15%)</option>
+          </select>
+          <span id="plan-mode-note"></span>
+        </label>
         <label class="fade-ctl" title="Required margin above receiver sensitivity. Doodle Labs plan to 10 dB; raise it for congested or maritime paths, lower it only for bench work.">
           Fade margin <input type="number" id="fade-margin" value="10" min="0" max="40" step="1"/> dB
           <span id="fade-note"></span>
@@ -326,6 +334,15 @@
             <li><b>Antenna</b> — pick from the catalog (★ = Doodle Labs recommended; the rest are datasheet-verified third-party models) or enter a custom gain + beamwidth. Directional antennas get a beam wedge on the map.</li>
             <li><b>Cable</b> — choose MC400/MC600-class and a length; loss is computed automatically for the operating frequency (and updates if you change bands). Use "Manual" to type a known loss.</li>
             <li><b>Fade margin</b> (top right) — the dB of headroom every prediction must keep above receiver sensitivity. Doodle Labs plan to <b>10 dB</b>; field engineers often work to <b>12–14 dB</b>. Raise it for congested, maritime or contested RF; drop it only for bench work, and never quote a 0 dB figure to a customer. Every link, heatmap, route and advisor result uses the value you set, and the exported report states it.</li>
+            <li><b>Calculation</b> (top right) &mdash; how the answer is quoted.
+              <b>Calculated</b> is the model's own figure. <b>Marginal</b> holds <b>15%</b> back:
+              every range shrinks to 85% of the modelled reach, every quoted data rate drops to 85%,
+              and the link budget is charged the path loss that 15% implies (about <b>1.4 dB</b>, or
+              <b>1.6 dB</b> where the near-ground model applies), so the map, the numbers and the
+              report all tell the same story. A link with less than that much headroom will flip from
+              working to failing, which is the point &mdash; the house preference is to be caught being
+              pessimistic rather than optimistic in front of a customer. The exported report states
+              which basis produced its figures.</li>
             <li><b>BDA gain</b> — add amplification (e.g. Mesh Rider Boost, Triad) as extra dB in the budget.</li>
           </ul>
         </section>

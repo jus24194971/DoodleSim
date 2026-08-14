@@ -9,7 +9,8 @@
 // survives changes to radio config, antenna, altitude and metric.
 
 import { elevationAt, destination } from './terrain.js';
-import { txPowerDbm, sensitivityDbm, throughputMbps, patternLossDb, angDiff } from './engine.js';
+import { txPowerDbm, sensitivityDbm, throughputMbps, patternLossDb, angDiff,
+         derateLossDb, deratedMbps, FSPL_EXPONENT } from './engine.js';
 
 const R_EFF = 6371008.8 * (4 / 3);
 
@@ -76,6 +77,7 @@ export function invalidateRayCache() { rayCache.clear(); }
 // PL = A(f) + 22.25*log10(d_m), A(f) interpolated in log-frequency.
 const GROUND_A = [[250, 36.07], [500, 40.70], [915, 43.25], [1000, 43.66],
                   [2000, 44.62], [2450, 44.75], [4000, 46.06], [5800, 48.05]];
+export const GROUND_EXPONENT = 22.25;   // dB per decade of distance near the ground
 
 // Above this height above ground the empirical near-ground curve stops being
 // applicable — it was fitted to ground-level radios, not to aircraft.
@@ -93,7 +95,7 @@ export function groundPathLossDb(freqMhz, distM) {
       break;
     }
   }
-  return A + 22.25 * Math.log10(Math.max(distM, 1));
+  return A + GROUND_EXPONENT * Math.log10(Math.max(distM, 1));
 }
 
 /**
@@ -123,8 +125,14 @@ export function evaluateRays(rays, params) {
     elevTxAsl, freqMhz, bwMhz, radio, powerDbm,
     txGainDbi, remoteGainDbi, cableLossDb = 0, bdaGainDb = 0,
     txPattern = null, fadeMarginDb = 10,
-    remoteMode = 'agl', remoteAltM = 2, nearGround = false,
+    remoteMode = 'agl', remoteAltM = 2, nearGround = false, derate = 0,
   } = params;
+
+  // Marginal planning shrinks the footprint by charging the loss of a cell that
+  // much further out. Two figures because the near-ground curve is steeper than
+  // free space, so the same 15% of reach costs more dB down there.
+  const derateFsplDb = derateLossDb(derate, FSPL_EXPONENT);
+  const derateGroundDb = derateLossDb(derate, GROUND_EXPONENT);
 
   const n = azimuths * steps;
   const bestMcs = new Int8Array(n).fill(-1);
@@ -147,7 +155,7 @@ export function evaluateRays(rays, params) {
   for (let m = 0; m < maxMcs; m++) {
     txAt[m] = txPowerDbm(radio, powerDbm, m, antennas);
     sensAt[m] = sensitivityDbm(m, bwMhz, params.noiseFloorDbm);
-    mbpsAt[m] = throughputMbps(m, bwMhz);
+    mbpsAt[m] = deratedMbps(throughputMbps(m, bwMhz), derate);
   }
 
   const patAz = txPattern ? (txPattern.azimuthDeg ?? 0) : 0;
@@ -198,8 +206,10 @@ export function evaluateRays(rays, params) {
       }
 
       const fspl = fsplConst + 20 * (Math.log(Math.max(D, 1)) / LOG10);
-      let totalLoss = fspl + diffLoss;
-      if (nearGround) totalLoss = Math.max(totalLoss, groundPathLossDb(freqMhz, D));
+      let totalLoss = fspl + diffLoss + derateFsplDb;
+      if (nearGround) {
+        totalLoss = Math.max(totalLoss, groundPathLossDb(freqMhz, D) + derateGroundDb);
+      }
 
       let patLoss = 0;
       if (txPattern) {
