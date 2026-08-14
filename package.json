@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "deploy": "npm run build && wrangler deploy"
+    "deploy": "npm run build && npx --yes wrangler deploy"
   },
   "dependencies": {
     "maplibre-gl": "^4.7.1"
