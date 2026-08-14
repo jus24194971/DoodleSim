@@ -107,7 +107,12 @@ export function radioFigures(basisKey, mcs, bandwidthMhz, chains = 2) {
  */
 export function chooseBestMcs({ pathLossDb, txGainDbi = 0, rxGainDbi = 0, bandwidthMhz = 20,
                                 fadeMarginDb = 0, basis = 'datasheet', chains = 2,
-                                maxMcs = 15, configuredMaxDbm = null }) {
+                                maxMcs = 15, configuredMaxDbm = null, rateDerate = 0 }) {
+  // Marginal planning takes its haircut off the PHY rate here, at the one place the
+  // rate enters the model. Everything downstream - per-packet airtime, the percentage
+  // of the medium, spare capacity - is derived from this figure, so deflating it once
+  // makes the whole panel pessimistic rather than just the headline number.
+  const derateRate = (r) => (rateDerate > 0 && rateDerate < 1 ? r * (1 - rateDerate) : r);
   let fallback = null;
   for (let mcs = maxMcs; mcs >= 0; mcs--) {
     if (mcs >= 8 && chains < 2) continue;           // no second stream on a SISO part
@@ -116,14 +121,14 @@ export function chooseBestMcs({ pathLossDb, txGainDbi = 0, rxGainDbi = 0, bandwi
     const rxDbm = tx + txGainDbi + rxGainDbi - pathLossDb;
     const marginDb = rxDbm - sensDbm - fadeMarginDb;
     const row = { mcs, txDbm: tx, rxDbm, sensDbm, marginDb,
-                  phyRateMbps: mcsRateMbps(mcs, bandwidthMhz) };
+                  phyRateMbps: derateRate(mcsRateMbps(mcs, bandwidthMhz)) };
     if (marginDb >= 0) return row;
     fallback = row;                                  // remember the lowest attempt
   }
   // Nothing closes. Return the MCS0 attempt with its negative margin so the caller
   // can show how far short the link is rather than just failing.
   return fallback || { mcs: 0, txDbm: 0, rxDbm: -999, sensDbm: 0, marginDb: -999,
-                       phyRateMbps: mcsRateMbps(0, bandwidthMhz) };
+                       phyRateMbps: derateRate(mcsRateMbps(0, bandwidthMhz)) };
 }
 
 // ---------------------------------------------------------------- airtime
@@ -459,12 +464,12 @@ export function analyseMultiFlow({ pathLossDb, distanceM = 0, freqMhz = 2450,
                                    configuredMaxDbm = null, flows = [], meshMode = 'batman',
                                    packetLoss = 0.1, nodes = 2, ogmIntervalS = 1,
                                    headerOverheadBytes = 60, multicastRate20Mbps = 6.5,
-                                   extraPathLossDb = 0 }) {
+                                   extraPathLossDb = 0, rateDerate = 0 }) {
   // extraPathLossDb is the planning derate charged by the caller, added here rather
   // than folded into pathLossDb so the free-space branch is covered too.
   const loss = (pathLossDb != null ? pathLossDb : fsplDb(freqMhz, distanceM / 1000)) + extraPathLossDb;
   const link = chooseBestMcs({ pathLossDb: loss, txGainDbi, rxGainDbi, bandwidthMhz,
-                               fadeMarginDb, basis, chains, configuredMaxDbm });
+                               fadeMarginDb, basis, chains, configuredMaxDbm, rateDerate });
   const opts = { headerOverheadBytes, multicastRate20Mbps, bandwidthMhz, distanceM };
 
   const rows = [];

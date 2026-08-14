@@ -2286,10 +2286,10 @@ async function airCalculate() {
   let distanceM = parseFloat($air('air-dist').value) || 1000;
   let pathLossDb = null;
   let sourceLabel = 'free space';
-  // Name the derate in the label rather than letting a quietly harder path loss look
-  // like the model's own answer. Only the reach derate applies here: the flat rate
-  // haircut is a quoting convention, and taking it off a figure that then drives an
-  // airtime percentage would charge for the same pessimism twice.
+  // The panel takes the full derate: the reach charge AND the rate haircut. That does
+  // compound - a deflated PHY rate divides into a larger share of the medium, so the
+  // airtime bars read busier than the reach penalty alone would make them - and that is
+  // the intent. The mode is a switch; while it is on, the bias should be one way.
   const airDerateDb = derateLossDb(planDerate());
 
   if (airState.source === 'terrain') {
@@ -2312,7 +2312,7 @@ async function airCalculate() {
   const res = AIR.analyseMultiFlow({
     pathLossDb, distanceM, freqMhz, bandwidthMhz: bwMhz,
     txGainDbi: gtx, rxGainDbi: grx, fadeMarginDb: fade,
-    extraPathLossDb: airDerateDb,
+    extraPathLossDb: airDerateDb, rateDerate: planDerate(),
     basis: airState.basis, chains: radio.chains, configuredMaxDbm: radio.maxConfig,
     flows: airState.flows, meshMode, packetLoss, nodes: nodesN, ogmIntervalS,
   });
@@ -2363,7 +2363,7 @@ async function airCalculate() {
     `<div class="air-verdict ${cls}">${headline}<small>${sub}</small></div>`
     + `<div class="air-bar ${res.status}"><i style="width:${barPct}%"></i></div>`
     + '<div class="air-grid">'
-    + `<span class="k">Path loss (${sourceLabel}${airDerateDb ? `, +${airDerateDb.toFixed(2)} dB marginal derate` : ''})</span>`
+    + `<span class="k">Path loss (${sourceLabel}${airDerateDb ? `, +${airDerateDb.toFixed(2)} dB marginal` : ''})</span>`
     + `<span class="v">${res.pathLossDb.toFixed(1)} dB</span>`
     + `<span class="k">Distance</span><span class="v">${(distanceM / 1000).toFixed(2)} km</span>`
     + `<span class="k">Selected MCS</span><span class="v">MCS${L.mcs}</span>`
