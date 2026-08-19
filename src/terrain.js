@@ -1,8 +1,23 @@
 // Terrain elevation sampling from AWS Terrarium tiles (open data, no API key).
 // elevation(m) = (R*256 + G + B/256) - 32768
 
-const TILE_ZOOM = 11;
-const tileCache = new Map(); // "z/x/y" -> ImageData | Promise
+// Sampling zoom. Measured as "real detail added over a bilinear upsample of the
+// parent tile", z11 -> z12 recovers 0.5-2.0 m RMS of genuine terrain structure -
+// largest in dissected and tropical ground, under a metre in open country.
+//
+// Do not raise this past 13. Real detail is exhausted at z13 across SRTM and EUDEM,
+// which is most of the planet, and above that the blend switches to explicitly
+// bare-earth lidar (ned19, uk_lidar/LIDAR-DTM-2M, Kartverket Terrengdata, LINZ) in
+// the US, UK, Norway and New Zealand - so higher zoom moves AWAY from a surface
+// model, not toward one. Buildings and vegetation are not in this data at any zoom;
+// they are a separate layer.
+const TILE_ZOOM = 12;
+
+// Decoded tiles are 256x256 RGBA, so ~262 kB of ImageData each. Bounded, because a
+// wide coverage prewarm at z12 can touch hundreds of tiles and an unbounded Map
+// would hold the lot resident.
+const MAX_CACHED_TILES = 320;
+const tileCache = new Map(); // "z/x/y" -> ImageData | Promise, in insertion order
 
 function lonLatToTile(lon, lat, z) {
   const n = 2 ** z;
@@ -33,6 +48,7 @@ async function getTileData(z, tx, ty) {
     return data;
   })();
   tileCache.set(key, promise);
+  evictOldTiles();
   return promise;
 }
 
@@ -63,8 +79,27 @@ export function elevationAtSync(lng, lat) {
   return data.data[i] * 256 + data.data[i + 1] + data.data[i + 2] / 256 - 32768;
 }
 
-/** Load every terrain tile covering the bounding box of `points` (plus padding). */
-export async function prewarmArea(points, padM = 2000, maxTiles = 80) {
+/** Drop the least recently inserted tiles once the cache outgrows its bound. */
+function evictOldTiles() {
+  while (tileCache.size > MAX_CACHED_TILES) {
+    const oldest = tileCache.keys().next().value;
+    if (oldest === undefined) break;
+    tileCache.delete(oldest);
+  }
+}
+
+/**
+ * Load every terrain tile covering the bounding box of `points` (plus padding).
+ *
+ * The cap used to break only the INNER loop, so once it was reached every later
+ * column contributed nothing and the tiles actually fetched were a westernmost
+ * vertical strip rather than the area asked for. At z11 a 40 km box is about nine
+ * tiles and the cap never fired; at z12 an 80 km coverage box is well over a hundred,
+ * so it would have fired routinely and left elevationAtSync() returning NaN across
+ * the eastern half of the map. Tiles are now ordered by distance from the centre, so
+ * if the budget does run out what is dropped is the far edge rather than half the map.
+ */
+export async function prewarmArea(points, padM = 2000, maxTiles = 400) {
   if (!points.length) return 0;
   let minLng = Infinity, maxLng = -Infinity, minLat = Infinity, maxLat = -Infinity;
   for (const p of points) {
@@ -77,13 +112,16 @@ export async function prewarmArea(points, padM = 2000, maxTiles = 80) {
   const b = lonLatToTile(maxLng + dLng, minLat - dLat, TILE_ZOOM);
   const x0 = Math.floor(a.x), x1 = Math.floor(b.x);
   const y0 = Math.floor(a.y), y1 = Math.floor(b.y);
-  const jobs = [];
+  const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
+  const wanted = [];
   for (let tx = x0; tx <= x1; tx++) {
     for (let ty = y0; ty <= y1; ty++) {
-      if (jobs.length >= maxTiles) break;
-      jobs.push(getTileData(TILE_ZOOM, tx, ty).catch(() => null));
+      wanted.push({ tx, ty, d2: (tx - cx) ** 2 + (ty - cy) ** 2 });
     }
   }
+  wanted.sort((p, q) => p.d2 - q.d2);
+  const jobs = wanted.slice(0, maxTiles)
+    .map((t) => getTileData(TILE_ZOOM, t.tx, t.ty).catch(() => null));
   await Promise.all(jobs);
   return jobs.length;
 }
