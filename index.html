@@ -237,6 +237,8 @@
         <div class="cov-row"><label>TX antenna (dBi)</label><input id="air-gtx" type="number" value="3" step="0.5"></div>
         <div class="cov-row"><label>RX antenna (dBi)</label><input id="air-grx" type="number" value="3" step="0.5"></div>
         <div class="cov-row"><label>Fade margin (dB)</label><input id="air-fade" type="number" value="12" step="1"></div>
+        <div class="cov-row"><label>Noise floor</label><select id="air-noise"
+          title="Background noise at the receiver. Published sensitivities assume a thermally quiet site; anything above that costs you rate."></select></div>
         <div class="cov-seg" style="margin-top:6px">
           <button id="air-src-fspl" class="cov-seg-btn active" title="Free-space path loss from the distance above">Free space</button>
           <button id="air-src-terrain" class="cov-seg-btn" title="Use the terrain-aware path loss between the two selected map nodes, including the near-ground term and diffraction">Terrain (map link)</button>
@@ -254,6 +256,30 @@
         <div class="cov-foot" style="padding:6px 0 0">The radio is half duplex, so uplink and
           downlink spend the <b>same</b> airtime rather than separate budgets. TCP flows also put
           acknowledgements on the opposite direction, which is why a download loads the uplink.</div>
+      </div>
+
+      <div class="cov-section" id="air-lic-section">
+        <div class="cov-label">Licensed features</div>
+        <div class="cov-foot" style="padding:0 0 6px">Paid Mesh Rider feature sets. Tick only what
+          the customer has actually licensed &mdash; each one changes the numbers below.</div>
+
+        <label class="air-lic"><input type="checkbox" id="air-sense">
+          <span><b>Sense</b> &mdash; interference avoidance
+            <small>Scans every band, whitelists clean channels, and moves off a jammed one in under ~100&nbsp;ms.</small></span></label>
+        <div id="air-sense-opts" class="air-lic-opts hidden">
+          <div class="cov-row"><label>Bands to hide in</label><select id="air-sense-ranges"></select></div>
+          <div class="cov-row"><label>Spectrum activity</label><select id="air-sense-activity"></select></div>
+        </div>
+
+        <label class="air-lic"><input type="checkbox" id="air-multimesh">
+          <span><b>Multiple Mesh</b> &mdash; concurrent networks
+            <small>Runs several meshes at once so the traffic does not all share one medium.</small></span></label>
+        <div id="air-mm-opts" class="air-lic-opts hidden">
+          <div class="cov-row"><label>Meshes</label><select id="air-mesh-count"></select></div>
+          <div class="cov-foot" style="padding:4px 0 0">Assign each flow to a mesh in the traffic
+            list above. Independent airtime assumes the meshes sit on non-overlapping channels.</div>
+        </div>
+        <div id="air-lic-note" class="cov-foot" style="padding-top:6px"></div>
       </div>
 
       <div class="cov-section">
@@ -343,6 +369,23 @@
               working to failing, which is the point &mdash; the house preference is to be caught being
               pessimistic rather than optimistic in front of a customer. The exported report states
               which basis produced its figures.</li>
+            <li><b>Licensed features</b> (Link budget &amp; airtime panel) &mdash; two paid Mesh Rider
+              feature sets that change the numbers, so tick them only if the customer has actually
+              licensed them.
+              <br/><b>Sense</b> scans every band, whitelists the clean channels at boot, and moves
+              off a jammed one in under ~100&nbsp;ms across up to six frequency ranges. In the model
+              it buys back part of the noise-floor penalty at a noisy site &mdash; more bands to hide
+              in means more recovered, from 35% on one band to 86% on six &mdash; and charges a small
+              airtime cost for the switching itself. It is worth nothing at a thermally quiet site,
+              which is why the <b>Noise floor</b> control sits beside the fade margin in that panel.
+              <br/><b>Multiple Mesh</b> runs several mesh networks at once. Each flow is assigned to
+              a mesh and each mesh gets its own airtime budget, so the binding constraint becomes the
+              busiest mesh rather than the sum of everything. It assumes the meshes sit on
+              non-overlapping channels, and charges 3% per extra mesh for imperfect isolation and the
+              routing chatter every mesh pays separately.
+              <br/>The recovery percentages and the isolation penalty are Doodle Labs engineering
+              estimates, not published figures; the mechanisms behind them are documented. They live
+              in one file, <code>src/licensed.js</code>, so field data can correct them in one place.</li>
             <li><b>BDA gain</b> — add amplification (e.g. Mesh Rider Boost, Triad) as extra dB in the budget.</li>
           </ul>
         </section>

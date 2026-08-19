@@ -15,6 +15,9 @@
 // Two of his conventions are preserved deliberately and documented where they sit:
 // per-chain transmit power, and the fixed multicast rate for broadcast traffic.
 
+import { sensedNoisePenaltyDb, senseOverheadPercent,
+         interMeshOverheadPercent } from './licensed.js';
+
 // 802.11n MCS0-15 PHY rates at 20 MHz, long guard interval. MCS8-15 are the
 // two-stream rates, which is why they are roughly double their 0-7 counterparts.
 export const MCS_BASE_RATE_20MHZ = {
@@ -107,7 +110,8 @@ export function radioFigures(basisKey, mcs, bandwidthMhz, chains = 2) {
  */
 export function chooseBestMcs({ pathLossDb, txGainDbi = 0, rxGainDbi = 0, bandwidthMhz = 20,
                                 fadeMarginDb = 0, basis = 'datasheet', chains = 2,
-                                maxMcs = 15, configuredMaxDbm = null, rateDerate = 0 }) {
+                                maxMcs = 15, configuredMaxDbm = null, rateDerate = 0,
+                                noisePenaltyDb = 0 }) {
   // Marginal planning takes its haircut off the PHY rate here, at the one place the
   // rate enters the model. Everything downstream - per-packet airtime, the percentage
   // of the medium, spare capacity - is derived from this figure, so deflating it once
@@ -116,7 +120,11 @@ export function chooseBestMcs({ pathLossDb, txGainDbi = 0, rxGainDbi = 0, bandwi
   let fallback = null;
   for (let mcs = maxMcs; mcs >= 0; mcs--) {
     if (mcs >= 8 && chains < 2) continue;           // no second stream on a SISO part
-    const { txDbm, sensDbm } = radioFigures(basis, mcs, bandwidthMhz, chains);
+    const { txDbm, sensDbm: rawSens } = radioFigures(basis, mcs, bandwidthMhz, chains);
+    // Published sensitivities assume a thermally quiet receiver. A noisy site raises
+    // the level every rate needs by the excess over thermal, which is the number
+    // Sense claws back.
+    const sensDbm = rawSens + Math.max(0, noisePenaltyDb);
     const tx = configuredMaxDbm == null ? txDbm : Math.min(txDbm, configuredMaxDbm);
     const rxDbm = tx + txGainDbi + rxGainDbi - pathLossDb;
     const marginDb = rxDbm - sensDbm - fadeMarginDb;
@@ -464,12 +472,18 @@ export function analyseMultiFlow({ pathLossDb, distanceM = 0, freqMhz = 2450,
                                    configuredMaxDbm = null, flows = [], meshMode = 'batman',
                                    packetLoss = 0.1, nodes = 2, ogmIntervalS = 1,
                                    headerOverheadBytes = 60, multicastRate20Mbps = 6.5,
-                                   extraPathLossDb = 0, rateDerate = 0 }) {
+                                   extraPathLossDb = 0, rateDerate = 0,
+                                   noisePenaltyDb = 0, sense = null, meshCount = 1 }) {
   // extraPathLossDb is the planning derate charged by the caller, added here rather
   // than folded into pathLossDb so the free-space branch is covered too.
   const loss = (pathLossDb != null ? pathLossDb : fsplDb(freqMhz, distanceM / 1000)) + extraPathLossDb;
+  // Sense moves the radio to the cleanest channel it whitelisted, so the site's noise
+  // penalty is partly bought back before it ever reaches the rate table.
+  const rawPenalty = Math.max(0, noisePenaltyDb);
+  const effPenalty = sense ? sensedNoisePenaltyDb(rawPenalty, sense.rangeCount) : rawPenalty;
   const link = chooseBestMcs({ pathLossDb: loss, txGainDbi, rxGainDbi, bandwidthMhz,
-                               fadeMarginDb, basis, chains, configuredMaxDbm, rateDerate });
+                               fadeMarginDb, basis, chains, configuredMaxDbm, rateDerate,
+                               noisePenaltyDb: effPenalty });
   const opts = { headerOverheadBytes, multicastRate20Mbps, bandwidthMhz, distanceM };
 
   const rows = [];
@@ -479,7 +493,8 @@ export function analyseMultiFlow({ pathLossDb, distanceM = 0, freqMhz = 2450,
       const a = flowAirtime({ profile: leg.profile, link, isUnicast: leg.isUnicast,
                               meshMode, packetLoss, opts });
       rows.push({ ...leg, protocol: f.protocol, direction: f.direction,
-                  presetId: f.id, ...a });
+                  presetId: f.id, mesh: Math.max(0, Math.min(f.mesh || 0, meshCount - 1)),
+                  ...a });
     }
   }
 
@@ -489,14 +504,39 @@ export function analyseMultiFlow({ pathLossDb, distanceM = 0, freqMhz = 2450,
     ? ogmAirtimePercent({ nodes, ogmIntervalS, phyRateMbps: link.phyRateMbps, opts })
     : 0;
 
-  const avgPercent = rows.reduce((s, r) => s + r.avgPercent, 0) + ogmPercent;
-  const peakPercent = rows.reduce((s, r) => s + r.peakPercent, 0) + ogmPercent;
-  const capacityMbps = effectiveThroughputMbps(1500, link.phyRateMbps, true, opts,
-                                               retryFactor(packetLoss));
+  // Every mesh pays its own routing chatter, its own Sense switching, and a penalty
+  // for not being perfectly isolated from the others.
+  const senseOverhead = sense ? senseOverheadPercent(sense.activity) : 0;
+  const isolation = interMeshOverheadPercent(meshCount);
+  const perMeshFloor = ogmPercent + senseOverhead + isolation;
+
+  const nMesh = Math.max(1, meshCount);
+  const meshes = [];
+  for (let m = 0; m < nMesh; m++) {
+    const mine = rows.filter((r) => r.mesh === m);
+    meshes.push({
+      index: m,
+      labels: [...new Set(mine.map((r) => r.label.replace(/ \(TCP ACK\)$/, '')))],
+      avgPercent: mine.reduce((acc, r) => acc + r.avgPercent, 0) + perMeshFloor,
+      peakPercent: mine.reduce((acc, r) => acc + r.peakPercent, 0) + perMeshFloor,
+      offeredMbps: mine.reduce((acc, r) => acc + r.goodputMbps, 0),
+    });
+  }
+  // The binding constraint is the busiest mesh, not the average of them: a design with
+  // one saturated mesh and three idle ones is a design that stutters.
+  const avgPercent = Math.max(...meshes.map((m) => m.avgPercent));
+  const peakPercent = Math.max(...meshes.map((m) => m.peakPercent));
+  const capacityPerMesh = effectiveThroughputMbps(1500, link.phyRateMbps, true, opts,
+                                                  retryFactor(packetLoss));
+  const capacityMbps = capacityPerMesh * nMesh;
   const offeredMbps = rows.reduce((s, r) => s + r.goodputMbps, 0);
 
   return {
     pathLossDb: loss, link, rows, ogmPercent,
+    meshes, meshCount: nMesh, capacityPerMesh,
+    senseOverheadPercent: senseOverhead, interMeshPercent: isolation,
+    noisePenaltyDb: rawPenalty, effectiveNoisePenaltyDb: effPenalty,
+    senseRecoveredDb: rawPenalty - effPenalty,
     forward: { avgPercent: legSum('forward', 'avgPercent'),
                peakPercent: legSum('forward', 'peakPercent'),
                mbps: rows.filter((r) => r.leg === 'forward')

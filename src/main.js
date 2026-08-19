@@ -3,8 +3,9 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import './style.css';
 import { RADIOS, BANDS, CHANNEL_WIDTHS, PLATFORMS, CABLES, cableLossDb, hasGps, FORM_FACTORS, NOISE_PROFILES, noiseProfile } from './radios.js';
 import { terrainProfile, haversineM, bearingDeg, destination, elevationAt, elevationAtSync, prewarmArea } from './terrain.js';
-import { analyzePath, evaluateLink, fsplDb, throughputMbps, patternLossDb, elevationAngleDeg, angDiff, DERATE_MARGINAL, derateLossDb } from './engine.js';
+import { analyzePath, evaluateLink, fsplDb, throughputMbps, patternLossDb, elevationAngleDeg, angDiff, DERATE_MARGINAL, derateLossDb, noisePenaltyDb } from './engine.js';
 import * as AIR from './airtime.js';
+import * as LIC from './licensed.js';
 import {
   computeCoverage, computeMeshCoverage, computeMinAltitude, computeMeshMinAltitude,
   findLowestFlightLevel,
@@ -2186,7 +2187,25 @@ const airPanel = document.getElementById('air-panel');
 // lookup silently returns null - the handler fires and does nothing. airPanel is the
 // same node object either way, so querying from it works in both homes.
 const $air = (id) => airPanel.querySelector('#' + id) || document.getElementById(id);
-const airState = { source: 'fspl', basis: 'datasheet', flows: [] };
+const airState = {
+  source: 'fspl', basis: 'datasheet', flows: [],
+  noiseProfileId: 'thermal',
+  // Licensed feature sets. Off by default: the planner should quote what a stock
+  // radio does unless somebody says the customer actually bought the licence.
+  sense: false, senseRanges: 3, senseActivity: 'busy',
+  multimesh: false, meshCount: 2,
+};
+
+/** Excess over thermal at this channel width, which is what a noisy site really costs. */
+function AIR_noisePenalty(bwMhz) {
+  return noisePenaltyDb(airNoiseFloorDbm(), bwMhz);
+}
+
+/** The noise floor the panel is planning against, or null when thermally quiet. */
+function airNoiseFloorDbm() {
+  const p = noiseProfile(airState.noiseProfileId);
+  return airState.noiseProfileId === 'thermal' ? null : p.dbm;
+}
 
 function airFillSelects() {
   const cur = $air('air-radio').value;
@@ -2198,6 +2217,23 @@ function airFillSelects() {
   if (!$air('air-bw').options.length) {
     $air('air-bw').innerHTML = CHANNEL_WIDTHS.map((w) =>
       `<option value="${w}" ${w === 20 ? 'selected' : ''}>${w} MHz</option>`).join('');
+  }
+  if (!$air('air-noise').options.length) {
+    $air('air-noise').innerHTML = NOISE_PROFILES.filter((p) => p.id !== 'custom').map((p) =>
+      `<option value="${p.id}" ${p.id === airState.noiseProfileId ? 'selected' : ''}>`
+      + `${p.label}${p.dbm != null ? ` (${p.dbm} dBm)` : ''}</option>`).join('');
+  }
+  if (!$air('air-sense-ranges').options.length) {
+    // "up to six frequency ranges on a single radio" - more places to hide means a
+    // better chance Sense finds clean spectrum.
+    $air('air-sense-ranges').innerHTML = Array.from({ length: LIC.SENSE_MAX_RANGES }, (_, i) => i + 1)
+      .map((n) => `<option value="${n}" ${n === airState.senseRanges ? 'selected' : ''}>`
+        + `${n} band${n > 1 ? 's' : ''} &mdash; recovers ${Math.round(LIC.senseRecoveryFraction(n) * 100)}%`
+        + `</option>`).join('');
+    $air('air-sense-activity').innerHTML = LIC.SENSE_ACTIVITY.map((a) =>
+      `<option value="${a.id}" ${a.id === airState.senseActivity ? 'selected' : ''}>${a.label}</option>`).join('');
+    $air('air-mesh-count').innerHTML = Array.from({ length: LIC.MAX_MESHES - 1 }, (_, i) => i + 2)
+      .map((n) => `<option value="${n}" ${n === airState.meshCount ? 'selected' : ''}>${n} meshes</option>`).join('');
   }
   if (!$air('air-preset').options.length) {
     const groups = {};
@@ -2248,6 +2284,11 @@ function airRenderFlows() {
         <span class="air-flow-name">${f.label}</span>
         <span class="air-tag ${f.protocol}">${proto.label}</span>
         <span class="air-tag dir">${DIR_ARROW[f.direction] || f.direction}</span>
+        ${airState.multimesh ? `<select class="air-flow-mesh" data-fm="${i}"
+          title="Which mesh carries this flow. Meshes have independent airtime.">`
+          + Array.from({ length: airState.meshCount }, (_, m) =>
+            `<option value="${m}" ${(f.mesh || 0) === m ? 'selected' : ''}>Mesh ${m + 1}</option>`).join('')
+          + `</select>` : ''}
         <button class="air-flow-x" data-fx="${i}" title="Remove">&times;</button>
       </div>
       <div class="air-flow-sub">${rate}${f.reverseScale != null && f.direction === 'bi'
@@ -2259,6 +2300,9 @@ function airRenderFlows() {
   }));
   el.querySelectorAll('.air-flow-x').forEach((b) => b.addEventListener('click', () => {
     airState.flows.splice(+b.dataset.fx, 1); airRenderFlows(); airCalculate();
+  }));
+  el.querySelectorAll('.air-flow-mesh').forEach((sel) => sel.addEventListener('change', () => {
+    airState.flows[+sel.dataset.fm].mesh = +sel.value; airCalculate();
   }));
 }
 
@@ -2313,6 +2357,9 @@ async function airCalculate() {
     pathLossDb, distanceM, freqMhz, bandwidthMhz: bwMhz,
     txGainDbi: gtx, rxGainDbi: grx, fadeMarginDb: fade,
     extraPathLossDb: airDerateDb, rateDerate: planDerate(),
+    noisePenaltyDb: AIR_noisePenalty(bwMhz),
+    sense: airState.sense ? { rangeCount: airState.senseRanges, activity: airState.senseActivity } : null,
+    meshCount: airState.multimesh ? airState.meshCount : 1,
     basis: airState.basis, chains: radio.chains, configuredMaxDbm: radio.maxConfig,
     flows: airState.flows, meshMode, packetLoss, nodes: nodesN, ogmIntervalS,
   });
@@ -2329,13 +2376,42 @@ async function airCalculate() {
     ? 'Add antenna gain or height, or narrow the channel, before looking at traffic.'
     : !airState.flows.length
       ? 'A closing link tells you nothing about whether it can carry your streams.'
-      : `Peak airtime ${res.peakPercent.toFixed(0)}% of the medium against `
-        + `${res.avgPercent.toFixed(0)}% average.`;
+      : res.meshCount > 1
+        ? `Busiest mesh peaks at ${res.peakPercent.toFixed(0)}% of its own medium, `
+          + `across ${res.meshCount} independent meshes.`
+        : `Peak airtime ${res.peakPercent.toFixed(0)}% of the medium against `
+          + `${res.avgPercent.toFixed(0)}% average.`;
   if (res.closes && res.peakPercent > 100) {
     sub += ' The burst cannot fit inside its frame interval, which shows up as stutter'
         + ' rather than a dropped link.';
   }
   const barPct = Math.max(0, Math.min(res.peakPercent, 100));
+
+  // What the licensed features changed, stated in the units they changed.
+  const licRows = (airState.sense || airState.multimesh) ? `
+    <div class="air-label">Licensed features in this result</div>
+    <div class="air-grid">
+      ${airState.sense ? `
+        <span class="k">Sense &mdash; noise penalty</span><span class="v">${res.noisePenaltyDb.toFixed(1)} &rarr; ${res.effectiveNoisePenaltyDb.toFixed(1)} dB</span>
+        <span class="k">of which recovered</span><span class="v">${res.senseRecoveredDb.toFixed(1)} dB across ${airState.senseRanges} band${airState.senseRanges > 1 ? 's' : ''}</span>
+        <span class="k">Sense switching cost</span><span class="v">${res.senseOverheadPercent.toFixed(2)} % airtime</span>` : ''}
+      ${airState.multimesh ? `
+        <span class="k">Multiple Mesh &mdash; meshes</span><span class="v">${res.meshCount}</span>
+        <span class="k">Aggregate capacity</span><span class="v">${res.capacityMbps.toFixed(1)} Mbps (${res.capacityPerMesh.toFixed(1)} each)</span>
+        <span class="k">Isolation penalty</span><span class="v">${res.interMeshPercent.toFixed(1)} % per mesh</span>` : ''}
+    </div>` : '';
+
+  const meshRows = res.meshCount > 1 ? `
+    <div class="air-label">Airtime per mesh (each has its own medium)</div>
+    <table class="air-tbl"><tr><th>Mesh</th><th>Carries</th><th>Mbps</th><th>Peak</th></tr>
+    ${res.meshes.map((m) => `<tr class="${m.peakPercent > 75 ? 'ack' : ''}">
+      <td>Mesh ${m.index + 1}</td>
+      <td>${m.labels.length ? m.labels.join(', ') : '<i>idle</i>'}</td>
+      <td>${m.offeredMbps.toFixed(2)}</td>
+      <td><b>${m.peakPercent.toFixed(1)} %</b></td></tr>`).join('')}
+    </table>
+    <div class="cov-foot" style="padding:4px 0 0">Independent airtime assumes the meshes are on
+      non-overlapping channels. If two share a channel they contend, and this table flatters them.</div>` : '';
 
   // Per-direction split. Forward is ground->air (uplink), reverse is air->ground.
   const dirRows = airState.flows.length ? `
@@ -2373,7 +2449,7 @@ async function airCalculate() {
     + `<span class="k">Usable capacity</span><span class="v">${res.capacityMbps.toFixed(2)} Mbps</span>`
     + `<span class="k">Offered traffic</span><span class="v">${res.offeredMbps.toFixed(2)} Mbps</span>`
     + `<span class="k">Headroom</span><span class="v">${res.headroomMbps.toFixed(2)} Mbps</span>`
-    + '</div>' + dirRows + flowRows;
+    + '</div>' + licRows + meshRows + dirRows + flowRows;
 }
 
 document.getElementById('btn-airtime').addEventListener('click', () => {
@@ -2424,6 +2500,55 @@ $air('air-run').addEventListener('click', airCalculate);
 ['air-band', 'air-bw', 'air-dist', 'air-gtx', 'air-grx', 'air-fade',
  'air-mode', 'air-nodes', 'air-ogm', 'air-loss'].forEach((id) =>
   $air(id).addEventListener('change', airCalculate));
+
+// ---------------------------------------------------------------- licensed features
+$air('air-noise').addEventListener('change', (e) => {
+  airState.noiseProfileId = e.target.value;
+  airLicenceNote();
+  airCalculate();
+});
+
+/** Reflect the licence toggles: show their options, and say what they are worth here. */
+function airLicenceNote() {
+  $air('air-sense-opts').classList.toggle('hidden', !airState.sense);
+  $air('air-mm-opts').classList.toggle('hidden', !airState.multimesh);
+  const note = $air('air-lic-note');
+  const bits = [];
+  if (airState.sense) {
+    const raw = AIR_noisePenalty(parseFloat($air('air-bw').value) || 20);
+    bits.push(raw > 0.05
+      ? `Sense is worth <b>${(raw * LIC.senseRecoveryFraction(airState.senseRanges)).toFixed(1)} dB</b> here.`
+      : 'Sense buys nothing at a thermally quiet site &mdash; set a noise floor to see its value.');
+  }
+  if (airState.multimesh) {
+    bits.push(`Multiple Mesh splits the traffic across <b>${airState.meshCount}</b> media.`);
+  }
+  note.innerHTML = bits.join(' ');
+}
+
+$air('air-sense').addEventListener('change', (e) => {
+  airState.sense = e.target.checked;
+  airLicenceNote(); airCalculate();
+});
+$air('air-multimesh').addEventListener('change', (e) => {
+  airState.multimesh = e.target.checked;
+  // Falling back to one mesh has to pull every flow back onto it, or a flow assigned
+  // to mesh 3 would silently vanish from the only medium left.
+  if (!airState.multimesh) airState.flows.forEach((f) => { f.mesh = 0; });
+  airLicenceNote(); airRenderFlows(); airCalculate();
+});
+$air('air-sense-ranges').addEventListener('change', (e) => {
+  airState.senseRanges = +e.target.value; airLicenceNote(); airCalculate();
+});
+$air('air-sense-activity').addEventListener('change', (e) => {
+  airState.senseActivity = e.target.value; airCalculate();
+});
+$air('air-mesh-count').addEventListener('change', (e) => {
+  airState.meshCount = +e.target.value;
+  // Clamp any flow that was sitting on a mesh that no longer exists.
+  airState.flows.forEach((f) => { if ((f.mesh || 0) > airState.meshCount - 1) f.mesh = 0; });
+  airLicenceNote(); airRenderFlows(); airCalculate();
+});
 
 // ---------------------------------------------------------------- toolbar menus
 // The toolbar is grouped by stage of the job. Every action button kept its original
