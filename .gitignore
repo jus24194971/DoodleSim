@@ -42,3 +42,7 @@ brand/reference/
 tools/make_brand_profile.py
 tools/make_brand_guide.py
 docs/.brand-cache/
+
+# Competitive tool comparison, private with the other comparative material.
+Link-Tool-Comparison.pdf
+tools/make_tool_comparison.py
